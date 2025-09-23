@@ -1,0 +1,565 @@
+<header *ngIf="isPortrait || screenWidth >= 1024 ">
+  <dx-toolbar class="header-toolbar">
+    <dxi-item
+      *ngIf="menuToggleEnabled"
+      location="before"
+      widget="dxButton"
+      cssClass="menu-button"
+      [options]="{
+        icon: 'menu',
+        stylingMode: 'text',
+        onClick: toggleMenu
+      }"
+    >
+    </dxi-item>
+    <dxi-item
+      location="before"
+      [options]="{
+        width: 180
+      }"
+    >
+      <img src="/assets/images/logo_square_profile.png" style="max-width: 30px"/>
+    </dxi-item>
+    <dxi-item
+      location="before"
+      cssClass="header-title slogan"
+      *ngIf="title">
+      <div style="font-size: 30px;"><span style="color: #E43434">m</span><span style="color: #289371">Profile</span>
+        <span style="font-size: 20px;"> - Cơ sở dữ liệu học bạ số</span></div>
+    </dxi-item>
+    <<!--dxi-item location="after" locateInMenu="never">
+      <a (click)="close()">Đóng 123</a>
+    </dxi-item>-->
+
+    <dxi-item *ngIf="user && user.role == 12" location="after" locateInMenu="never" [options]="{
+        width: 280
+      }">
+      <dx-select-box
+        stylingMode="filled"
+        [showClearButton]="false"
+        [searchEnabled]="true"
+        displayExpr="fullName"
+        valueExpr="id"
+        (valueChange)="selectedStudent($event)"
+        [dataSource]="students"
+        [(value)]="selectedStudentId"
+        width="100%"
+      >
+      </dx-select-box>
+    </dxi-item>
+    <dxi-item *ngIf="user && user.role != 12" location="after" locateInMenu="never" [options]="{
+        width: 280
+      }">
+      <div class="d-flex align-items-center gap-1" style="font-size: 16px; padding: 5px 10px;">
+        <!--<i style="font-size: 22px;" class="dx-icon-user"></i>-->
+        <span>{{ user.role == 2 ? 'Admin' : user.fullname }}</span>
+        <span title="Giáo viên" class="tag processing m-0" *ngIf="user.role == 3">Giáo viên</span>
+        <span title="Ban giám hiệu" class="tag success m-0" *ngIf="user.isBGH">BGH</span>
+        <span title="Tổ trưởng chuyên môn" class="tag red m-0" *ngIf="user.toTruongMon.length">TTCM</span>
+      </div>
+    </dxi-item>
+    <dxi-item location="after" locateInMenu="never" cssClass="header-title school-title">
+      <strong style="text-transform: uppercase;display: flex;align-items: center;gap:5px;
+            font-size: 18px;
+            color: #0e4c01;">
+        <i style="font-size: 22px;" class="dx-icon-home"></i>
+        {{ user?.schoolName }}</strong>
+    </dxi-item>
+    <!--<dxi-item
+      location="after"
+      widget="dxTextBox"
+      locateInMenu="auto"
+      cssClass="global-search-box"
+      [options]="{
+        stylingMode: 'filled',
+        mode: 'search',
+        placeholder: 'Search',
+        width: 180
+      }"
+    >
+    </dxi-item>-->
+    <!--<dxi-item location="after" locateInMenu="never">
+      <ng-container *dxTemplate>
+        <theme-switcher></theme-switcher>
+      </ng-container>
+    </dxi-item>-->
+
+    <!-- <dxi-item location="after">
+       <div *dxTemplate>
+         <div class="messages">
+           <dx-button
+             icon="belloutline"
+             stylingMode="text"
+           >
+           </dx-button>
+           <div class="dx-badge"> 4</div>
+         </div>
+       </div>
+     </dxi-item>-->
+
+    <dxi-item location="after" locateInMenu="auto" menuItemTemplate="menuItem">
+      <div *dxTemplate="let data of 'item'">
+        <user-panel
+          [user]="user"
+          [menuItems]="userMenuItems"
+          menuMode="context"
+        ></user-panel>
+      </div>
+    </dxi-item>
+    <div *dxTemplate="let data of 'menuItem'">
+      <user-panel
+        [user]="user"
+        [menuItems]="userMenuItems"
+        menuMode="list"
+      ></user-panel>
+    </div>
+  </dx-toolbar>
+</header>
+
+<!--<form-popup #formPassword  [width]="560" [(visible)]="isPopupChangePasswordOpened" (save)="onClickChangePassword()" titleText="Thay đổi mật khẩu">
+
+</form-popup>-->
+<dx-popup
+  [title]="'Thay đổi mật khẩu'"
+  [(visible)]="isPopupChangePasswordOpened"
+  [width]="width"
+  [height]="350"
+>
+  <dx-validation-group #validationGroup>
+    <dx-form
+      [(formData)]="newUser"
+      labelLocation="top"
+      labelMode="outside"
+      [colCount]="2">
+      <dxi-toolbar-item toolbar="bottom" location="center">
+      </dxi-toolbar-item>
+      <dxi-item [colSpan]="2" [isRequired]="true">
+        <dxo-label text="Mật khẩu cũ"></dxo-label>
+        <dx-text-box
+          mode="password"
+          stylingMode="filled"
+          valueChangeEvent="keyup input change"
+          [(value)]="newUser.oldPassword"
+        >
+          <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập mật khẩu cũ' }]"></dx-validator>
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [colSpan]="2" [isRequired]="true">
+        <dxo-label text="Mật khẩu mới"></dxo-label>
+        <dx-text-box
+          mode="password"
+          stylingMode="filled"
+          valueChangeEvent="keyup input change"
+          [(value)]="newUser.password"
+        >
+          <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập mật khẩu mới' }]"></dx-validator>
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [colSpan]="2" [isRequired]="true">
+        <dxo-label text="Nhắc lại mật khẩu"></dxo-label>
+        <dx-text-box
+          stylingMode="filled"
+          mode="password"
+          valueChangeEvent="keyup input change"
+          [(value)]="newUser.repeatPassword"
+        >
+          <dx-validator
+            [validationRules]="[{ type: 'required', message: 'Chưa nhập Nhắc lại mật khẩu' }]"></dx-validator>
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [colSpan]="2">
+        <div
+          class="form-popup-buttons-container"
+          [class.flex-buttons]="width <= 360"
+        >
+          <dx-button
+            text="Bỏ qua"
+            stylingMode="outlined"
+            type="normal"
+            (onClick)="closeChangePassword()"
+          ></dx-button>
+          <dx-button
+            text="Cập nhật"
+            stylingMode="contained"
+            type="default"
+            (onClick)="onSaveChange()"
+          ></dx-button>
+        </div>
+      </dxi-item>
+    </dx-form>
+  </dx-validation-group>
+</dx-popup>
+
+<dx-popup
+  title="Cấu hình chữ ký học bạ"
+  [(visible)]="isShowConfig"
+  class="form-popup"
+  width="500px"
+  height="620px"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div
+      class="form-popup-buttons-container"
+    >
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="isShowConfig = false"
+      ></dx-button>
+      <dx-button
+        text="Cập nhật"
+        stylingMode="contained"
+        type="default"
+        (onClick)="onSaveConfig()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="row">
+    <dx-form
+      [(formData)]="schoolInfo"
+      labelLocation="top"
+      labelMode="outside"
+      [colCount]="12">
+      <!---------------------------start line-------------------------------->
+      <dxi-item [isRequired]="true" [colSpan]="6">
+        <div class="frame-wrapper">
+          <em>Hình ảnh chữ ký</em>
+          <div>
+            <dx-file-uploader
+              #fileUploader
+              uploadMode="instantly"
+              [uploadHeaders]="uploadHeaders"
+              [(uploadUrl)]="uploadUrl"
+              [allowedFileExtensions]="['.png', '.webp', '.jpg', '.jpeg', '.zip']"
+              [selectButtonText]="'Chọn tệp...'"
+              [uploadButtonText]="'Tải lên file'"
+              [maxFileSize]="500000"
+              labelText=""
+              [showFileList]="false"
+              name="formFile"
+              [multiple]="false"
+              [visible]="true"
+              uploadedMessage="Tải lên thành công"
+              invalidFileExtensionMessage="Định dạng file không được chấp nhận"
+              invalidMaxFileSizeMessage="Dung lượng file tối đa 500kb"
+              (onValueChanged)="onFileSelected($event)"
+              (onBeforeSend)="onUploadFileStarted($event)"
+              (onUploaded)="onFileUploaded($event, 'signUrl')"
+              (onUploadError)="onFileUploadError($event)">
+            </dx-file-uploader>
+            <img style="max-width: 95%;" *ngIf="schoolInfo?.signUrl" [src]="schoolInfo?.signUrl">
+          </div>
+        </div>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="6">
+        <div class="frame-wrapper">
+          <em>Hình ảnh con dấu</em>
+          <div>
+            <dx-file-uploader
+              #fileUploader
+              uploadMode="instantly"
+              [uploadHeaders]="uploadHeaders"
+              [(uploadUrl)]="uploadUrl"
+              [allowedFileExtensions]="['.png', '.webp', '.jpg', '.jpeg', '.zip']"
+              [selectButtonText]="'Chọn tệp...'"
+              [uploadButtonText]="'Tải lên file'"
+              [maxFileSize]="500000"
+              labelText=""
+              [showFileList]="false"
+              name="formFile"
+              [multiple]="false"
+              [visible]="true"
+              uploadedMessage="Tải lên thành công"
+              invalidFileExtensionMessage="Định dạng file không được chấp nhận"
+              invalidMaxFileSizeMessage="Dung lượng file tối đa 500kb"
+              (onValueChanged)="onFileSelected($event)"
+              (onBeforeSend)="onUploadFileStarted($event)"
+              (onUploaded)="onFileUploaded($event, 'dauPhatHanhUrl')"
+              (onUploadError)="onFileUploadError($event)">
+            </dx-file-uploader>
+            <img style="max-width: 95%;" *ngIf="schoolInfo?.dauPhatHanhUrl" [src]="schoolInfo?.dauPhatHanhUrl">
+          </div>
+        </div>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dx-select-box
+          placeholder="Hiệu trưởng, KT.Hiệu trưởng"
+          stylingMode="outlined"
+          displayExpr="text"
+          valueExpr="text"
+          [dataSource]="positionSource"
+          [(value)]="schoolInfo.masterPosition"
+        >
+        </dx-select-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Tên người ký"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder=""
+          valueChangeEvent="keyup input change"
+          [(value)]="schoolInfo.masterName">
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="CCCD người ký"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder=""
+          valueChangeEvent="keyup input change"
+          [(value)]="schoolInfo.masterCCCD">
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Ngày tạo/ký"></dxo-label>
+        <dx-date-box
+          [(value)]="schoolInfo.ngayKyHocBa"
+          stylingMode="outlined"
+          placeholder=""
+          type="date"
+          displayFormat="dd/MM/yyyy"
+          pickerType="calendar"
+        ></dx-date-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Ngày phát hành"></dxo-label>
+        <dx-date-box
+          [(value)]="schoolInfo.ngayPhatHanhHocBa"
+          stylingMode="outlined"
+          placeholder=""
+          type="date"
+          displayFormat="dd/MM/yyyy"
+          pickerType="calendar"
+        ></dx-date-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <div class="frame-wrapper">
+          <em>Người ký thay, hình ảnh chữ ký</em>
+          <div>
+            <dx-file-uploader
+              #fileUploader
+              uploadMode="instantly"
+              [uploadHeaders]="uploadHeaders"
+              [(uploadUrl)]="uploadUrl"
+              [allowedFileExtensions]="['.png', '.webp', '.jpg', '.jpeg', '.zip']"
+              [selectButtonText]="'Chọn tệp...'"
+              [uploadButtonText]="'Tải lên file'"
+              [maxFileSize]="500000"
+              labelText=""
+              [showFileList]="false"
+              name="formFile"
+              [multiple]="false"
+              [visible]="true"
+              uploadedMessage="Tải lên thành công"
+              invalidFileExtensionMessage="Định dạng file không được chấp nhận"
+              invalidMaxFileSizeMessage="Dung lượng file tối đa 500kb"
+              (onValueChanged)="onFileSelected($event)"
+              (onBeforeSend)="onUploadFileStarted($event)"
+              (onUploaded)="onFileUploaded($event, 'signForSignUrl')"
+              (onUploadError)="onFileUploadError($event)">
+            </dx-file-uploader>
+            <img style="max-width: 50%;" *ngIf="schoolInfo?.signUrl" [src]="schoolInfo?.signForSignUrl">
+          </div>
+        </div>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Chức vụ người ký thay"></dxo-label>
+        <dx-select-box
+          placeholder="Hiệu trưởng, KT.Hiệu trưởng"
+          stylingMode="outlined"
+          displayExpr="text"
+          valueExpr="text"
+          [dataSource]="positionSource"
+          [(value)]="schoolInfo.signForPosition"
+        >
+        </dx-select-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Tên người ký thay"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder=""
+          valueChangeEvent="keyup input change"
+          [(value)]="schoolInfo.signForName">
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="CCCD người ký thay"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder=""
+          valueChangeEvent="keyup input change"
+          [(value)]="schoolInfo.signForCCCD">
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Tài khoản đồng bộ HBS"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder=""
+          valueChangeEvent="keyup input change"
+          [(value)]="schoolInfo.hbsPassword">
+        </dx-text-box>
+      </dxi-item>
+    </dx-form>
+  </div>
+</dx-popup>
+
+<dx-popup
+  title="Cấu hình chữ ký số"
+  [(visible)]="isShowConfigStaff"
+  class="form-popup"
+  width="500px"
+  height="600px"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div
+      class="form-popup-buttons-container"
+    >
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="isShowConfigStaff = false"
+      ></dx-button>
+      <dx-button
+        text="Cập nhật"
+        stylingMode="contained"
+        type="default"
+        (onClick)="onSaveStaffConfig()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <dx-validation-group #validationGroup>
+    <dx-form
+      [(formData)]="staffInfo"
+      labelLocation="top"
+      labelMode="outside"
+      [colCount]="12">
+      <!---------------------------start line-------------------------------->
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Client Id"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          valueChangeEvent="keyup input change"
+          [(value)]="staffInfo.vietelClientId">
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Client Secret"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          valueChangeEvent="keyup input change"
+          [(value)]="staffInfo.vietelClientSecret">
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="CCCD"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          valueChangeEvent="keyup input change"
+          [(value)]="staffInfo.vietelUserId">
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="6">
+        <dxo-label text="Nhà cung cấp CKS"></dxo-label>
+        <dx-select-box
+          placeholder="Vietel MySign, Ban cơ yếu,..."
+          stylingMode="outlined"
+          displayExpr="text"
+          valueExpr="id"
+          [dataSource]="signatureProviderSource"
+          [(value)]="staffInfo.signatureProvider"
+        >
+        </dx-select-box>
+        <ng-container *ngIf="staffInfo.signatureProvider === 1">
+          <button id="btn-sign" style="opacity: 0;width: 1px;position: absolute;z-index:-9999;">.</button>
+          <dx-button class="mt-2 btn-info"
+                     [text]="'Lấy CTS'"
+                     [icon]="'key'"
+                     type="default"
+                     stylingMode="contained"
+                     (onClick)="getCTS()"
+          ></dx-button>
+          <dx-text-box
+            class="mt-2"
+            stylingMode="outlined"
+            [(value)]="staffInfo.certInfo">
+          </dx-text-box>
+        </ng-container>
+      </dxi-item>
+      <dxi-item [isRequired]="false" [colSpan]="6">
+        <dxo-label text="Tải lên hình ảnh chữ ký"></dxo-label>
+        <div>
+          <dx-file-uploader
+            #fileUploader2
+            uploadMode="instantly"
+            [uploadHeaders]="uploadHeaders"
+            [(uploadUrl)]="uploadUrl"
+            [allowedFileExtensions]="['.png', '.webp', '.jpg', '.jpeg', '.zip']"
+            [selectButtonText]="'Chọn tệp...'"
+            [uploadButtonText]="'Tải lên file'"
+            [maxFileSize]="500000"
+            labelText=""
+            [showFileList]="false"
+            name="formFile"
+            [multiple]="false"
+            [visible]="true"
+            uploadedMessage="Tải lên thành công"
+            invalidFileExtensionMessage="Định dạng file không được chấp nhận"
+            invalidMaxFileSizeMessage="Dung lượng file tối đa 500kb"
+            (onValueChanged)="onFileSelected($event)"
+            (onBeforeSend)="onUploadFileStarted($event)"
+            (onUploaded)="onStaffFileUploaded($event)"
+            (onUploadError)="onFileUploadError($event)">
+          </dx-file-uploader>
+          <img style="max-height: 80px;" *ngIf="staffInfo?.signUrl" [src]="staffInfo?.signUrl">
+        </div>
+      </dxi-item>
+
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dx-text-box
+          stylingMode="outlined"
+          valueChangeEvent="keyup input change"
+          [(value)]="staffInfo.signUrl">
+        </dx-text-box>
+      </dxi-item>
+    </dx-form>
+  </dx-validation-group>
+
+</dx-popup>
+
+<dx-popup
+  [(visible)]="previewVisible"
+  [showTitle]="false"
+  [width]="400"
+  [height]="400"
+  [dragEnabled]="false"
+  [closeOnOutsideClick]="true"
+>
+  <img [src]="schoolInfo?.signUrl" style="width: 100%; height: 100%; object-fit: contain;"/>
+</dx-popup>
+
+<dx-popup
+  [(visible)]="isCertPopupVisible"
+  class="form-popup"
+  [width]="600"
+  [height]="350"
+  [showTitle]="true"
+  title="Xác nhận chứng thư số"
+>
+  <div>
+    <div class="cert-info-box">
+      <p><strong>Đây có phải thông tin chứng thư số của bạn không?</strong></p>
+      <p><strong>Subject:</strong> {{ certInfo.subject }}</p>
+      <p><strong>Issuer:</strong> {{ certInfo.issuer }}</p>
+    </div>
+    <div class="text-right" style="margin-top: 20px;">
+      <dx-button text="Không" [elementAttr]="{ id: 'elementId', class: 'color-white' }" type="danger"
+                 (onClick)="cancelCert()"></dx-button>
+      <dx-button style="margin-left: 10px;" text="Đúng" [elementAttr]="{ id: 'elementId', class: 'color-white' }"
+                 type="success" (onClick)="confirmCert()"></dx-button>
+    </div>
+  </div>
+</dx-popup>

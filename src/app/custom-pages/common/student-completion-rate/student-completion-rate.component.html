@@ -1,0 +1,242 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-load-panel
+    [visible]="isLoading"
+    shadingColor="rgba(0,0,0,0.4)"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    [closeOnOutsideClick]="false"
+    message="Đang tải dữ liệu..."
+  ></dx-load-panel>
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    (onExporting)="onExporting($event)"
+  >
+    <dxo-selection
+      mode="single">
+    </dxo-selection>
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="false" [enabled]="false"></dxo-load-panel>
+
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="false"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Thống kê tỷ lệ tương tác khóa học theo lớp
+        </div>
+      </dxi-item>
+      <dxi-item location="before">
+        <dx-date-box
+          [(value)]="fromDate"
+          placeholder="Từ ngày"
+          type="date"
+          displayFormat="dd/MM/yyyy"
+          [showClearButton]="true"
+        ></dx-date-box>
+      </dxi-item>
+      <dxi-item location="before">
+        <dx-date-box
+          [(value)]="toDate"
+          placeholder="Đến ngày"
+          type="date"
+          displayFormat="dd/MM/yyyy"
+          [showClearButton]="true"
+        ></dx-date-box>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Môn học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="subjectSource"
+          keyExpr="id"
+          displayExpr="name"
+          [selectedItemKey]="filterSubjectId"
+          (onItemClick)="subjectChange($event)"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before">
+        <dx-button text="Áp dụng" (onClick)="applyDateFilter()"></dx-button>
+      </dxi-item>
+      <dxi-item name="exportButton" locateInMenu="auto"></dxi-item>
+    </dxo-toolbar>
+    <dxi-column
+      caption="STT"
+      [width]="65"
+      alignment="center"
+      dataField="stt"
+      [allowFiltering]="false"
+      [allowSorting]="false"
+    ></dxi-column>
+    <dxi-column dataField="grade" caption="Khối" [width]="80"></dxi-column>
+    <dxi-column dataField="className" caption="Lớp" [width]="120"></dxi-column>
+    <dxi-column dataField="subject" caption="Môn học" [width]="200"></dxi-column>
+    <dxi-column dataField="teacherName" caption="Giáo viên" [width]="200"></dxi-column>
+    <dxi-column dataField="studentCount" caption="Sĩ số" [width]="200"></dxi-column>
+
+    <dxi-column caption="Hoàn thành" alignment="center">
+      <dxi-column dataField="hoanThanh" caption="Hoàn thành" [width]="150" cellTemplate="cellComplete"></dxi-column>
+      <dxi-column dataField="percentHoanThanh" caption="%" [width]="120"></dxi-column>
+    </dxi-column>
+
+    <dxi-column caption="Chưa hoàn thành" alignment="center">
+      <dxi-column dataField="chuaHoanThanh" caption="Chưa hoàn thành" [width]="150" cellTemplate="cellIncomplete"></dxi-column>
+      <dxi-column dataField="percentChuaHoanThanh" caption="%" [width]="80"></dxi-column>
+    </dxi-column>
+
+    <dxi-column dataField="baigGiangCount" caption="Số bài giảng" [width]="120"></dxi-column>
+
+    <div *dxTemplate="let cellInfo of 'cellComplete'">
+      <a title="Xem danh sách học sinh" class="a-link" (click)="viewCompleteStudents(cellInfo.data.compeleteIds, cellInfo.data.classId, cellInfo.data.className)">
+        <strong>{{cellInfo.data.hoanThanh}}</strong>
+      </a>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellIncomplete'">
+      <a title="Xem danh sách học sinh" class="bs-link-red" (click)="viewIncompleteStudents(cellInfo.data.incompeleteIds, cellInfo.data.classId, cellInfo.data.className)">
+        <strong style="color: red;">{{cellInfo.data.chuaHoanThanh}}</strong>
+      </a>
+    </div>
+    <dxo-summary>
+      <dxi-total-item
+        column="tenBaiGiang"
+        displayFormat="Số học liệu: {0}"
+        summaryType="count">
+      </dxi-total-item>
+    </dxo-summary>
+  </dx-data-grid>
+</div>
+
+<dx-popup
+  [cssClass]="'custom-popup-class'"
+  [title]="viewResultTitle"
+  [(visible)]="isShowResultView"
+  [fullScreen]="!!(screen.xSmallScreenChanged | async)"
+  width="70%"
+  height="80%"
+>
+    <dx-data-grid
+      class="grid crm-contact-list theme-dependent"
+      columnResizingMode="widget"
+      [dataSource]="studentDatas"
+      [allowColumnReordering]="true"
+      [showBorders]="true"
+      [showColumnLines]="true"
+      [showRowLines]="true"
+      [columnMinWidth]="50"
+      [columnAutoWidth]="true"
+      [columnResizingMode]="'nextColumn'"
+      [allowColumnResizing]="true"
+      (onExporting)="onExporting($event)"
+    >
+      <dxo-export
+        [enabled]="false"
+        [texts]="exportTexts"
+        showText="always"
+        [allowExportSelectedData]="false"
+        [formats]="['xlsx']"
+      >
+      </dxo-export>
+      <dxo-paging [enabled]="true" [pageSize]="1000"></dxo-paging>
+      <dxo-load-panel [showPane]="false" [enabled]="false"></dxo-load-panel>
+      <dxo-selection
+        mode="single">
+      </dxo-selection>
+      <dxo-scrolling mode="standard"></dxo-scrolling>
+
+      <dxo-header-filter [visible]="false"></dxo-header-filter>
+
+      <dxi-column
+        fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="60" caption="STT"
+      ></dxi-column>
+      <dxi-column caption="Họ và tên" [allowFiltering]="false" dataField="student.fullName" cellTemplate="cellFullname"></dxi-column>
+      <dxi-column caption="Số bài giảng của lớp" [allowFiltering]="false" dataField="total"></dxi-column>
+      <dxi-column caption="Số bài hoàn thành" [allowFiltering]="false" dataField="hasResult"></dxi-column>
+
+      <dxi-column caption="Chi tiết" [allowFiltering]="false" cellTemplate="cellDetailLink"></dxi-column>
+      <div *dxTemplate="let cellInfo of 'cellFullname'">
+        {{cellInfo.data.student | fullName}}
+      </div>
+      <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+        <a (click)="showKqBaiGiangDetail(cellInfo.data)" class="pointer-event">Xem chi tiết</a>
+      </div>
+    </dx-data-grid>
+</dx-popup>
+
+<dx-popup
+  [cssClass]="''"
+  [title]="viewBaiGiangDetailTitle"
+  [(visible)]="isShowBaiGiangView"
+  [fullScreen]="!!(screen.xSmallScreenChanged | async)"
+  width="70%"
+  height="80%"
+>
+  <dx-data-grid
+    class="grid crm-contact-list theme-dependent"
+    columnResizingMode="widget"
+    [dataSource]="baigGiangSource"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    (onExporting)="onExporting($event)"
+  >
+    <dxo-export
+      [enabled]="false"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    <dxo-paging [enabled]="true" [pageSize]="1000"></dxo-paging>
+    <dxo-load-panel [showPane]="false" [enabled]="false"></dxo-load-panel>
+    <dxo-selection
+      mode="single">
+    </dxo-selection>
+    <dxo-scrolling mode="standard"></dxo-scrolling>
+
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="60" caption="STT"
+    ></dxi-column>
+
+    <dxi-column dataField="name" caption="Tên bài giảng" [width]="350"></dxi-column>
+    <dxi-column dataField="khoaHocName" caption="Khóa học"></dxi-column>
+    <dxi-column dataField="ketqua.ngayHoanThanh" dataType="date"
+                format="HH:mm dd/MM/yyyy" caption="Thời gian làm bài" [width]="120"></dxi-column>
+
+    <dxi-column dataField="ketqua.soCauDung" caption="Số câu đúng" [width]="120"></dxi-column>
+    <dxi-column dataField="ketqua.soCauHoi" caption="Số câu hỏi" [width]="120"></dxi-column>
+    <dxi-column dataField="ketqua.diem" caption="Điểm" [width]="120"></dxi-column>
+  </dx-data-grid>
+</dx-popup>

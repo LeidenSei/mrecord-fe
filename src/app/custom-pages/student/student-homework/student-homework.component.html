@@ -1,0 +1,454 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+
+    class="grid theme-dependent"
+    noDataText="Không có dữ liệu"
+    columnResizingMode="widget"
+    [dataSource]="dataSource"
+    [remoteOperations]="true"
+
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [width]="'100%'"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+  >
+    <dxo-paging
+      [pageSize]="20"
+      [pageIndex]="0">
+    </dxo-paging>
+    <dxo-pager
+      [visible]="true"
+      [displayMode]="'full'"
+      [showPageSizeSelector]="true"
+      [showInfo]="false"
+      [showNavigationButtons]="true"
+    >
+    </dxo-pager>
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <!--<dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>-->
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [allowExportSelectedData]="true"
+      [formats]="['xlsx', 'pdf']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Bài tập về nhà
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-tabs
+          secondary="secondary"
+          [showNavButtons]="false"
+          [scrollByContent]="true"
+          [selectedIndex]="0"
+          [items]="filterStatusItems"
+          (onItemClick)="tabStatusChange($event)"
+        ></dx-tabs>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Môn học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="filterSubjectItems"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="subjectChange($event)"
+          [selectedItemKey]="filterSubjectId"
+          [dropDownOptions]="{ width: '100px' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+
+      <dxi-item location="after" locateInMenu="auto">
+        <!--<dx-button
+          text="Thêm mới"
+          icon="plus"
+          type="default"
+          stylingMode="contained"
+          (onClick)="addItemClick()"
+        ></dx-button>-->
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+
+    <dxi-column caption="Tiêu đề" cellTemplate="cellDetailLink"></dxi-column>
+    <dxi-column dataField="subjectName" [width]="120" caption="Môn học"></dxi-column>
+    <!--<dxi-column dataField="beginDate" [width]="120" caption="Thời hạn" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>-->
+    <dxi-column dataField="beginDate" [width]="180" caption="Thời hạn" dataType="date"
+                cellTemplate="cellDateRange"></dxi-column>
+
+    <dxi-column dataField="createBy" [width]="200" caption="Người tạo"></dxi-column>
+    <dxi-column dataField="createdDate" [width]="120" caption="Ngày tạo" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>
+
+    <dxi-column caption="Trạng thái" [width]="140" cellTemplate="cellStatus"></dxi-column>
+    <dxi-column caption="Kết quả" [width]="100" cellTemplate="cellMark"></dxi-column>
+    <dxi-column caption="Chức năng" [width]="140" cellTemplate="cellButtons"></dxi-column>
+
+    <div *dxTemplate="let cellInfo of 'cellButtons'">
+      <div *ngIf="cellInfo.data.isRunning">
+        <button title="Làm bài" (click)="onEditClick(cellInfo.data)" *ngIf="cellInfo.data.resultType === 0"
+                class="btn btn-sm btn-primary me-2">
+          <span class="dx-icon-edit"></span>
+          Làm bài
+        </button>
+
+        <span (click)="onEditClick(cellInfo.data)" *ngIf="cellInfo.data.resultType === 1"
+              class="btn btn-sm btn-primary">
+          <span class="dx-icon-edit"></span>
+          Cập nhật KQ</span>
+      </div>
+      <span (click)="onViewResultClick(cellInfo.data)"
+            *ngIf="cellInfo.data.resultType === 2 || (!cellInfo.data.isRunning && cellInfo.data.resultType === 1)"
+            class="btn btn-sm btn-success">
+        <span class="dx-icon-eyeopen"></span>
+        Chi tiết</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellStatus'">
+      <span *ngIf="cellInfo.data.resultType === 0" class="tag red">Chưa làm bài</span>
+      <span *ngIf="cellInfo.data.resultType === 1" class="tag processing">Đã làm bài</span>
+      <span *ngIf="cellInfo.data.resultType === 2" class="tag success">Đã có kết quả</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellMark'">
+      <strong *ngIf="cellInfo.data.resultType === 2" class="tag warning" style="font-size: 14px;">
+        {{cellInfo.data.result?.mark}} điểm
+      </strong>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDateRange'">
+      {{cellInfo.data.beginDate | date: 'dd/MM/yy'}} - {{cellInfo.data.expiredDate | date: 'dd/MM/yy'}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <a title="" class="a-link"
+         (click)="viewDsBaiGiang(cellInfo.data.id, cellInfo.data.title)">{{cellInfo.data.title}}</a>
+    </div>
+  </dx-data-grid>
+
+</div>
+
+
+<dx-popup
+  [title]="editTitle"
+  [(visible)]="isShowEdit"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '500px'"
+  [height]="isSmallScreen() ? '100%' : '80%'"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupEdit()"
+      ></dx-button>
+      <dx-button
+        text="Nộp bài"
+        [disabled]="isSubmitLoading"
+        stylingMode="contained"
+        type="default"
+        (onClick)="onSaveClick()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <dx-validation-group #validationGroup>
+    <div class="form-container d-flex gap-4" style="height: 100%">
+      <div class="view-popup-scroll scroll-right" style="padding-right: 8px">
+        <dx-form
+            #formChung
+            [screenByWidth]="getSizeQualifier"
+            [(formData)]="dataItem"
+            labelLocation="top"
+            labelMode="outside"
+            [colCount]="12">
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="false" [colSpan]="4">
+            <dxo-label text="Môn học"></dxo-label>
+            <dx-select-box
+              placeholder="Chọn môn học"
+              stylingMode="outlined"
+              displayExpr="name"
+              valueExpr="id"
+              [readOnly]="true"
+              [dataSource]="subjectSource"
+              [(value)]="dataItem.subjectId"
+            >
+            </dx-select-box>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="false" [colSpan]="4">
+            <dxo-label text="Từ ngày"></dxo-label>
+            <dx-date-box
+              [(value)]="dataItem.beginDate"
+              stylingMode="outlined"
+              [readOnly]="true"
+              placeholder="dd/MM/yyyy"
+              displayFormat="dd/MM/y"
+              pickerType="calendar"
+            >
+            </dx-date-box>
+          </dxi-item>
+          <dxi-item [isRequired]="false" [colSpan]="4">
+            <dxo-label text="Đến ngày"></dxo-label>
+            <dx-date-box
+              [(value)]="dataItem.expiredDate"
+              stylingMode="outlined"
+              [readOnly]="true"
+              placeholder="dd/MM/yyyy"
+              displayFormat="dd/MM/y"
+              pickerType="calendar"
+            >
+            </dx-date-box>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="false" [colSpan]="12">
+            <dxo-label text="Tiêu đề"></dxo-label>
+            <div>
+              {{dataItem.title}}
+            </div>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [colSpan]="12">
+            <dxo-label text="Link video youtube"></dxo-label>
+            <div>
+              <!--Link youtube: {{dataItem.youtubeURL}}-->
+              <a *ngIf="dataItem.youtubeURL" target="_blank" href="{{dataItem.youtubeURL}}">
+                {{dataItem.youtubeURL}}
+              </a>
+            </div>
+          </dxi-item>
+          <dxi-item [colSpan]="12">
+            <div class="file-list">
+              <div class="file-item" *ngFor="let item of dataItem.files">
+                <i class="dx-icon dx-icon-video" *ngIf="typeOfMedia(item.source) === 'video'"></i>
+                <i class="dx-icon dx-icon-textdocument" *ngIf="typeOfMedia(item.source) !== 'video'"></i>
+                <a target="_blank" [href]="combineUrlSource(item.source)">{{item.filename}}</a>
+              </div>
+            </div>
+            <div class="image-list">
+              <div class="image-item" *ngFor="let src of dataItem.imageUrls">
+                <a target="_blank" [href]="combineUrlSource(src)">
+                  <img [src]="combineUrlSource(src)">
+                </a>
+              </div>
+            </div>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="false" [colSpan]="12">
+            <dxo-label text="Nội dung"></dxo-label>
+            <div>
+              {{dataItem.content}}
+            </div>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="true" [colSpan]="12">
+            <dxo-label text="Đáp án"></dxo-label>
+            <dx-text-area
+              [height]="100"
+              stylingMode="outlined"
+              [(value)]="resultItem.content"
+              [autoResizeEnabled]="false"
+              [inputAttr]="{ 'aria-label': 'Notes' }"
+            >
+            </dx-text-area>
+          </dxi-item>
+          <dxi-item [isRequired]="true" [colSpan]="12">
+            <ul class="ul_images">
+              <li *ngFor="let imgSrc of resultImages">
+                <img style="max-width: 120px; float: left;" [src]="combineUrlSource(imgSrc)"/>
+                <a (click)="deleteImage(imgSrc);">
+                  <span class="dx-icon-remove" style="font-size: 16px"></span>
+                </a>
+              </li>
+            </ul>
+            <div class="file-list">
+              <div class="file-item" *ngFor="let item of files">
+                <i class="dx-icon dx-icon-video" *ngIf="typeOfMedia(item.source) === 'video'"></i>
+                <i class="dx-icon dx-icon-textdocument" *ngIf="typeOfMedia(item.source) !== 'video'"></i>
+
+                <a target="_blank" [href]="combineUrlSource(item.source)">{{item.filename}}</a>
+                <span (click)="deleteFile(item)" class="delete-btn">&#10006;</span>
+              </div>
+            </div>
+            <dx-file-uploader
+                #fileUploader
+                uploadMode="instantly"
+                [uploadHeaders]="uploadHeaders"
+                [(uploadUrl)]="uploadUrl"
+                [selectButtonText]="'Chọn tệp tải lên'"
+                [uploadButtonText]="'Upload files'"
+                name="formFile"
+                [multiple]="false"
+                [visible]="true"
+                (onUploadStarted)="onUploadStarted($event)"
+                (onUploaded)="onImageUploaded($event)"
+                (onUploadError)="onUploadError($event)">
+            </dx-file-uploader>
+          </dxi-item>
+        </dx-form>
+      </div>
+    </div>
+  </dx-validation-group>
+</dx-popup>
+
+<dx-popup
+  title="Xem kết quả"
+  [(visible)]="isShowResult"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '500px'"
+  [height]="isSmallScreen() ? '100%' : '80%'"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Đóng"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupViewKQ()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="form-container d-flex gap-4" style="height: 100%">
+    <div class="view-popup-scroll scroll-right">
+      <div class="d-flex mark-info">
+        <div class="col-4 text-center">
+          <div>
+            <label>Điểm</label>
+          </div>
+          <div>
+            <strong>{{resultItem.mark}}</strong>
+          </div>
+        </div>
+        <div class="col-8 text-center">
+          <div>
+            <label>Nhận xét</label>
+          </div>
+          <p>{{resultItem.reviewMark}}</p>
+        </div>
+      </div>
+      <dx-form
+          #formChung
+          [screenByWidth]="getSizeQualifier"
+          [(formData)]="dataItem"
+          labelLocation="top"
+          labelMode="outside"
+          [colCount]="12">
+        <!---------------------------start line-------------------------------->
+        <dxi-item [isRequired]="false" [colSpan]="4">
+          <dxo-label text="Môn học"></dxo-label>
+          <dx-select-box
+            placeholder="Chọn môn học"
+            stylingMode="outlined"
+            displayExpr="name"
+            valueExpr="id"
+            [readOnly]="true"
+            [dataSource]="subjectSource"
+            [(value)]="dataItem.subjectId"
+          >
+          </dx-select-box>
+        </dxi-item>
+        <!---------------------------start line-------------------------------->
+        <dxi-item [isRequired]="false" [colSpan]="4">
+          <dxo-label text="Từ ngày"></dxo-label>
+          <dx-date-box
+            [(value)]="dataItem.beginDate"
+            stylingMode="outlined"
+            [readOnly]="true"
+            placeholder="dd/MM/yyyy"
+            displayFormat="dd/MM/y"
+            pickerType="calendar"
+          >
+          </dx-date-box>
+        </dxi-item>
+        <dxi-item [isRequired]="false" [colSpan]="4">
+          <dxo-label text="Đến ngày"></dxo-label>
+          <dx-date-box
+            [(value)]="dataItem.expiredDate"
+            stylingMode="outlined"
+            [readOnly]="true"
+            placeholder="dd/MM/yyyy"
+            displayFormat="dd/MM/y"
+            pickerType="calendar"
+          >
+          </dx-date-box>
+        </dxi-item>
+        <!---------------------------start line-------------------------------->
+        <dxi-item [isRequired]="false" [colSpan]="12">
+          <dxo-label text="Tiêu đề"></dxo-label>
+          <div>
+            {{dataItem.title}}
+          </div>
+        </dxi-item>
+        <!---------------------------start line-------------------------------->
+        <dxi-item [colSpan]="12">
+          <a *ngIf="dataItem.youtubeURL" target="_blank" href="{{dataItem.youtubeURL}}">
+            {{dataItem.youtubeURL}}
+          </a>
+        </dxi-item>
+        <dxi-item [colSpan]="12">
+          <div class="file-list">
+            <div class="file-item" *ngFor="let item of dataItem.files">
+              <i class="dx-icon dx-icon-video" *ngIf="typeOfMedia(item.source) === 'video'"></i>
+              <i class="dx-icon dx-icon-textdocument" *ngIf="typeOfMedia(item.source) !== 'video'"></i>
+              <a target="_blank" [href]="combineUrlSource(item.source)">{{item.filename}}</a>
+            </div>
+          </div>
+          <div class="image-list">
+            <div class="image-item" *ngFor="let src of dataItem.imageUrls">
+              <a target="_blank" [href]="combineUrlSource(src)">
+                <img [src]="combineUrlSource(src)">
+              </a>
+            </div>
+          </div>
+        </dxi-item>
+        <!---------------------------start line-------------------------------->
+        <dxi-item [isRequired]="false" [colSpan]="12">
+          <dxo-label text="Nội dung"></dxo-label>
+          <div>
+            {{dataItem.content}}
+          </div>
+        </dxi-item>
+        <!---------------------------start line-------------------------------->
+        <dxi-item [isRequired]="false" [colSpan]="12">
+          <dxo-label text="Đáp án"></dxo-label>
+          <div>
+            {{resultItem.content}}
+          </div>
+        </dxi-item>
+        <dxi-item [isRequired]="true" [colSpan]="12">
+          <ul class="ul_images">
+            <li *ngFor="let imgSrc of resultImages">
+              <a target="_blank" [href]="combineUrlSource(imgSrc)">
+                <img style="max-width: 120px; float: left;" [src]="combineUrlSource(imgSrc)"/>
+              </a>
+            </li>
+          </ul>
+        </dxi-item>
+      </dx-form>
+    </div>
+  </div>
+</dx-popup>
+
+

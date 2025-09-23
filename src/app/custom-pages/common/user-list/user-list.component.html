@@ -1,0 +1,230 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+    class="grid theme-dependent"
+    id="gridContainer"
+    height="100%"
+    [dataSource]="datas"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [rowAlternationEnabled]="true"
+    [showBorders]="true"
+    [allowColumnResizing]="true"
+    columnResizingMode="widget"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [selectedRowKeys]="[]"
+    [hoverStateEnabled]="true"
+  >
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="header-text">Danh sách tài khoản</div>
+      </dxi-item>
+      <dxi-item location="before">
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto">
+        <dx-button
+          icon="plus"
+          text="Thêm mới"
+          type="default"
+          stylingMode="contained"
+          (onClick)="addUser()"
+        ></dx-button>
+      </dxi-item>
+    </dxo-toolbar>
+    <dxo-selection mode="single"></dxo-selection>
+    <!-- <dxo-load-panel [enabled]="true"></dxo-load-panel>-->
+    <!--<dxo-scrolling mode="virtual"></dxo-scrolling>-->
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-filter-row [visible]="true" [applyFilter]="currentFilter"></dxo-filter-row>
+
+    <dxi-column
+                caption="STT"
+                [width]="65"
+                [allowFiltering]="false"
+                [allowSorting]="false"
+                cssClass="text-center"
+                cellTemplate="cellIndexTemplate"
+    ></dxi-column>
+    <dxi-column caption="Mã" [width]="120" dataField="verifyCode"></dxi-column>
+    <dxi-column caption="Họ và tên" dataField="fullname"></dxi-column>
+    <dxi-column caption="Tên đăng nhập" [width]="200" dataField="username"></dxi-column>
+    <!--<dxi-column caption="Phân quyền" dataField="roleText"></dxi-column>-->
+    <dxi-column caption="Số điện thoại" [width]="200" dataField="phoneNo"></dxi-column>
+    <dxi-column caption="Email" [width]="200" dataField="email"></dxi-column>
+    <dxi-column type="buttons">
+      <dxi-button
+        hint="Sửa tài khoản"
+        [onClick]="onEditClick"
+        icon="edit"
+      ></dxi-button>
+      <dxi-button
+        hint="Xóa tài khoản"
+        [onClick]="onDeleteClick"
+        icon="remove"
+      ></dxi-button>
+    </dxi-column>
+
+    <div *dxTemplate="let item of 'cellIndexTemplate'">
+      {{item.rowIndex + 1}}
+    </div>
+  </dx-data-grid>
+</div>
+
+<form-popup #formAddUser  [width]="560" [(visible)]="isUserPopupOpened" (save)="onClickAddUser()" titleText="Thêm mới tài khoản">
+  <dx-form [screenByWidth]="getSizeQualifier"
+    [(formData)]="newUser"
+           labelLocation="top"
+           labelMode="outside"
+    [colCount]="2">
+    <dxi-item [isRequired]="true">
+      <div *dxTemplate>
+        <form-textbox
+          icon="edit"
+          [required]="false"
+          label="Mã nhân viên" [(value)]="newUser.verifyCode" [isEditing]="true">
+        </form-textbox>
+      </div>
+    </dxi-item>
+    <dxi-item [isRequired]="true">
+      <dxo-label text="Họ và tên"></dxo-label>
+      <dx-text-box
+        stylingMode="filled"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.fullname"
+        (valueChange)="changeFullname($event)"
+        [inputAttr]="{ class: 'form-editor-input' }"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập họ và tên' }]"></dx-validator>
+      </dx-text-box>
+    </dxi-item>
+
+    <dxi-item>
+      <dxo-label text="Email"></dxo-label>
+      <dx-text-box
+        stylingMode="filled"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.email"
+      >
+        <dxi-button
+          name="email"
+          location="before"
+          [options]="{ icon: 'email', elementAttr: { class: 'form-editor-icon', 'z-index': 9999 }, stylingMode: 'text' }"
+        ></dxi-button>
+      </dx-text-box>
+    </dxi-item>
+    <dxi-item [isRequired]="true">
+      <dxo-label text="Số điện thoại"></dxo-label>
+      <dx-text-box
+        stylingMode="filled"
+        mask="(000) 000 0000"
+        valueChangeEvent="keyup input change"
+        [useMaskedValue]="true"
+        maskInvalidMessage="Chưa đúng định dạng số điện thoại"
+        [(value)]="newUser.phoneNo"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập số điện thoại' }]"></dx-validator>
+        <dxi-button
+          name="tel"
+          location="before"
+          [options]="{ icon: 'tel', elementAttr: { class: 'form-editor-icon' }, stylingMode: 'text' }"
+        ></dxi-button>
+      </dx-text-box>
+    </dxi-item>
+
+    <dxi-item [colSpan]="2" [isRequired]="true">
+      <dxo-label text="Tên đăng nhập"></dxo-label>
+      <dx-text-box
+        stylingMode="filled"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.username"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập Tên đăng nhập' }]"></dx-validator>
+      </dx-text-box>
+    </dxi-item>
+    <dxi-item [colSpan]="2" [isRequired]="true">
+      <dxo-label text="Mật khẩu"></dxo-label>
+      <dx-text-box
+        mode="password"
+        stylingMode="filled"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.password"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập mật khẩu' }]"></dx-validator>
+      </dx-text-box>
+    </dxi-item>
+    <dxi-item [colSpan]="2" [isRequired]="true">
+      <dxo-label text="Nhắc lại mật khẩu"></dxo-label>
+      <dx-text-box
+        stylingMode="filled"
+        mode="password"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.repeatPassword"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập Nhắc lại mật khẩu' }]"></dx-validator>
+      </dx-text-box>
+    </dxi-item>
+  </dx-form>
+</form-popup>
+
+<form-popup #formEditUser  [width]="560" [(visible)]="isEditUserPopupOpened" (save)= "onClickSaveUser()" titleText="Sửa thông tin tài khoản">
+  <dx-form [screenByWidth]="getSizeQualifier"
+           [(formData)]="newUser"
+           labelLocation="top"
+           labelMode="outside"
+           [colCount]="2">
+    <dxi-item [isRequired]="true">
+      <div *dxTemplate>
+        <form-textbox
+          icon="edit"
+          [required]="false"
+          label="Mã nhân viên" [(value)]="newUser.verifyCode" [isEditing]="true">
+        </form-textbox>
+      </div>
+    </dxi-item>
+    <dxi-item [isRequired]="true">
+      <dxo-label text="Họ và tên"></dxo-label>
+      <dx-text-box
+        stylingMode="filled"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.fullname"
+        [inputAttr]="{ class: 'form-editor-input' }"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập họ và tên' }]"></dx-validator>
+      </dx-text-box>
+    </dxi-item>
+
+    <dxi-item>
+      <dxo-label text="Email"></dxo-label>
+      <dx-text-box
+        stylingMode="filled"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.email"
+      >
+        <dxi-button
+          name="email"
+          location="before"
+          [options]="{ icon: 'email', elementAttr: { class: 'form-editor-icon' }, stylingMode: 'text' }"
+        ></dxi-button>
+      </dx-text-box>
+    </dxi-item>
+    <dxi-item [isRequired]="true">
+      <dxo-label text="Số điện thoại"></dxo-label>
+      <dx-text-box
+        stylingMode="filled"
+        mask="(000) 000 0000"
+        valueChangeEvent="keyup input change"
+        [useMaskedValue]="true"
+        maskInvalidMessage="Chưa đúng định dạng số điện thoại"
+        [(value)]="newUser.phoneNo"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập số điện thoại' }]"></dx-validator>
+        <dxi-button
+          name="tel"
+          location="before"
+          [options]="{ icon: 'tel', elementAttr: { class: 'form-editor-icon' }, stylingMode: 'text' }"
+        ></dxi-button>
+      </dx-text-box>
+    </dxi-item>
+  </dx-form>
+</form-popup>

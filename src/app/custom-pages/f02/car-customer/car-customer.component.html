@@ -1,0 +1,203 @@
+<dx-toolbar class="theme-dependent">
+  <dxi-item location="before">
+  </dxi-item>
+  <dxi-item location="after" locateInMenu="auto" [visible]="true">
+    <dx-button [disabled]="!hasChoosen"
+      icon="check"
+      text="Chọn"
+      type="default"
+               (onClick)="chooseCustomer()"
+      stylingMode="contained"
+    ></dx-button>
+  </dxi-item>
+  <dxi-item location="after" locateInMenu="auto">
+    <dx-button
+      icon="plus"
+      text="Thêm mới"
+      type="default"
+      (onClick)="showPopupAddNew()"
+      stylingMode="contained"
+    ></dx-button>
+  </dxi-item>
+  <dxi-item
+    location="after"
+    locateInMenu="auto"
+    widget="dxButton"
+    showText="inMenu"
+    [options]="{
+        text: 'Refresh',
+        icon: 'refresh',
+        onClick: refresh,
+        stylingMode: 'text'
+      }"
+  ></dxi-item>
+</dx-toolbar>
+<dx-data-grid
+  #grid
+  [dataSource]="dataSource"
+  [remoteOperations]="true"
+  [width]="'100%'"
+  [height]="600"
+  (onSelectionChanged)="selectionChange($event)"
+  [showBorders]="true"
+>
+  <dx-toolbar class="theme-dependent">
+    <dxi-item location="before">
+      <div class="header-text">Danh sách tài khoản</div>
+    </dxi-item>
+    <dxi-item location="before">
+    </dxi-item>
+    <dxi-item location="after" locateInMenu="auto">
+      <dx-button
+        icon="plus"
+        text="Thêm mới"
+        type="default"
+        stylingMode="contained"
+      ></dx-button>
+    </dxi-item>
+  </dx-toolbar>
+  <dxo-selection
+    [selectAllMode]="'page'"
+    [showCheckBoxesMode]="'always'"
+    mode="multiple"
+  ></dxo-selection>
+  <dxo-paging
+    [pageSize]="20"
+    [pageIndex]="0">
+  </dxo-paging>
+  <dxo-filter-row [visible]="true"></dxo-filter-row>
+  <dxo-header-filter [visible]="false"></dxo-header-filter>
+  <!--<dxo-scrolling mode="virtual"></dxo-scrolling>-->
+  <!--<dxo-editing
+    mode="row"
+    [allowAdding]="true"
+    [allowUpdating]="true"
+    [allowDeleting]="true"
+  >
+  </dxo-editing>-->
+  <dxi-column dataField="idKhachHang" caption="Mã">
+  </dxi-column>
+  <dxi-column dataField="tenKhachHang" caption="Tên khách hàng">
+  </dxi-column>
+  <dxi-column dataField="dienThoaiKhachHang" caption="SĐT">
+  </dxi-column>
+  <dxi-column dataField="diaChiKhachHang" caption="Địa chỉ">
+  </dxi-column>
+  <dxi-column type="buttons">
+    <dxi-button
+      hint="Sửa thông tin"
+      [onClick]="onEditClick"
+      icon="edit"
+    ></dxi-button>
+  </dxi-column>
+</dx-data-grid>
+
+<!--<div id="employeeInfo" *ngIf="grid.selectedRowKeys.length">
+  {{grid.selectedRowKeys[0].tenKhachHang}}
+</div>-->
+<form-popup #formUser  [width]="560" [(visible)]="isPopupEditOpened" (save)="save()" titleText="Thêm mới khách hàng">
+  <dx-form [screenByWidth]="getSizeQualifier"
+           [(formData)]="newUser"
+           labelLocation="top"
+           labelMode="outside"
+           [colCount]="2">
+    <dxi-item>
+      <dxo-label text="Mã khách hàng (tự sinh)"></dxo-label>
+      <dx-text-box
+        stylingMode="outlined"
+        [readOnly]="true"
+        valueChangeEvent="keyup input change"
+
+        [(value)]="newUser.idKhachHang"
+        [inputAttr]="{ class: 'form-editor-input' }"
+      >
+      </dx-text-box>
+    </dxi-item>
+    <dxi-item [isRequired]="true">
+      <dxo-label text="Họ và tên"></dxo-label>
+      <dx-text-box
+        stylingMode="outlined"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.tenKhachHang"
+        [inputAttr]="{ class: 'form-editor-input' }"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập họ và tên' }]"></dx-validator>
+      </dx-text-box>
+    </dxi-item>
+
+    <dxi-item>
+      <dxo-label text="Ngày sinh"></dxo-label>
+      <dx-date-box
+        [(value)]="newUser.ngaySinh"
+        [useMaskBehavior]="true"
+        stylingMode="outlined"
+        placeholder="dd/MM/yyyy"
+        displayFormat="dd/MM/yyyy"
+        pickerType="calendar"
+      ></dx-date-box>
+    </dxi-item>
+
+    <dxi-item>
+      <dxo-label text="Chứng minh nhân dân"></dxo-label>
+      <dx-text-box
+        stylingMode="outlined"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.cmndkhangHang"
+        [inputAttr]="{ class: 'form-editor-input' }"
+      >
+      </dx-text-box>
+    </dxi-item>
+
+    <dxi-item>
+      <dxo-label text="Email"></dxo-label>
+      <dx-text-box
+        stylingMode="outlined"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.emailKhachHang"
+      >
+        <dxi-button
+          name="email"
+          location="before"
+          [options]="{ icon: 'email', elementAttr: { class: 'form-editor-icon', 'z-index': 9999 }, stylingMode: 'text' }"
+        ></dxi-button>
+      </dx-text-box>
+    </dxi-item>
+    <dxi-item [isRequired]="true">
+      <dxo-label text="Số điện thoại"></dxo-label>
+      <dx-text-box
+        stylingMode="outlined"
+        mask="(000) 000 0000"
+        valueChangeEvent="keyup input change"
+        [useMaskedValue]="true"
+        maskInvalidMessage="Chưa đúng định dạng số điện thoại"
+        [(value)]="newUser.dienThoaiKhachHang"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập Số điện thoại khách hàng' }]"></dx-validator>
+        <dxi-button
+          name="tel"
+          location="before"
+          [options]="{ icon: 'tel', elementAttr: { class: 'form-editor-icon' }, stylingMode: 'text' }"
+        ></dxi-button>
+      </dx-text-box>
+    </dxi-item>
+    <dxi-item [colSpan]="2" [isRequired]="true">
+      <dxo-label text="Địa chỉ"></dxo-label>
+      <dx-text-box
+        stylingMode="outlined"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.diaChiKhachHang"
+      >
+        <dx-validator [validationRules]="[{ type: 'required', message: 'Chưa nhập Địa chỉ khách hàng' }]"></dx-validator>
+      </dx-text-box>
+    </dxi-item>
+    <dxi-item [colSpan]="2">
+      <dxo-label text="Ghi chú"></dxo-label>
+      <dx-text-box
+        stylingMode="outlined"
+        valueChangeEvent="keyup input change"
+        [(value)]="newUser.ghiChu"
+      >
+      </dx-text-box>
+    </dxi-item>
+  </dx-form>
+</form-popup>

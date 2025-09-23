@@ -1,0 +1,220 @@
+@use "../../../../variables.scss" as *;
+@use "sass:math";
+.help-text {
+  font-size: 12px;
+  color: #999;
+
+  code {
+    color: red;
+  }
+}
+
+.panel {
+  @include shadow();
+
+  width: 100%;
+  padding: 0 0 var(--content-padding) 0;
+  border-radius: 8px;
+  background-color: var(--card-background);
+
+  .panel-header {
+    padding: 12px var(--content-padding);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .top-item-wrapper {
+    display: flex;
+  }
+
+  &::ng-deep {
+    [top-item] {
+      display: flex;
+      min-height: 50px;
+
+      & > div {
+        display: flex;
+        flex-flow: column;
+        gap: 5px;
+      }
+    }
+
+    .dx-field-item {
+      padding-top: calc(var(--content-padding) / 2);
+      padding-right: 0;
+    }
+  }
+
+  .form-container {
+    margin: calc(var(--content-padding)) var(--content-padding) 0;
+  }
+}
+
+
+:host {
+  --gap-padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  .view-wrapper-scroll {
+    width: 100%;
+    margin-top: calc(var(--content-padding) / 2);
+    max-height: calc(100% - var(--toolbar-height));
+  }
+}
+
+.profile-card {
+  flex: 0.5;
+}
+
+:host-context(.screen-small, .screen-x-small) .profile-card {
+  min-width: 100%;
+  flex: 1;
+}
+
+.view-wrapper {
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  margin: 0 auto;
+
+  & > .dx-toolbar {
+    width: auto;
+    position: relative;
+    margin-bottom: 0 !important;
+
+    &.scrolled {
+      padding-bottom: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    dx-button[text="Cancel"] {
+      margin-right: 5px;
+    }
+  }
+
+  /*.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 1px;
+    padding: calc(var(--content-padding) / 2) 0 var(--content-padding);
+    gap: 24px;
+  }*/
+
+  .profile-card {
+    margin-top: 16px;
+
+    .image-wrapper {
+      flex: 0 0 44px;
+      height: 44px;
+      border-radius: 50%;
+      margin-right: var(--gap-padding);
+
+      .dx-icon {
+        margin: auto;
+      }
+    }
+
+    .with-clipboard-copy {
+      display: flex;
+      align-items: flex-end;
+
+      .dx-button {
+        max-width: 18px;
+        min-width: 18px;
+        height: 18px;
+        margin: 0 0 2px 5px;
+
+        &::ng-deep .dx-icon:active {
+          color: var(--accent-color);
+        }
+      }
+    }
+
+    .copy-clipboard-button::ng-deep {
+      background-color: transparent;
+      border-radius: unset;
+      border-color: transparent;
+
+      .dx-button-content {
+        padding: 0;
+      }
+
+      .dx-icon {
+        color: var(--subtitle-text-color);
+      }
+    }
+  }
+
+  .basic-info-card {
+    flex: 1;
+    min-width: 100%;
+
+    .basic-info-top-item {
+      form-photo {
+        margin-right: var(--content-padding);
+
+        &::ng-deep .photo {
+          border-radius: 50%;
+        }
+      }
+
+      .change-password-button {
+        margin-top: calc(var(--content-padding) / 2);
+      }
+    }
+  }
+
+  .contacts-card .image-wrapper {
+    background-color: color-mix(in sRGB, var(--error-color) 12%, transparent);
+    color: var(--error-color);
+  }
+
+  .address-card .image-wrapper {
+    background-color: color-mix(in sRGB, var(--info-color) 12%, transparent);
+    color: var(--info-color);
+  }
+}
+
+.row {
+  margin-bottom: 16px;
+}
+
+.collapse-group .c-item {
+  position: relative;
+  border-radius: 0.375rem;
+  margin-bottom: 15px;
+  margin-top: 25px;
+}
+
+.collapse-group .c-body {
+  padding: 20px;
+}
+
+.collapse-group .c-title {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  position: absolute;
+  top: -15px;
+  left: -10px;
+  padding: 0 10px 10px 10px;
+}
+
+
+
+.bold {
+  font-weight: bold;
+}
+
+.text-left {
+  text-align: left;
+}
+
+

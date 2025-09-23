@@ -1,0 +1,244 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-toolbar class="theme-dependent toolbar-sticky" *ngIf="this.dataKhoaHoc">
+    <dxi-item location="before">
+      <div class="header-text">
+        <i class="dx-icon-textdocument" style="font-size: 20px"></i>
+        <span title="{{this.dataKhoaHoc.name}}" style="color: #0353b4;">{{this.dataKhoaHoc.name}}</span>
+      </div>
+      <div class="help-text" *ngIf="dataKhoaHoc">
+        Số học liệu: <span>{{dataKhoaHoc.baiGiangIds.length}}</span>
+        - Số tài liệu: <span>{{dataKhoaHoc.taiLieuIds.length}}</span>
+      </div>
+    </dxi-item>
+    <dxi-item location="after" locateInMenu="never">
+      <dx-button
+        stylingMode="outlined"
+        icon="back"
+        type="normal"
+        (onClick)="backToList()"
+      >
+      </dx-button>
+    </dxi-item>
+
+  </dx-toolbar>
+  <div class="cards-container">
+    <div class="profile-card basic-info-card">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="frame-wrapper bg-white" *ngIf="!riengTu">
+            <div class="frame-title flex-space-between">
+              <h6>{{lessonTitle}}</h6>
+              <a style="color: #FFF !important;" class="btn btn-success btn-sm" title="Tải về"
+                 *ngIf="dataItem && lessonType === 1 && allowDownload"
+                 target="_blank" [href]="dataItem.url">
+                <i class="dx-icon-download" style="font-size: 16px"></i>
+                Tải về
+              </a>
+            </div>
+            <div class="alert alert-info" *ngIf="h5pObject && h5pObject.source">
+              Nếu không tải được nội dung vui lòng bấm vào
+              <a target="_blank" [href]="h5pObject.source | safe" class="text-decoration-underline">ĐÂY</a>.
+            </div>
+            <iframe allow="microphone; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; fullscreen"
+                    allowfullscreen [class]="lessonType === 2 ? 'show' : 'hidden'" scrolling="no"
+                    style="border:none;overflow-x: hidden;min-height: auto;" [id]="frameId" width="100%"
+                    [height]="iframeHeight"></iframe>
+
+            <ng-container *ngIf="lessonType === 1 && taiLieuUrl">
+              <div class="p-2" *ngIf="typeOfMedia(taiLieuUrl) === 'image'">
+                <img style="max-width: 100%;height: auto" [src]="taiLieuUrl">
+              </div>
+              <div class="p-2" *ngIf="typeOfMedia(taiLieuUrl) === 'video'">
+                <video width="640" height="360" controls>
+                  <source src="{{taiLieuUrl}}" type="video/mp4">
+                </video>
+              </div>
+              <ngx-doc-viewer *ngIf="typeOfMedia(taiLieuUrl) === 'document'"
+                              [url]="taiLieuUrl"
+                              viewer="google"
+                              style="width:100%;height:100vh;"
+              ></ngx-doc-viewer>
+              <iframe *ngIf="typeOfMedia(taiLieuUrl) === 'powerpoint'" [src]="taiLieuSafeUrl" width="100%"
+                      height="600px"></iframe>
+              <iframe
+                allow="microphone; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowfullscreen *ngIf="typeOfMedia(taiLieuUrl) === 'html'"
+                [src]="toUnCachedUrl(taiLieuUrl) | safe"
+                width="100%"
+                height="600px"
+                frameborder="0">
+              </iframe>
+            </ng-container>
+          </div>
+          <div class="frame-wrapper bg-white" *ngIf="riengTu" style="height: 100%;">
+            <div class="alert alert-warning">
+              Bài giảng đã được giáo viên chuyển sang chế độ riêng tư để chỉnh sửa. Vui lòng chọn bài giảng khác hoặc
+              quay trở lại sau.
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 dx-tab-border dx-border-right">
+          <div class="bg-white" style="width: 100%">
+            <dx-tab-panel
+              width="100%"
+              [animationEnabled]="true"
+              [swipeEnabled]="true"
+              [dataSource]="tabSource"
+              [tabsPosition]="'top'"
+              [stylingMode]="'secondary'"
+              [iconPosition]="'top'"
+            >
+              <div *dxTemplate="let tabPanelItem of 'item'">
+                <div class="tabpanel-item" *ngIf="tabPanelItem.tab === 'lesson'">
+                  <ng-container *ngIf="chuaHoanThanhSource.length">
+                    <div *ngIf="hoanThanhSource.length"
+                         class="alert alert-info text-center mb-0 p-1">Chưa hoàn thành
+                    </div>
+                    <dx-list
+                      [dataSource]="chuaHoanThanhSource"
+                      [height]="tabHeight"
+                      [allowItemDeleting]="false"
+                      itemTemplate="data"
+                    >
+                      <div *dxTemplate="let item of 'data'">
+                        <div (click)="goLessionLink(item.id, item.loaiHocLieu)"
+                             [class]="item.id === lessonId ? 'white-space-normal flex-space-between active' : 'white-space-normal flex-space-between'">
+                          <div style="display: flex;align-items: center">
+                            <span>{{item.stt}}.&nbsp;</span>
+                            <i *ngIf="item.id === lessonId" class="dx-icon-spinnext" style="font-size: 16px"></i>
+                            <span>{{ item.name }}</span>
+                          </div>
+
+                          <div style="flex-shrink: 1">
+                            <span>{{item.loaiHocLieu === 2 ? 'Học liệu' : 'Tài liệu'}}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </dx-list>
+                  </ng-container>
+                  <ng-container *ngIf="hoanThanhSource.length">
+                    <div class="alert alert-success text-center mb-0 p-1">Đã hoàn thành</div>
+                    <dx-list
+                      [dataSource]="hoanThanhSource"
+                      [height]="tabHeight"
+                      [allowItemDeleting]="false"
+                      itemTemplate="data"
+                    >
+                      <div *dxTemplate="let item of 'data'">
+                        <div (click)="goLessionLink(item.id, item.loaiHocLieu)"
+                             [class]="item.id === lessonId ? 'white-space-normal flex-space-between active' : 'white-space-normal flex-space-between'">
+                          <div style="display: flex;align-items: center">
+                            {{item.stt}}.
+                            <i *ngIf="item.id === lessonId" class="dx-icon-spinnext" style="font-size: 16px"></i>
+                            <span>{{ item.name }}</span>
+                          </div>
+
+                          <div style="flex-shrink: 1">
+                            <strong>{{item.diem}}</strong>
+                          </div>
+                        </div>
+                      </div>
+                    </dx-list>
+                  </ng-container>
+                </div>
+                <div class="tabpanel-item" *ngIf="tabPanelItem.tab === 'info' && creator">
+                  <ul>
+                    <li><label>Người tạo:&nbsp;</label><strong>{{getFullName(creator)}}</strong></li>
+                    <li>
+                      <label>Ngày tạo:&nbsp;</label>{{dataKhoaHoc.dateCreated | date: 'HH:mm dd/MM/yyyy'}}
+                    </li>
+                    <li>
+                      <label>Giá trị cốt lõi:&nbsp;</label>{{dataKhoaHoc.giaTriCotLoi}}
+                    </li>
+                    <li>
+                      <label>Mô tả:&nbsp;</label>{{dataKhoaHoc.moTa}}
+                    </li>
+                  </ul>
+                </div>
+                <div class="tabpanel-item "
+                     *ngIf="tabPanelItem.tab === 'comment' && dataItem && dataItem.rateItem">
+                  <div class="form-rating">
+                    <div class="rate-info">
+                      <star-rating [readOnly]="true" labelPosition="top"
+                                   [labelText]="toTotalRating(dataItem.rateItem)" [numOfStars]="5" [starType]="'svg'"
+                                   [rating]="+toTotalRating(dataItem.rateItem)"></star-rating>
+                      <span>{{dataItem.rateItem.comments.length}} đánh giá</span>
+                    </div>
+                    <div style="width: 100%">
+                      <div class="flex-space-between" *ngFor="let number of numbers">
+                        <dx-progress-bar
+                          width="100%"
+                          [class.complete]="false"
+                          [min]="0"
+                          [max]="100"
+                          [statusFormat]="format"
+                          [value]="toRating(dataItem.rateItem, number)"
+                        >
+                        </dx-progress-bar>
+                        <star-rating [readOnly]="true" labelPosition="right"
+                                     [labelText]="toRating(dataItem.rateItem, number) + '%'"
+                                     [numOfStars]="number" [starType]="'svg'"
+                                     [rating]="number"></star-rating>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="comment-rating">
+                    <div class="comment-title">Nhận xét</div>
+                    <div class="comment-list">
+                      <div class="comment-item" *ngFor="let comment of dataItem.rateItem.comments">
+                        <div style="display: flex; justify-content: left">
+                          <star-rating size="small" [readOnly]="true" labelPosition="top" [numOfStars]="5"
+                                       [starType]="'svg'"
+                                       [rating]="comment.rate"></star-rating>
+                          <div><strong>{{comment.accountType === 12 ? 'HS' : 'GV'}} {{comment.name}}</strong></div>
+                        </div>
+                        <div>
+                          <i class="dx-icon-clock" style="font-size: 12px"></i>
+                          {{comment.dateCreated | date: 'HH:mm dd/MM/yyyy'}}
+                        </div>
+                        <div>
+                          <i class="dx-icon-comment" style="font-size: 12px"></i>
+                          {{comment.content}}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="comment-editor">
+                    <div style="display: flex;justify-content: left;align-items: center">
+                      <label>Đánh giá:</label>
+                      <star-rating labelPosition="top" [numOfStars]="5" [starType]="'svg'"
+                                   [rating]="ratingStar"></star-rating>
+                    </div>
+                    <div>
+                      <dx-text-area
+                        [height]="60"
+                        placeholder="Nhập đánh giá của bạn"
+                        stylingMode="outlined"
+                        [(value)]="ratingComment"
+                        [autoResizeEnabled]="false"
+                        [inputAttr]="{ 'aria-label': 'Notes' }"
+                      >
+                      </dx-text-area>
+                    </div>
+                    <div style="margin-top: 5px">
+                      <dx-button
+                        text="Gửi"
+                        icon="message"
+                        type="normal"
+                        (onClick)="submitRating()"
+                      >
+                      </dx-button>
+                    </div>
+                  </div>
+                </div>
+                <div class="tabpanel-item" *ngIf="tabPanelItem.icon === 'taskhelpneeded'">
+                </div>
+              </div>
+            </dx-tab-panel>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

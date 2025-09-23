@@ -1,0 +1,321 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <!--<pdf-viewer [src]="pdfSrc"
+              [render-text]="true"
+              [original-size]="false"
+              style="width: 400px; height: 500px"
+  ></pdf-viewer>-->
+
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    [columnResizingMode]="'nextColumn'"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [allowColumnResizing]="true"
+  >
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <!--<dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>-->
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <dx-button
+          icon="back"
+          stylingMode="contained"
+          (onClick)="back()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <span style="color:#e95b27;" *ngIf="courseTitle">&nbsp;{{courseTitle}}</span>
+        </div>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="allowEdit()">
+        <dx-button *ngIf="isEdit"
+                   text="Thêm bài giảng"
+                   icon="plus"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="addItemClick()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="allowEdit()">
+        <dx-button *ngIf="isEdit"
+                   text="Thêm tài liệu"
+                   icon="newfolder"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="addTaiLieuClick()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="allowEdit()">
+        <dx-button *ngIf="isEdit"
+                   text=""
+                   hint="Cập nhật thứ tự bài giảng"
+                   icon="sortuptext"
+                   type="default"
+                   stylingMode="outlined"
+                   (onClick)="showModalSorting()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="allowEdit()">
+        <dx-button *ngIf="isEdit"
+                   text=""
+                   hint="Cập nhật tỷ lệ hoàn thành bài giảng cho học sinh"
+                   icon="percent"
+                   type="default"
+                   stylingMode="outlined"
+                   (onClick)="fixTyLeHoanThanh()"
+        ></dx-button>
+      </dxi-item>
+
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+
+    <dxi-column dataField="name" caption="Tên học liệu" cellTemplate="cellDetailLink"></dxi-column>
+
+    <dxi-column alignment="center" [width]="100" dataField="" [allowFiltering]="false" caption="Riêng tư"
+                cellTemplate="cellRiengTu"></dxi-column>
+
+    <dxi-column alignment="left" [width]="120" dataField="" [allowFiltering]="false" caption="Loại học liệu"
+                cellTemplate="cellLoaiHocLieu"></dxi-column>
+
+    <dxi-column dataField="view" alignment="center" [allowFiltering]="false" [width]="90" caption="Đã xem"></dxi-column>
+
+    <dxi-column dataField="giaiDoan" caption="Phần" cssClass="white-space-normal" [width]="125"></dxi-column>
+    <dxi-column dataField="dateCreated" [width]="120" [allowFiltering]="false" caption="Ngày tạo" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>
+    <dxi-column type="buttons" [fixed]="true" fixedPosition="right" caption="Chức năng" [visible]="!isEdit">
+      <dxi-button
+        hint="Xem chi tiết"
+        [onClick]="onViewClick"
+        icon="info"
+      ></dxi-button>
+    </dxi-column>
+    <dxi-column type="buttons" fixedPosition="right" caption="Chức năng" [visible]="isEdit && allowEdit()">
+      <dxi-button
+        hint="Sửa thông tin"
+        cssClass="dx-button-success"
+        [onClick]="onEditClick"
+        icon="edit"
+      ></dxi-button>
+      <dxi-button
+        hint="Xem chi tiết"
+        [onClick]="onViewClick"
+        icon="info"
+      ></dxi-button>
+      <dxi-button
+        hint="Xóa bài giảng, tài liệu"
+        cssClass="dx-button-danger"
+        [onClick]="onDeleteClick"
+        icon="trash"
+        type="danger"
+      ></dxi-button>
+    </dxi-column>
+    <dxi-column caption="Trạng thái" cellTemplate="cellTrangThai" [visible]="showTrangThaiDuyet"
+                [width]="140"></dxi-column>
+    <dxi-column alignment="center" caption="Ghi chú" [visible]="showTrangThaiDuyet" cellTemplate="cellNote"
+                [width]="100"></dxi-column>
+    <div *dxTemplate="let cellInfo of 'cellPhan'">
+      <span *ngIf="cellInfo.data.phan">{{cellInfo.data.phan === 1 ? 'Tự nghiên cứu' : 'Kiểm tra đánh giá'}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellLoaiHocLieu'">
+      <span>{{cellInfo.data.loaiHocLieu === 2 ? 'H5P' : 'Tài liệu'}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellRiengTu'">
+      <dx-check-box [readOnly]="!allowEdit()" (valueChange)="changeRiengTu(cellInfo.data, $event)"
+                    [(value)]="cellInfo.data.riengTu"
+                    text=""></dx-check-box>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <a title="Xem trước" class="a-link" (click)="viewDetail(cellInfo.data)">
+        <span [innerHTML]="cellInfo.data.name"></span>
+      </a>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellTrangThai'">
+      <span class="tag warning float-none" *ngIf="cellInfo.data.trangThaiDuyet === 0">Chờ duyệt</span>
+      <span class="tag processing float-none" *ngIf="cellInfo.data.trangThaiDuyet === 10">TTCM duyệt</span>
+      <span class="tag red float-none no-border" *ngIf="cellInfo.data.trangThaiDuyet === 5">TCM đề nghị chỉnh sửa</span>
+      <span class="tag red float-none no-border"
+            *ngIf="cellInfo.data.trangThaiDuyet === 15">BGH đề nghị chỉnh sửa</span>
+      <span class="tag success float-none no-border" *ngIf="cellInfo.data.trangThaiDuyet === 20">BGH duyệt</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellNote'">
+      <a *ngIf="cellInfo.data.trangThaiDuyet == 5 || cellInfo.data.trangThaiDuyet == 15"
+         (click)="viewNote(cellInfo.data)">Xem</a>
+    </div>
+  </dx-data-grid>
+</div>
+<dx-popup
+  title="Upload tài liệu"
+  [(visible)]="isShowUploadTaiLieu"
+  class="form-popup"
+  [width]="500"
+  [height]="500"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div
+      class="form-popup-buttons-container"
+    >
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupEditTaiLieu()"
+      ></dx-button>
+      <dx-button
+        text="Cập nhật"
+        stylingMode="contained"
+        type="default"
+        (onClick)="onSaveTaiLieuClick()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <dx-validation-group #validationGroup>
+    <dx-form
+      [(formData)]="taiLieuItem"
+      labelLocation="top"
+      labelMode="outside"
+      [colCount]="12">
+      <!---------------------------start line-------------------------------->
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Tên tài liệu"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder="Nhập tên tài liệu"
+          valueChangeEvent="keyup input change"
+          [(value)]="taiLieuItem.name">
+          <dx-validator
+            [validationRules]="[{ type: 'required', message: 'Chưa nhập tên tài liệu' }]"></dx-validator>
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [colSpan]="12">
+        <dxo-label text="Phạm vi chia sẻ"></dxo-label>
+        <dx-check-box [(value)]="taiLieuItem.riengTu" text="Chỉ mình tôi"></dx-check-box>
+      </dxi-item>
+      <dxi-item [isRequired]="false" [colSpan]="12">
+        <div *ngIf="taiLieuItem.url" class="div-file-info">
+          <a target="_blank" [href]="taiLieuItem.url">
+            <i class="dx-icon-file" style="font-size: 16px"></i>
+            {{getFileName(taiLieuItem.url)}}
+          </a>
+          <a (click)="taiLieuItem.url = ''">
+            <i class="dx-icon-remove" style="font-size: 16px"></i> Xóa tệp
+          </a>
+        </div>
+
+        <dx-file-uploader
+            #fileUploader
+            uploadMode="instantly"
+            [uploadHeaders]="uploadHeaders"
+            [(uploadUrl)]="uploadUrl"
+            [allowedFileExtensions]="['.pdf', '.mp3', '.mp4', '.docx','.doc', '.ppt', '.pptx', '.xls', '.xlsx', '.png', '.webp', '.jpg', '.jpeg', '.zip']"
+            [selectButtonText]="'Chọn tài liệu'"
+            [uploadButtonText]="'Tải lên file'"
+            [maxFileSize]="200000000"
+            labelText=""
+            name="formFile"
+            [multiple]="false"
+            [visible]="true"
+            uploadedMessage="Tải lên thành công"
+            invalidFileExtensionMessage="Định dạng file không được chấp nhận"
+            invalidMaxFileSizeMessage="Dung lượng file tối đa 200mb"
+            (onBeforeSend)="onUploadTaiLieuStarted($event)"
+            (onUploaded)="onTaiLieuUploaded($event)"
+            (onUploadError)="onTaiLieuUploadError($event)">
+        </dx-file-uploader>
+        &nbsp;&nbsp;hoặc
+        <dx-file-uploader
+            #fileUploader
+            uploadMode="instantly"
+            [uploadHeaders]="uploadHeaders"
+            [(uploadUrl)]="uploadScormUrl"
+            [allowedFileExtensions]="['.zip']"
+            [selectButtonText]="'tệp SCORM (.zip)'"
+            [uploadButtonText]="'Tải lên file'"
+            [maxFileSize]="600000000"
+            labelText=""
+            name="formFile"
+            [multiple]="false"
+            [visible]="true"
+            uploadedMessage="Tải lên thành công"
+            invalidFileExtensionMessage="Định dạng file không được chấp nhận"
+            invalidMaxFileSizeMessage="Dung lượng file tối đa 600mb"
+            (onBeforeSend)="onUploadTaiLieuStarted($event)"
+            (onUploaded)="onTaiLieuUploaded($event)"
+            (onUploadError)="onTaiLieuUploadError($event)">
+        </dx-file-uploader>
+
+        <div class="note">Chỉ được upload những định dạng file: <span>Tài liệu, hình ảnh, video, SCORM</span></div>
+      </dxi-item>
+    </dx-form>
+  </dx-validation-group>
+</dx-popup>
+<dx-popup
+  title="Nội dung đề nghị"
+  [(visible)]="isShowComment"
+  class="form-popup"
+  height="auto"
+  width="500px"
+>
+  <div [innerHTML]="baiGiangItem.yeuCauChinhSua">
+  </div>
+</dx-popup>
+
+<dx-popup
+  title="Cập nhật thứ tự sắp xếp"
+  [(visible)]="isShowModalSorting"
+  class="form-popup"
+  height="auto"
+  width="500px"
+  height="500px"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div
+      class="form-popup-buttons-container"
+    >
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupSorting()"
+      ></dx-button>
+      <dx-button
+        text="Cập nhật"
+        stylingMode="contained"
+        type="default"
+        (onClick)="onSaveSorting()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <dx-list [dataSource]="datas" keyExpr="id" [nextButtonText]="'Xem thêm'">
+    <dxo-item-dragging
+      group="tasks"
+      [data]="datas"
+      [allowReordering]="true"
+      [onDragStart]="onDragStart"
+      [onAdd]="onAdd"
+      [onRemove]="onRemove"
+      [onReorder]="onReorder"
+    >
+    </dxo-item-dragging>
+    <div *dxTemplate="let item of 'item'; let i = index">
+      <div>{{i + 1}} - {{ item.name }}</div>
+    </div>
+  </dx-list>
+</dx-popup>

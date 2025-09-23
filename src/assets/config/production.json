@@ -1,0 +1,15 @@
+{
+    "api": {
+      "baseUrl": "https://apilms.lienlacdientu.vn",
+      "curUrl": "https://lms.mschool.edu.vn",
+      "mSchoolUrl": "https://mschool.edu.vn",
+      "h5pUrl": "https://h5p.mschool.edu.vn",
+      "reportUrl": "http://apiv04.stc.vn:8088"
+    },
+  "sso": {
+    "baseUrl": "http://10.33.68.71:8888/vnpt-sso"
+  },
+  "pageSize":[10,50,100],
+    "page":1,
+    "defaultPage":10
+}

@@ -1,0 +1,111 @@
+<form class="login-form" (submit)="onSubmit($event)">
+  <div class="sgd-item">
+    <dx-select-box
+
+      stylingMode="filled"
+      displayExpr="name"
+      valueExpr="id"
+      [dataSource]="loginTypeSource"
+      [(value)]="loginType">
+    </dx-select-box>
+  </div>
+  <div class="form-sgd" *ngIf="loginType === 2">
+    <div class="sgd-item">
+      <dx-select-box
+        stylingMode="filled"
+        displayExpr="name"
+        valueExpr="id"
+        (valueChange)="accountTypeChange($event)"
+        [dataSource]="accountTypeSource"
+        [(value)]="accountType"
+      >
+      </dx-select-box>
+    </div>
+    <div class="sgd-item">
+      <dx-select-box
+        stylingMode="filled"
+        [searchEnabled]="true"
+        displayExpr="name"
+        valueExpr="id"
+        [dataSource]="schoolSource"
+        (valueChange)="schoolSourceChange($event)"
+        [(value)]="schoolId"
+        placeholder="Chọn trường"
+      >
+      </dx-select-box>
+    </div>
+    <div class="sgd-item">
+      <dx-button
+        text="Đồng ý"
+        type="default"
+        style="width: 100%"
+        stylingMode="contained"
+        (click)="doRedirect($event)"
+      >
+      </dx-button>
+    </div>
+  </div>
+
+  <dx-form *ngIf="loginType === 1"
+    [formData]="formData"
+    [disabled]="loading"
+    [showColonAfterLabel]="true"
+    [showRequiredMark]="false"
+  >
+    <dxi-item
+      dataField="email"
+      editorType="dxTextBox"
+      [editorOptions]="{
+        placeholder: 'Tên đăng nhập',
+        stylingMode: 'filled',
+        value: defaultAuthData?.data?.username
+      }"
+    >
+      <dxo-label [visible]="false"></dxo-label>
+    </dxi-item>
+
+    <dxi-item
+      dataField="password"
+      editorType="dxTextBox"
+      [editorOptions]="passwordEditorOptions"
+    >
+      <dxo-label [visible]="false"></dxo-label>
+    </dxi-item>
+
+    <dxi-item
+      dataField="rememberMe"
+      editorType="dxCheckBox"
+      [editorOptions]="{
+        text: 'Ghi nhớ đăng nhập',
+        elementAttr: { class: 'form-text' }
+      }"
+    >
+      <dxo-label [visible]="false"></dxo-label>
+    </dxi-item>
+
+    <dxi-item itemType="button">
+      <dxo-button-options
+        width="100%"
+        type="default"
+        cssClass="btn-sign-in"
+        [useSubmitBehavior]="true"
+        [template]="'signInTemplate'"
+      >
+      </dxo-button-options>
+    </dxi-item>
+
+    <ng-container *dxTemplate="let item of 'signInTemplate'">
+      <span class="dx-button-text">
+        <ng-container *ngIf="loading; else notLoading">
+          <dx-load-indicator
+            width="24px"
+            height="24px"
+            [visible]="true"
+          ></dx-load-indicator>
+        </ng-container>
+        <ng-template #notLoading>Đăng nhập</ng-template>
+      </span>
+    </ng-container>
+  </dx-form>
+  <app-login-oauth></app-login-oauth>
+</form>

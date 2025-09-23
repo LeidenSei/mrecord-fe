@@ -1,0 +1,235 @@
+<dx-scroll-view class="view-wrapper-scroll">
+  <div class="view-wrapper">
+    <dx-toolbar class="theme-dependent" [class.scrolled]="true">
+      <dxi-item location="before">
+        <div class="header-text">
+          <i class="dx-icon-chart" style="font-size: 20px"></i>
+          Thống kê
+        </div>
+      </dxi-item>
+    </dx-toolbar>
+    <div class="cards grey" *ngIf="dataTkBaiTap">
+      <ticker-card
+        titleText="Số học sinh"
+        [total]="'' + dataTkBaiTap.studentCount"
+        [tone]="'negative'"
+        [percentage]="0"
+        icon="group"
+      ></ticker-card>
+      <ticker-card
+        titleText="Học bạ đã đồng bộ"
+        [total]="'' + dataTkBaiTap.allCount"
+        [percentage]="0"
+        [tone]="'warning'"
+        icon="description"
+      ></ticker-card>
+      <ticker-card
+        titleText="Học bạ GVCN ký"
+        [total]="'' + dataTkBaiTap.teacherSignedCount"
+        [percentage]="0"
+        [tone]="'info'"
+        icon="background"
+      ></ticker-card>
+      <ticker-card
+        titleText="Học bạ Hiệu trưởng ký"
+        [total]="'' + dataTkBaiTap.principalSignedCount"
+        [percentage]="0"
+        [tone]="'positive'"
+        icon="check"
+      ></ticker-card>
+    </div>
+    <div class="cards">
+      <!--<div class="card sales" *ngIf="role !== 8">
+        <card-analytics
+          [isMenuVisible]="false"
+          titleText="Thống kê top giáo viên đăng bài"
+          contentClass="sales-by-category"
+        >
+          <dx-chart
+            id="chart"
+            [dataSource]="dataTopGV"
+            (onPointClick)="onBarPointClick($event)"
+          >
+            <dxi-series valueField="totalCourse" name="Số nội dung"></dxi-series>
+            <dxi-series valueField="totalView" name="Số lượt xem"></dxi-series>
+            <dxo-common-series-settings
+              argumentField="name"
+              type="bar"
+              hoverMode="allArgumentPoints"
+              selectionMode="allArgumentPoints"
+            >
+              <dxo-label
+                [visible]="true"
+                [format]="{
+                  type: 'fixedPoint',
+                  precision: 0
+                }"
+              >
+              </dxo-label>
+            </dxo-common-series-settings>
+            <dxo-legend verticalAlignment="bottom" horizontalAlignment="center">
+            </dxo-legend>
+            <dxo-export [enabled]="false"></dxo-export>
+            <dxo-size [height]="300"></dxo-size>
+          </dx-chart>
+        </card-analytics>
+      </div>
+      <div class="card sales" *ngIf="role !== 8">
+        <card-analytics
+          [isMenuVisible]="false"
+          titleText="Danh sách giáo viên đăng bài"
+          contentClass="sales-by-category"
+        >
+          <dx-data-grid
+            [dataSource]="dataTopGV"
+            [height]="290"
+            [loadPanel]="{ enabled: false }"
+          >
+            <dxi-column alignment="center" caption="No." dataField="top" [width]="60"></dxi-column>
+            <dxi-column caption="Họ tên giáo viên" dataField="name" cellTemplate="cellName"></dxi-column>
+            <dxi-column caption="Nội dung" dataField="totalCourse" dataType="number">
+            </dxi-column>
+
+            <dxi-column caption="Lượt xem" dataField="totalView" dataType="number">
+            </dxi-column>
+
+            <dxi-column
+              caption="%"
+              dataField="percentage"
+              name="percentB"
+              cellTemplate="salesBullet"
+              cssClass="sales-bullet"
+              [width]="100"
+            >
+            </dxi-column>
+            <div *dxTemplate="let cellInfo of 'cellName'">
+              <span style="white-space: nowrap">{{cellInfo.data.name}}</span>
+            </div>
+            <div *dxTemplate="let cellInfo of 'salesBullet'">
+              <dx-bullet
+                [showTarget]="false"
+                [showZeroLevel]="false"
+                [value]="cellInfo.data.totalCourse / this.totalTheoKhoi * 100"
+                [startScaleValue]="0"
+                [endScaleValue]="100"
+              >
+                <dxo-tooltip [enabled]="false"></dxo-tooltip>
+                <dxo-size [width]="200" [height]="20"></dxo-size>
+              </dx-bullet>
+            </div>
+          </dx-data-grid>
+        </card-analytics>
+      </div>-->
+      <div class="card sales">
+        <card-analytics
+          [isMenuVisible]="false"
+          titleText="Thống kê số lượng học bạ đã ký số"
+          contentClass="sales-by-category"
+        >
+          <dx-pie-chart
+            [dataSource]="dataChartTheoKhoi"
+            type="doughnut"
+            [diameter]="1"
+            [innerRadius]="0.5"
+            centerTemplate="centerTemplate"
+            (onPointClick)="pointClickHandler($event)"
+          >
+            <dxi-series argumentField="grade" valueField="total">
+
+              <dxo-label
+                backgroundColor="none"
+                [radialOffset]="-20"
+                [visible]="true"
+                [customizeText]="customizeSaleText"
+              >
+                <dxo-connector [visible]="false"></dxo-connector>
+                <dxo-font color="#757575" [size]="15"></dxo-font>
+              </dxo-label>
+            </dxi-series>
+
+            <dxo-legend>
+              <dxo-margin [top]="70"></dxo-margin>
+            </dxo-legend>
+            <dxo-size [height]="320"></dxo-size>
+            <svg *dxTemplate="let pieChart of 'centerTemplate'">
+              <circle
+                cx="100"
+                cy="100"
+                [attr.r]="pieChart.getInnerRadius() - 6"
+                fill="#eee"
+              ></circle>
+              <text
+                text-anchor="middle"
+                style="font-size: 18px"
+                x="100"
+                y="100"
+                fill="#494949"
+              >
+                <tspan x="100">Tổng số</tspan>
+                <!-- display: inline -->
+                <tspan x="100" dy="25px" style="font-weight: 600">{{
+                    this.totalTheoKhoi
+                  }}</tspan>
+              </text>
+            </svg>
+          </dx-pie-chart>
+        </card-analytics>
+      </div>
+      <div class="card sales">
+        <card-analytics
+          [isMenuVisible]="false"
+          titleText="Thống kê tỉ lệ giáo viên sử dụng"
+          contentClass="sales-by-category"
+        >
+          <dx-pie-chart
+            [dataSource]="dataChartTyLeGiaoVien"
+            type="doughnut"
+            [diameter]="1"
+            [innerRadius]="0.5"
+            centerTemplate="centerTemplate"
+            (onPointClick)="pointClickHandler($event)"
+          >
+            <dxi-series argumentField="label" valueField="value">
+
+              <dxo-label
+                backgroundColor="none"
+                [radialOffset]="-20"
+                [visible]="true"
+                [customizeText]="customizeSaleText"
+              >
+                <dxo-connector [visible]="false"></dxo-connector>
+                <dxo-font color="#757575" [size]="15"></dxo-font>
+              </dxo-label>
+            </dxi-series>
+
+            <dxo-legend>
+              <dxo-margin [top]="70"></dxo-margin>
+            </dxo-legend>
+            <dxo-size [height]="320"></dxo-size>
+            <svg *dxTemplate="let pieChart of 'centerTemplate'">
+              <circle
+                cx="100"
+                cy="100"
+                [attr.r]="pieChart.getInnerRadius() - 6"
+                fill="#eee"
+              ></circle>
+              <text
+                text-anchor="middle"
+                style="font-size: 18px"
+                x="100"
+                y="100"
+                fill="#494949"
+              >
+                <tspan x="100">Tổng số</tspan>
+                <!-- display: inline -->
+                <tspan x="100" dy="25px" style="font-weight: 600">{{
+                    this.totalGiaoVien
+                  }}</tspan>
+              </text>
+            </svg>
+          </dx-pie-chart>
+        </card-analytics>
+      </div>
+    </div>
+  </div>
+</dx-scroll-view>

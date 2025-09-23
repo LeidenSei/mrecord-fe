@@ -1,0 +1,117 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-load-panel
+    [visible]="isLoading"
+    shadingColor="rgba(0,0,0,0.4)"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    [closeOnOutsideClick]="false"
+    message="Đang tải dữ liệu..."
+  ></dx-load-panel>
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    [columns]="columns"
+    (onExporting)="onExporting($event)"
+  >
+    <dxo-selection
+      mode="single">
+    </dxo-selection>
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="false" [enabled]="false"></dxo-load-panel>
+
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Thống kê tổng hợp bài giảng giáo viên
+        </div>
+      </dxi-item>
+      <dxi-item location="before">
+        <dx-date-box
+          [(value)]="fromDate"
+          placeholder="Từ ngày"
+          type="date"
+          displayFormat="dd/MM/yyyy"
+          [showClearButton]="true"
+        ></dx-date-box>
+      </dxi-item>
+      <dxi-item location="before">
+        <dx-date-box
+          [(value)]="toDate"
+          placeholder="Đến ngày"
+          type="date"
+          displayFormat="dd/MM/yyyy"
+          [showClearButton]="true"
+        ></dx-date-box>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Trạng thái duyệt</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="statusSource"
+          keyExpr="id"
+          displayExpr="name"
+          [selectedItemKey]="filterStatus"
+          (onItemClick)="statusChange($event)"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before">
+        <dx-button text="Áp dụng" (onClick)="applyDateFilter()"></dx-button>
+      </dxi-item>
+      <dxi-item name="exportButton" locateInMenu="auto"></dxi-item>
+    </dxo-toolbar>
+    <dxi-column dataField="hoTen" [width]="120" caption="Mã học sinh"></dxi-column>
+    <dxo-summary>
+      <dxi-total-item
+        summaryType="sum"
+        *ngFor="let col of dynamicColumns"
+        [column]="col"
+        valueFormat="decimal"
+        displayFormat="{0}"
+      ></dxi-total-item>
+      <dxi-total-item
+        summaryType="sum"
+        column="tongSoKhoaHoc"
+        valueFormat="decimal"
+        displayFormat="Tổng: {0}"
+      ></dxi-total-item>
+    </dxo-summary>
+  </dx-data-grid>
+</div>
+<dx-popup
+  [cssClass]="'custom-popup-class'"
+  [title]="viewResultTitle"
+  [(visible)]="isShowResultView"
+  [fullScreen]="!!(screen.xSmallScreenChanged | async)"
+  width="80%"
+  height="80%"
+>
+  <app-teacher-lesson-detail [payload]="detailItem"></app-teacher-lesson-detail>
+</dx-popup>
+

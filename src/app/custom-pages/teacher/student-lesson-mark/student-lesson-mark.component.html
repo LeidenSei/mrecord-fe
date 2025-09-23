@@ -1,0 +1,65 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <div class="view-wrapper">
+    <div class="cards" style="width: 100%">
+      <div class="card" style="padding: 20px;width: 50%;height: 100%;overflow-y:scroll">
+        <!--<div [innerHTML]="trustedHtml">
+        </div>-->
+        <dx-file-uploader
+            #fileUploader
+            uploadMode="instantly"
+            [uploadHeaders]="uploadHeaders"
+            [(uploadUrl)]="uploadUrl"
+            [selectButtonText]="'Chọn đề thi'"
+            [uploadButtonText]="'Tải lên'"
+            name="formFile"
+            [multiple]="false"
+            [visible]="true"
+            (onUploadStarted)="onUploadStarted($event)"
+            (onUploaded)="onFileUploaded($event)"
+            (onUploadError)="onUploadError($event)">
+        </dx-file-uploader>
+
+        <div class="question-item" *ngFor="let item of source2;let stt = index">
+          <div>
+            {{loadingEditor}}
+            <a (click)="editQuestion(item)">Sửa</a>
+          </div>
+          <strong>Câu {{stt + 1}}.&nbsp;</strong><span [innerHTML]="item.question">
+          </span>
+          <div style="display: grid;gap:10px;margin: 10px 0;">
+            <span class="answer-item" *ngFor="let atem of item.answers">
+              <strong class="ng-{{atem.isCorrect}}">{{atem.letter}}.&nbsp;</strong><span class="ng-{{atem.isCorrect}}"
+                                                                                         [innerHTML]="atem.text"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding: 20px;width: 50%">
+        <div class="content">
+          <h5>Mathjax playground for Angular 6</h5>
+          <!--<ckeditor  [config]="editorConfig" [(ngModel)]="model.editorData"></ckeditor>-->
+          <!--<app-ckeditor [editorId]="'editor-1'" (ready)="onContentReady($event)"
+                        [(ngModel)]="model.editorData"></app-ckeditor>-->
+
+          <hr>
+          <mathjax [content]="mathContent"></mathjax>
+          <br>
+          <hr>
+          <h4>Type mathjax text here </h4>
+          <textarea rows=10 style="width:100%" [(ngModel)]="mathContent"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<dx-popup
+  title="Chỉnh sửa nội dung"
+  [(visible)]="isShowEdit"
+  class="form-popup"
+  [width]="1200"
+>
+  <div class="alert alert-info text-center">
+    Tổng số học sinh thi
+  </div>
+
+</dx-popup>

@@ -1,0 +1,257 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+    [rowAlternationEnabled]="true"
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    (onExporting)="onExporting($event)"
+    (onSelectionChanged)="handleSelectionChange($event)"
+  >
+    <dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item name="exportButton"></dxi-item>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Danh sách gói tin <span *ngIf="studentCount > 0">&nbsp;({{ studentCount }})</span>
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Năm học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="schoolYearSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="schoolYearChange($event)"
+          [selectedItemKey]="filterSchoolYear"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Khối học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="gradeSource"
+          (onItemClick)="gradeChange($event)"
+          [selectedItemKey]="gradeSource[0]"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Lớp học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="filterClassSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="classChange($event)"
+          [selectedItemKey]="filterClassId"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="isAdmin">
+        <dx-button class="btn-success"
+                   [disabled]="certPHATHANH_Base64"
+                   [text]="'CTS Phát hành'"
+                   [elementAttr]="{ id: 'elementId', class: 'color-white' }"
+                   [icon]="'todo'"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="getCTS('PHAT_HANH')"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="multipleApproved">
+        <dx-button class="btn-success"
+                   [disabled]="!selectedItems.length || signedCount !== 0"
+                   text="Ký số gói tin"
+                   icon="todo"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="doSigned()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="multipleApproved">
+        <dx-button class="btn-success"
+                   [disabled]="!selectedItems.length || signedCount === 0"
+                   text="Gửi dữ liệu lên sở"
+                   icon="todo"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="doSubmitRelease()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="multipleApproved">
+        <dx-button class="btn-warning"
+                   [disabled]="!selectedItems.length || recallCount === 0"
+                   text="Thu hồi dữ liệu"
+                   icon="revert"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="doRecall()"
+        ></dx-button>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+    <dxi-column dataField="name" [width]="250" caption="Tên gói học bạ" cellTemplate="cellName"></dxi-column>
+    <dxi-column dataField="hocbaCount" [width]="120" caption="Số học bạ" alignment="center"></dxi-column>
+    <dxi-column dataField="dateCreated" dataType="date"
+                format="dd/MM/yyyy" [width]="150" caption="Ngày đóng gói"></dxi-column>
+    <dxi-column dataField="className" [width]="110" caption="Lớp" alignment="center"></dxi-column>
+    <dxi-column dataField="apiMessageId" [width]="220" cellTemplate="cellMessageId" caption="MessageId" alignment="center"></dxi-column>
+    <!--<dxi-column caption="Giáo viên chủ nhiệm" [width]="200" dataField="homeRoomTeacherName"
+                alignment="center"></dxi-column>-->
+
+    <!--<dxi-column caption="Không DK LMS" [width]="140" cellTemplate="cellInActiveLMS" dataField="isNotUsingLMSText"></dxi-column>
+    <dxi-column caption="Không DK mSchool" [width]="150" cellTemplate="cellInActiveMS" dataField="isNotUsingMSText"></dxi-column>-->
+
+    <dxi-column caption="Trạng thái" alignment="center">
+      <dxi-column caption="Ký số" alignment="center" cellTemplate="cellPackaged"></dxi-column>
+      <dxi-column caption="Nộp sở" alignment="center" cellTemplate="cellSynced"></dxi-column>
+    </dxi-column>
+
+
+    <dxi-column caption="XML" alignment="center" cellTemplate="cellLinkXml"></dxi-column>
+
+    <div *dxTemplate="let cellInfo of 'cellMessageId'">
+      <span style="word-break: break-word;font-size: 9px;">{{ cellInfo.data.apiMessageId}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellName'">
+      Gói tin học bạ {{ cellInfo.data.dateCreated | date: 'dd-MM-yyyy HH:mm:ss' }}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellActiveLMS'">
+      {{ cellInfo.data.IsNotUsingLMS ? cellInfo.data.IsNotUsingLMS : true }}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellGender'">
+      {{ cellInfo.data.sex == 1 ? 'Nam' : 'Nữ' }}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDateRange'">
+      {{ cellInfo.data.beginDate | date: 'dd/MM/yy' }} - {{ cellInfo.data.expiredDate | date: 'dd/MM/yy' }}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      {{ cellInfo.data | fullName }}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellPhone'">
+      {{ getPhoneStudent(cellInfo.data) }}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellPackaged'">
+      <span
+        class="sign-status {{cellInfo.data.signed ? 'signed' : ''}}">{{ cellInfo.data.signed ? 'Đã ký' : 'Chưa ký' }}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellSynced'">
+      <span class="sign-status {{cellInfo.data.isSyncSGD ? 'signed' : ''}}">{{ cellInfo.data.statusSynced }}</span>
+    </div>
+
+    <div *dxTemplate="let cellInfo of 'cellLinkXml'">
+      <a style="font-size: 12px" target="_blank"
+         [href]="cellInfo.data.xmlUrl">
+        (Xem file)
+      </a>
+    </div>
+  </dx-data-grid>
+</div>
+
+
+<dx-popup
+  title="Xác thực ký số"
+  [(visible)]="isShowSignLoading"
+  class="form-popup"
+  width="500px"
+  height="400px"
+  (onHiding)="handleCloseLoading()"
+>
+  <div class="popup-content">
+    <p>
+      Yêu cầu ký số đã được gửi về thiết bị di động.<br>
+      Mở ứng dụng <strong>MySign</strong> và nhấn <strong>Xác nhận</strong> để ký tài liệu.
+    </p>
+    <p><strong>Ứng dụng:</strong> MySign</p>
+    <p><strong>Trạng thái:</strong> Đang thực hiện ký</p>
+
+    <div class="timer-box text-center mt-4">
+      <div class="timer-label">Thời gian còn lại</div>
+      <div class="timer-value">{{ countdownDisplay }}</div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  title="Xác thực ký số"
+  [(visible)]="isShowSignLoadingPrincipal"
+  class="form-popup"
+  width="300px"
+  height="200px"
+  (onHiding)="handleCloseLoading()"
+>
+  <div class="popup-content">
+    <p>
+      Yêu cầu ký số đã được thực thi.<br>
+      <strong>Vui lòng chờ trong giây lát</strong>
+    </p>
+    <!--Loading here-->
+    <div class="mt-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  [(visible)]="isCertPopupVisible"
+  class="form-popup"
+  [width]="600"
+  [height]="350"
+  [showTitle]="true"
+  title="Xác nhận chứng thư số nhà trường (ký phát hành)"
+>
+  <div>
+    <div class="cert-info-box">
+      <p><strong>Đây có phải thông tin chứng thư số bạn muốn lấy không?</strong></p>
+      <p><strong>Subject:</strong> {{ certInfo.subject }}</p>
+      <p><strong>Issuer:</strong> {{ certInfo.issuer }}</p>
+    </div>
+    <div class="text-right" style="margin-top: 20px;">
+      <dx-button text="Không" [elementAttr]="{ id: 'elementId', class: 'color-white' }" type="danger" (onClick)="cancelCert()" ></dx-button>
+      <dx-button style="margin-left: 10px;" text="Đúng" [elementAttr]="{ id: 'elementId', class: 'color-white' }" type="success" (onClick)="confirmCert()"></dx-button>
+    </div>
+  </div>
+</dx-popup>

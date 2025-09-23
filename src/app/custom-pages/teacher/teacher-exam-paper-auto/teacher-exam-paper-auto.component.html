@@ -1,0 +1,626 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <mathjax [content]=""></mathjax>
+  <dx-load-panel
+      #loadPanel
+      shadingColor="rgba(0,0,0,0.4)"
+      [position]="{ of: '#div-question' }"
+      [(visible)]="docLoading"
+      [message]="'Đang tải dữ liệu...'"
+      [showIndicator]="true"
+      [showPane]="true"
+      [shading]="true"
+      [hideOnOutsideClick]="false"
+  >
+  </dx-load-panel>
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText="Không có dữ liệu"
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+  >
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <!--<dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>-->
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [allowExportSelectedData]="true"
+      [formats]="['xlsx', 'pdf']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Danh sách đề thi trắc nghiệm tự động
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Lớp</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-tag-box
+          [items]="classSource"
+
+          placeholder="Chọn lớp"
+          [(value)]="filterClassIds"
+          displayExpr="name"
+          valueExpr="id"
+          (valueChange)="doFilterClass($event)"
+          [searchEnabled]="true">
+        </dx-tag-box>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto">
+        <dx-button
+          text="Thêm mới"
+          icon="plus"
+          type="default"
+          stylingMode="contained"
+          (onClick)="addItemClick()"
+        ></dx-button>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+    <dxi-column dataField="code" caption="Mã" [width]="80"></dxi-column>
+    <dxi-column dataField="name" caption="Đề thi" [width]="200" cellTemplate="cellDetailLink"></dxi-column>
+    <dxi-column [width]="140" caption="Kết quả" cellTemplate="cellViewTemplate"></dxi-column>
+    <dxi-column dataField="subject" [width]="100" caption="Môn học"></dxi-column>
+    <!--<dxi-column dataField="beginDate" [width]="120" caption="Thời hạn" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>-->
+    <dxi-column [width]="130" caption="Thời hạn từ" dataType="date"
+                cellTemplate="cellFromDate"></dxi-column>
+    <dxi-column [width]="130" caption="Đến" dataType="date"
+                cellTemplate="cellToDate"></dxi-column>
+    <dxi-column dataField="timeToDo" [width]="120" caption="Được thi (lần)"></dxi-column>
+    <dxi-column dataField="time" [width]="120" caption="TG làm bài"></dxi-column>
+    <dxi-column dataField="questionCount" [width]="110" caption="Số câu hỏi"></dxi-column>
+    <dxi-column dataField="className" [width]="120" caption="Lớp"></dxi-column>
+    <dxi-column dataField="createdDate" [width]="120" caption="Ngày tạo" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>
+
+    <dxi-column type="buttons" [fixed]="true" fixedPosition="right" caption="Chức năng">
+      <dxi-button
+        hint="Xem trước đề"
+        cssClass="dx-button-success"
+        [onClick]="onPreviewClick"
+        icon="ordersbox"
+
+      ></dxi-button>
+      <dxi-button
+        hint="Sửa thông tin"
+        cssClass="dx-button-success"
+        [onClick]="onEditClick"
+        icon="edit"
+
+      ></dxi-button>
+      <dxi-button
+        hint="Xóa đề thi"
+        cssClass="dx-button-danger"
+        [onClick]="onDeleteClick"
+        icon="trash"
+        type="danger"
+      ></dxi-button>
+    </dxi-column>
+    <div *dxTemplate="let cellInfo of 'cellViewTemplate'">
+      <dx-button
+        text="Xem KQ"
+        [elementAttr]="{ id: 'elementId', class: 'grid-button' }"
+        icon="taskcomplete"
+        type="normal"
+        stylingMode="outlined"
+        (onClick)="showResult(cellInfo.data)"
+      ></dx-button>
+    </div>
+
+    <div *dxTemplate="let cellInfo of 'cellStatus'">
+      <span *ngIf="!cellInfo.data.isRunning" class="tag red">Hết hạn làm bài</span>
+      <span *ngIf="cellInfo.data.isRunning" class="tag processing">Đang hoạt động</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellFromDate'">
+      <span>{{cellInfo.data.fromDate | date: 'HH:mm dd/MM/yy'}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellToDate'">
+      <span>{{cellInfo.data.toDate | date: 'HH:mm dd/MM/yy'}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDateRange'">
+      {{cellInfo.data.fromDate | date: 'HH:mm dd/MM/yy'}} - {{cellInfo.data.toDate | date: 'HH:mm dd/MM/yy'}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <a title="" class="a-link"
+         (click)="viewDethi(cellInfo.data)">{{cellInfo.data.name}}</a>
+      <span style="color: red;font-size: 20px;margin-left: 8px;" title="Chế độ chống gian lận đã được bật" class="dx-icon-photo" *ngIf="cellInfo.data.isAntiCheating"></span>
+    </div>
+  </dx-data-grid>
+
+</div>
+
+
+<dx-popup
+  [title]="editTitle"
+  [(visible)]="isShowEdit"
+  class="form-popup"
+  width="100%"
+  height="100%"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div
+      class="form-popup-buttons-container"
+    >
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupEdit()"
+      ></dx-button>
+      <dx-button
+        text="Cập nhật"
+        stylingMode="contained"
+        type="default"
+        (onClick)="onSaveClick()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <dx-validation-group #validationGroup>
+    <div class="row">
+      <div class="col-6 popup-scroll-y">
+        <dx-form
+            #formChung
+            [screenByWidth]="getSizeQualifier"
+            [(formData)]="dataItem"
+            labelLocation="top"
+            labelMode="outside"
+            [colCount]="12">
+          <!---------------------------start line-------------------------------->
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="true" [colSpan]="8">
+            <dxo-label text="Tên đề thi"></dxo-label>
+            <dx-text-box
+              stylingMode="outlined"
+              valueChangeEvent="keyup input change"
+              [(value)]="dataItem.name">
+              <dx-validator
+                [validationRules]="[{ type: 'required', message: 'Chưa nhập tên đề thi' }]"></dx-validator>
+            </dx-text-box>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [colSpan]="4">
+            <dxo-label text="Mã đề thi"></dxo-label>
+            <dx-text-box
+              stylingMode="outlined"
+              valueChangeEvent="keyup input change"
+              [(value)]="dataItem.code">
+            </dx-text-box>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="true" [colSpan]="6">
+            <dxo-label text="Lớp học"></dxo-label>
+            <dx-tag-box
+              [items]="classSource"
+              placeholder="Chọn lớp"
+              [(value)]="dataItem.classIds"
+              displayExpr="name"
+              valueExpr="id"
+              [searchEnabled]="true"
+              [inputAttr]="{ 'aria-label': 'Product' }"
+            >
+              <dx-validator
+                [validationRules]="[{ type: 'required', message: 'Chưa chọn lớp học' }]"></dx-validator>
+            </dx-tag-box>
+          </dxi-item>
+          <dxi-item [isRequired]="true" [colSpan]="6">
+            <dxo-label text="Môn học"></dxo-label>
+            <dx-select-box
+              placeholder="Chọn môn học"
+              stylingMode="outlined"
+              displayExpr="name"
+              valueExpr="id"
+              [dataSource]="subjectSource"
+              [(value)]="dataItem.subjectId"
+            >
+              <dx-validator
+                [validationRules]="[{ type: 'required', message: 'Chưa chọn môn học' }]"></dx-validator>
+            </dx-select-box>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [colSpan]="6">
+            <dxo-label text="Hướng dẫn tạo đề thi"></dxo-label>
+            <div class="mt-2">
+              <button (click)="showPopupDownload()" class="alert-info alert d-flex" style="cursor: pointer">
+                <i class="dx-icon-docfile" style="font-size: 18px"></i>
+                Thông tin đề mẫu
+              </button>
+            </div>
+          </dxi-item>
+          <dxi-item [isRequired]="true" [colSpan]="6">
+            <dxo-label text="Tải lên đề thi (.doc, .docx)"></dxo-label>
+            <ul class="ul_files" ng-if="dataItem.files.length">
+              <li *ngFor="let item of dataItem.files">
+                <a class="link" style="display: flex" target="_blank" [href]="combineUrlSource(item.source)"
+                   [title]="item.filename">
+                  <span class="dx-icon-file"></span>
+                  <span>{{item.filename}}</span>
+                </a>
+                <a class="btn-delete" (click)="deleteFile(item)">
+                  <span class="dx-icon-remove"></span>
+                </a>
+              </li>
+            </ul>
+            <div class="ep-uploader">
+              <dx-file-uploader
+                  #fileUploader
+                  uploadMode="instantly"
+                  [allowedFileExtensions]="['.docx', '.doc']"
+                  [uploadHeaders]="uploadHeaders"
+                  [(uploadUrl)]="uploadUrl"
+                  [uploadHint]="'Kéo và thả tệp của bạn vào đây hoặc nhấn để chọn tệp'"
+                  [selectButtonText]="'Chọn đề thi'"
+                  [uploadButtonText]="'Upload files'"
+                  name="formFile"
+                  [multiple]="false"
+                  [visible]="true"
+                  invalidFileExtensionMessage="File tải lên phải là file word có định dạng DOC hoặc DOCX"
+                  (onUploadStarted)="onUploadStarted($event)"
+                  (onUploaded)="onFileUploaded($event)"
+                  (onUploadError)="onUploadError($event)">
+              </dx-file-uploader>
+            </div>
+          </dxi-item>
+
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="true" [colSpan]="4">
+            <dxo-label text="Bắt đầu"></dxo-label>
+            <dx-date-box
+              [(value)]="dataItem.fromDate"
+              stylingMode="outlined"
+              type="datetime"
+              displayFormat="HH:mm dd/MM/yyyy HH:mm"
+              placeholder=""
+              pickerType="calendar"
+            >
+              <dx-validator
+                [validationRules]="[{ type: 'required', message: 'Chưa chọn ngày bắt đầu' }]"></dx-validator>
+            </dx-date-box>
+          </dxi-item>
+          <dxi-item [isRequired]="true" [colSpan]="4">
+            <dxo-label text="Kết thúc"></dxo-label>
+            <dx-date-box
+              [(value)]="dataItem.toDate"
+              stylingMode="outlined"
+              placeholder=""
+              type="datetime"
+              displayFormat="HH:mm dd/MM/yyyy HH:mm"
+              pickerType="calendar"
+            >
+              <dx-validator
+                [validationRules]="[{ type: 'required', message: 'Chưa chọn ngày kết thúc' }]"></dx-validator>
+            </dx-date-box>
+          </dxi-item>
+          <dxi-item [colSpan]="4">
+            <dxo-label text="Số lần được thi"></dxo-label>
+            <dx-number-box
+              stylingMode="outlined"
+              [(value)]="dataItem.timeToDo"
+            ></dx-number-box>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="true" [colSpan]="4">
+            <dxo-label text="TG làm bài (phút)"></dxo-label>
+            <dx-number-box
+              stylingMode="outlined"
+              [(value)]="dataItem.time">
+              <dx-validator
+                [validationRules]="[{ type: 'required', message: 'Chưa nhập thời gian làm bài' }]"></dx-validator>
+            </dx-number-box>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="true" [colSpan]="4">
+            <dxo-label text="Số câu hỏi"></dxo-label>
+            <dx-number-box
+              stylingMode="outlined"
+              [(value)]="dataItem.numberQuestion">
+              <dx-validator
+                [validationRules]="[{ type: 'required', message: 'Chưa nhập số câu hỏi' }]"></dx-validator>
+            </dx-number-box>
+          </dxi-item>
+          <!---------------------------start line-------------------------------->
+          <dxi-item [isRequired]="false" [colSpan]="4">
+            <dxo-label text="Chống gian lận"></dxo-label>
+            <div style="font-size: 16px;">
+              <dx-check-box [(value)]="dataItem.isAntiCheating"
+                            text="Áp dụng"></dx-check-box>
+            </div>
+            <!--<dx-number-box
+              stylingMode="outlined"
+              [(value)]="dataItem.numberOfAnswer">
+              <dx-validator
+                [validationRules]="[{ type: 'required', message: 'Chưa nhập số đáp án / câu hỏi' }]"></dx-validator>
+            </dx-number-box>-->
+          </dxi-item>
+          <dxi-item [isRequired]="true" [colSpan]="8">
+            <dxo-label text=""></dxo-label>
+          </dxi-item>
+          <dxi-item [isRequired]="true" [colSpan]="4" location="after">
+            <!--<dx-button
+              text="Tạo đáp án"
+              width="100%"
+              icon="plus"
+              type="default"
+              stylingMode="contained"
+              (onClick)="generateQuesion()"
+            ></dx-button>-->
+          </dxi-item>
+          <dxi-item [colSpan]="12">
+            <table class="table table-bordered datatable dataTable no-footer dtr-column">
+              <thead class="thead-light text-center">
+              <tr role="row">
+                <th width="55px">STT</th>
+                <th width="65px">Điểm</th>
+                <th width="">Đáp án đúng</th>
+                <th width="85px"></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item of questions;let stt = index">
+                <td class="text-center">{{stt + 1}}</td>
+                <td class="text-center">
+                  <dx-number-box
+                    [elementAttr]="{ style: 'text-align:center' }"
+                    stylingMode="outlined"
+                    [(value)]="item.mark"
+                    (valueChange)="changeRowMark()"
+                  ></dx-number-box>
+                </td>
+                <td class="td-checkbox text-center">
+                  <strong style="font-size: 18px;color: #369223" *ngFor="let an of item.answers;let aindex = index">
+                    {{an.isCorrect ? alphabetArray[aindex] : ''}}
+                  </strong>
+                </td>
+                <td class="text-center">
+
+                </td>
+              </tr>
+              </tbody>
+              <tfoot>
+              <tr role="row">
+                <th></th>
+                <th>
+                  <dx-number-box
+                    [elementAttr]="{ style: 'text-align:center' }"
+                    stylingMode="outlined"
+                    [readOnly]="true"
+                    [(value)]="sumMark"
+                    (valueChange)="changeRowQuestion()"
+                  ></dx-number-box>
+                </th>
+                <th>
+                  <div *ngIf="sumMark != 10" class="alert alert-danger m-0">*Cảnh báo: tổng điểm không bằng 10</div>
+                </th>
+                <th></th>
+              </tr>
+              </tfoot>
+            </table>
+          </dxi-item>
+        </dx-form>
+      </div>
+      <div class="col-md-6 popup-scroll-y" id="div-question">
+        <div class="question-item" *ngFor="let item of questions;let stt = index">
+          <strong>Câu {{stt + 1}}.&nbsp;</strong><span [innerHTML]="item.htmlText">
+          </span>
+          <div style="display: grid;gap:10px;margin: 10px 0;">
+            <div class="answer-item" *ngFor="let atem of item.answers;let j = index">
+              <dx-check-box (onValueChanged)="onAnswerCorrectChange(item, atem, $event)" [(value)]="atem.isCorrect"
+                            [text]=""></dx-check-box>
+              <strong class="ng-{{atem.isCorrect}}">{{alphabetArray[j]}}.&nbsp;</strong>
+              <span class="ng-{{atem.isCorrect}}" [innerHTML]="atem.htmlText"></span>
+
+              <a class="btn-delete" (click)="deleteAnswer(item, j)" style="color: red">
+                <i class="dx-icon-close" style="font-size: 18px"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dx-validation-group>
+</dx-popup>
+<dx-popup
+  [title]="popupResultTitle"
+  [(visible)]="isShowPopupResult"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '1200px'"
+  [height]="isSmallScreen() ? '100%' : '80%'"
+>
+  <div class="alert alert-info text-center">
+    Tổng số học sinh thi: <strong>{{resultInfo.studentCount}}</strong> - Tổng số lượt làm bài :
+    <strong>{{resultInfo.resultCount}}</strong>
+  </div>
+  <dx-data-grid
+    noDataText=""
+    id="gridResult"
+    width="100%"
+    [dataSource]="resultInfo.items"
+    keyExpr="id"
+    height="500px"
+    [showBorders]="true"
+    (onExporting)="onExporting($event)"
+    (onContentReady)="onContentReady($event)"
+  >
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Lớp học:</label>
+      </dxi-item>
+      <dxi-item location="before"  locateInMenu="auto">
+        <dx-tabs
+          secondary="secondary"
+          [showNavButtons]="false"
+          [scrollByContent]="true"
+          [selectedIndex]="classTabIndex"
+          [items]="tabClassSource"
+          (onItemClick)="classChange($event)"
+        ></dx-tabs>
+      </dxi-item>
+      <dxi-item name="exportButton"></dxi-item>
+    </dxo-toolbar>
+    <dxi-column dataField="index" caption="STT" alignment="center" [width]="60"></dxi-column>
+    <dxi-column dataField="name" caption="Họ và tên"></dxi-column>
+    <dxi-column dataField="class" caption="Lớp" [width]="80"></dxi-column>
+    <dxi-column dataField="count" caption="Lần thi" [width]="80"></dxi-column>
+    <dxi-column dataField="minMark" caption="Điểm thấp nhất" [width]="140"></dxi-column>
+    <dxi-column dataField="maxMark" caption="Điểm cao nhất" [width]="130"></dxi-column>
+    <dxi-column dataField="avgMark" caption="Điểm TB" [width]="130"></dxi-column>
+    <dxi-column dataField="isCheatingText" alignment="center" caption="Gian lận" [width]="100"></dxi-column>
+    <dxi-column caption="" [width]="120" cellTemplate="cellButtons"></dxi-column>
+    <div *dxTemplate="let cellInfo of 'cellButtons'">
+      <button title="Xem kết quả" *ngIf="cellInfo.data.count > 0" (click)="onViewResultClick(cellInfo.data)"
+              class="btn btn-sm btn-success me-2">
+        <i class="dx-icon-textdocument"></i>
+      </button>
+
+      <button title="Cho thi lại" *ngIf="cellInfo.data.count > 0" (click)="onRedoClick(cellInfo.data)"
+              class="btn btn-sm btn-warning me-2">
+        <i class="dx-icon-redo"></i>
+      </button>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellAvgMark'">
+      <span>{{cellInfo.data.avgMark}}</span>
+    </div>
+    <dxo-load-panel [enabled]="true"></dxo-load-panel>
+    <dxo-scrolling mode="virtual"></dxo-scrolling>
+    <dxo-sorting mode="none"></dxo-sorting>
+  </dx-data-grid>
+</dx-popup>
+
+<dx-popup
+  [title]="examTitle"
+  [(visible)]="isShowPreview"
+  class="form-popup"
+  [width]="800"
+>
+  <!--<div *ngIf="isCompleted" class="result">
+    <h3>Kết quả của bạn: {{ score }} / {{ shuffleQuestions.length }}</h3>
+  </div>-->
+  <div *ngIf="shuffleQuestions">
+    <dx-gallery
+      [dataSource]="shuffleQuestions"
+      [selectedIndex]="currentIndex"
+      [loop]="false"
+      [showIndicator]="true"
+      [showNavButtons]="true"
+      height="600px"
+      (onSelectionChanged)="onQuestionChange($event)"
+    >
+
+      <div *dxTemplate="let item of 'item'">
+        <div class="p-5" style="padding-top: 10px !important;padding-bottom: 10px !important;">
+          <div class="exam-question white-space-normal text-left mb-2" style="font-size: 16px;line-height: 24px">
+            <strong>Câu {{ shuffleQuestions.indexOf(item) + 1 }}.&nbsp;</strong>
+            <span [innerHTML]="item.htmlText"></span>
+          </div>
+          <div *ngFor="let answer of item.answers; let j = index" class="answer-item p-0" style="background: transparent">
+            <strong>{{ alphabetArray[j] }}.</strong>
+            <span [innerHTML]="answer.htmlText"
+                  (click)="selectAnswer(shuffleQuestions.indexOf(item), j)"
+                  [ngClass]="{'selected-answer': userAnswers[shuffleQuestions.indexOf(item)] === j}"
+                  class="answer-button">
+             {{ answer.htmlText }}
+          </span>
+          </div>
+        </div>
+      </div>
+    </dx-gallery>
+  </div>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div
+      class="form-popup-buttons-container"
+    >
+      <dx-button
+        text="Kiểm tra kết quả"
+        icon="todo"
+        stylingMode="contained"
+        type="default"
+        (onClick)="calculateScore()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+</dx-popup>
+
+<dx-popup
+  [title]="'Đề mẫu'"
+  [(visible)]="isShowPopupDownload"
+  class="form-popup"
+  [width]="750"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div
+      class="form-popup-buttons-container"
+    >
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="isShowPopupDownload = false"
+      ></dx-button>
+      <dx-button
+        text="Tải về đề mẫu"
+        icon="docxfile"
+        stylingMode="contained"
+        type="default"
+        (onClick)="downloadSample()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="row">
+    <div class="col-md-12">
+      <img style="max-width: 100%;border: solid 1px #DDD;" src="/assets/images/huongdantaide.jpg"/>
+    </div>
+    <!--<div class="col-md-12 mt-2">
+      <button (click)="downloadSample()" class="alert-info alert d-flex" style="cursor: pointer">
+        <i class="dx-icon-docxfile" style="font-size: 18px"></i>
+        Tải về đề mẫu</button>
+    </div>-->
+  </div>
+</dx-popup>
+
+<dx-popup
+  [title]="popupResultStudentTitle"
+  [(visible)]="isShowResult"
+  [showCloseButton]="true"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '800px'"
+  [height]="isSmallScreen() ? '100%' : '80%'"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Đóng"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupViewResult()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <app-student-exampaper-result-detail [isMobile]="isSmallScreen()" [examPaper]="examPaperData"></app-student-exampaper-result-detail>
+</dx-popup>

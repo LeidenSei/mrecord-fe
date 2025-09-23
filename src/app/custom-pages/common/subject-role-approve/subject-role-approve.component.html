@@ -1,0 +1,150 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+  >
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <!--<dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>-->
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [allowExportSelectedData]="true"
+      [formats]="['xlsx', 'pdf']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Tổ trưởng, nhóm trưởng chuyên môn
+        </div>
+      </dxi-item>
+      <!--<dxi-item location="before" locateInMenu="auto">
+        <label>Khối học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="gradeSource"
+          [selectedItemKey]="gradeSource[0]"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>-->
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+    <!--<dxi-column dataField="code" [width]="120" caption="Mã môn"></dxi-column>-->
+    <dxi-column dataField="name" caption="Tên môn" [width]="200"></dxi-column>
+    <dxi-column cellTemplate="cellTTCM" [width]="320" caption="Tổ trưởng chuyên môn"></dxi-column>
+    <dxi-column dataField="name" caption="Nhóm chuyên môn" cellTemplate="cellTTCMKhoi"></dxi-column>
+    <dxi-column type="buttons" fixedPosition="right" caption="Chức năng" [fixed]="true">
+      <dxi-button
+        hint="Cấu hình tổ trưởng, nhóm chuyên môn"
+        cssClass="dx-button-success"
+        [onClick]="onEditClick"
+        icon="edit"
+      ></dxi-button>
+    </dxi-column>
+    <div *dxTemplate="let cellInfo of 'cellTTCMKhoi'">
+      <span *ngFor="let item of cellInfo.data.ttcmKhois" class="tag processing">
+        Khối {{item.grade}}: <strong>{{item.teacherName}}</strong>
+      </span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellTTCM'">
+      <div class="d-flex gap-2 change-{{cellInfo.data.changed}}">
+        <dx-select-box
+          stylingMode="outlined"
+          [showClearButton]="true"
+          [searchEnabled]="true"
+          displayExpr="fullName"
+          [width]="250"
+          valueExpr="id"
+          [pageSize]="10"
+          placeholder="Chọn giáo viên"
+          (onItemClick)="changeTTCM($event, cellInfo.data)"
+          [dataSource]="teacherSource"
+          [(value)]="cellInfo.data.ttcmId"
+        >
+        </dx-select-box>
+        <dx-button
+          text=""
+          [disabled]="!cellInfo.data.changed"
+          icon="save"
+          stylingMode="outlined"
+          type="normal"
+          (onClick)="saveTTCM(cellInfo.data)"
+        ></dx-button>
+      </div>
+    </div>
+  </dx-data-grid>
+</div>
+
+<dx-popup
+  [title]="'Cập nhật nhóm chuyên môn'"
+  [(visible)]="isShowConfig"
+  class="form-popup"
+  [width]="400"
+  [height]="400"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closeConfig()"
+      ></dx-button>
+      <dx-button
+        text="Cập nhật"
+        stylingMode="contained"
+        type="default"
+        (onClick)="saveTTCMKhoi()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="popup-content">
+    <table class="tabledatatable dataTable no-footer dtr-column" style="width: 100%">
+      <tbody>
+      <tr *ngFor="let item of ttcmGradeSource" >
+        <td>
+          Khối {{item.grade}}
+        </td>
+        <td class="p-1">
+          <dx-select-box
+            stylingMode="outlined"
+            [showClearButton]="true"
+            placeholder="Chọn giáo viên"
+            [searchEnabled]="true"
+            displayExpr="fullName"
+            valueExpr="id"
+            [pageSize]="10"
+            [dataSource]="teacherSource"
+            [(value)]="item.teacherId"
+          >
+          </dx-select-box>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</dx-popup>

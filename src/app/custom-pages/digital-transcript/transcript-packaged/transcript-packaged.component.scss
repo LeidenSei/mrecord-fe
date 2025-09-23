@@ -1,0 +1,101 @@
+@use "../../../../variables.scss" as *;
+@use "sass:math";
+
+:host {
+  --side-panel-toolbar-height: 76px;
+
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+
+  .grid {
+    .name-template {
+      .position {
+        font-size: 12px;
+        color: var(--texteditor-label-color);
+      }
+    }
+
+    ::ng-deep & {
+      .dx-datagrid-header-panel {
+        padding: 0 var(--content-padding);
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: var(--toolbar-margin-bottom) 0;
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+      }
+    }
+
+    .grid-header {
+      @include header();
+    }
+  }
+
+  user-panel {
+    display: inherit;
+  }
+}
+::ng-deep .dx-data-grid .dx-row.dx-row-alt {
+  background-color: #fffbe6; /* vàng nhạt */
+}
+.sign-status{
+  color: #d37840;
+}
+.sign-status.signed{
+  color: #2cc322;
+}
+::ng-deep .form-popup .dx-popup-content {
+  padding: 24px;
+  font-size: 16px;
+  color: #333;
+}
+::ng-deep .dx-button.btn-success.dx-button-default:not(.dx-state-disabled){
+  background: #18a40d !important;
+}
+::ng-deep .dx-button.btn-success.dx-button-default:not(.dx-state-disabled):hover{
+  background: #216c02 !important;
+}
+.popup-content {
+  text-align: center;
+}
+.popup-content p{
+  font-size: 16px;
+}
+.timer-box {
+  background-color: #f0fdf4;
+  border: 2px dashed #34d399;
+  border-radius: 12px;
+  padding: 16px;
+  display: inline-block;
+  min-width: 180px;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+}
+
+.timer-label {
+  color: #10b981;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.timer-value {
+  color: #059669;
+  font-size: 32px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+.gvcn_signed{
+  color: #10b981;
+}

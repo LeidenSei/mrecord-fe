@@ -1,0 +1,75 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+  >
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <!--<dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>-->
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [allowExportSelectedData]="true"
+      [formats]="['xlsx', 'pdf']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Danh sách lớp
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Khối học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="gradeSource"
+          (onItemClick)="gradeChange($event)"
+          [selectedItemKey]="gradeSource[0]"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+    <dxi-column caption="Khối" dataField="grade" [width]="'55px'" [allowFiltering]="false"></dxi-column>
+    <dxi-column caption="Tên lớp" [allowFiltering]="false" cellTemplate="cellDetailLink"></dxi-column>
+    <dxi-column caption="Sĩ số" cellTemplate="cellStudentCount"></dxi-column>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      {{cellInfo.data.name}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellStudentCount'">
+      {{cellInfo.data.studentIds.length}}
+    </div>
+    <dxi-column type="buttons" fixedPosition="right" caption="Chức năng" [fixed]="true">
+      <dxi-button
+        hint="Xem danh sách học sinh"
+        cssClass="dx-button-success"
+        [onClick]="onViewStudentList"
+        icon="group"
+      ></dxi-button>
+    </dxi-column>
+  </dx-data-grid>
+</div>

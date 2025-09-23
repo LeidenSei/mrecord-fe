@@ -1,0 +1,68 @@
+.body{
+  margin: auto;
+  width: 100%;
+  background: #FAFAFA;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+h1{
+  font-size: 22px;
+  color: #22a507;
+}
+.container{
+  max-width: 1200px;
+  padding: 1.5rem;
+  border: solid 1px #EEE;
+  border-top: none;
+  border-bottom: none;
+  background: #FFF;
+  height: calc(100vh - 90px);
+  overflow: auto;
+}
+.item{
+margin-bottom: 5px;
+font-size: 15px;
+display: flex;
+align-items: center;
+}
+.item strong{
+font-size: 16px;
+margin-right: 10px;
+}
+.item label{
+margin-right: 5px;
+width: 120px;
+display: flex;
+gap: 5px;
+align-items: center;
+}
+.footer{
+background: #FAFAFA;padding: 10px;border-bottom: solid 1px #CCC;
+position: absolute;
+z-index: 9999;
+left: 0;
+right: 0;
+bottom: 0;
+text-align: center;
+border-top: solid 1px #EEE;
+}
+
+@media screen and (min-width: 1024px) {
+  /* Các kiểu dành cho màn hình có chiều rộng tối đa 600px */
+  .container{
+    min-width: 1024px;
+  }
+}
+@media screen and (max-width: 1000px) {
+  /* Các kiểu dành cho màn hình có chiều rộng tối đa 600px */
+  .container{
+    min-width: 0;
+  }
+  .qr-link{
+    display: none;
+  }
+}

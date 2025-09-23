@@ -1,0 +1,122 @@
+@use "../../../../variables.scss" as *;
+@use "sass:math";
+
+:host {
+  --side-panel-toolbar-height: 76px;
+
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+
+  .grid {
+    .name-template {
+      .position {
+        font-size: 12px;
+        color: var(--texteditor-label-color);
+      }
+    }
+
+    ::ng-deep & {
+      .dx-datagrid-header-panel {
+        padding: 0 var(--content-padding);
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: var(--toolbar-margin-bottom) 0;
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+      }
+    }
+
+    .grid-header {
+      @include header();
+    }
+  }
+
+  user-panel {
+    display: inherit;
+  }
+}
+
+.edit-cell {
+  position: relative;
+
+  contact-status {
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 11px;
+  }
+}
+span.status {
+  font-size: 13px;
+
+  &::before {
+    --diameter: 10px;
+
+    content: " ";
+    width: var(--diameter);
+    height: var(--diameter);
+    border-radius: calc(var(--diameter) / 2);
+    margin-right: calc(var(--diameter) / 2);
+    display: inline-block;
+  }
+
+  &.input {
+    display: block;
+    padding: 15px 16px 14px;
+  }
+}
+.status-0, .status-0::before{
+  color: #03a9f4;
+}
+.status-10, .status-10::before{
+  color: #03a9f4;
+}
+.status-20, .status-20::before{
+  color:#2eb52c;
+}
+.status-99, .status-99::before{
+  color: #de8e8c;
+}
+.btn-danger{
+  color: red !important;
+}
+a{
+  cursor: pointer;
+}
+.dx-field-item:not(.dx-field-item-has-group):not(.dx-field-item-has-tabs):not(.dx-first-row):not(.dx-label-v-align){
+  padding-top: 0;
+}
+dxi-item dx-check-box{
+  margin-bottom: 5px;
+}
+.message-error{
+  color: red;
+}
+#dropzone-external{
+  cursor: pointer;
+}
+#dropzone-external em{
+  text-align: center;
+  font-style: normal;
+  font-size: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.dx-template-wrapper a{
+  white-space: normal;
+}
+

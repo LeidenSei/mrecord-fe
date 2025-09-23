@@ -1,0 +1,100 @@
+<button (click)="login()">Login</button>
+
+<button (click)="callChildFunction()">Call React Function 123</button>
+
+<button (click)="createBaiGiang()">Tạo mới bài giảng</button>
+&nbsp;
+<button (click)="editContent()">Sửa bài giảng 1</button>
+&nbsp;
+<button (click)="editContent2()">Sửa bài giảng 2</button>
+
+<button (click)="playContent()">Xem bài giảng</button>
+
+
+
+<div *ngFor="let content of contentList">
+  <div>{{content.title}}</div>
+</div>
+<iframe id="reactFrame" width="100%" height="100%"></iframe>
+<!--src="http://localhost:3000"-->
+<!--
+<a (click)="exportToJson()">Save</a>
+<dx-diagram #diagram id="diagram" (onCustomCommand)="onCustomCommand($event)" height="100%">
+  <dxi-custom-shape
+    category="hardware"
+    type="internet"
+    title="Internet"
+    backgroundImageUrl="assets/images/form_vang.png"
+    [backgroundImageLeft]="0"
+    [backgroundImageTop]="0"
+    [backgroundImageWidth]="1"
+    [backgroundImageHeight]="1"
+    [defaultWidth]="1"
+    [defaultHeight]="1"
+    [allowEditText]="false"
+    [textLeft]="0"
+    [textTop]="0"
+    [textWidth]="1"
+    [textHeight]="1"
+  >
+  </dxi-custom-shape>
+  <dxo-context-menu
+    [enabled]="true"
+    [commands]="['bringToFront', 'sendToBack', 'lock', 'unlock']"
+  >
+  </dxo-context-menu>
+  <dxo-context-toolbox
+    [enabled]="true"
+    category="flowchart"
+    [width]="200"
+    [shapeIconsPerRow]="5"
+  >
+  </dxo-context-toolbox>
+  <dxo-properties-panel visibility="visible">
+    <dxi-tab>
+      <dxi-group
+        title="Page Properties"
+        [commands]="['pageSize', 'pageOrientation', 'pageColor']"
+      ></dxi-group>
+    </dxi-tab>
+  </dxo-properties-panel>
+  <dxo-history-toolbar [visible]="false"> </dxo-history-toolbar>
+  <dxo-view-toolbar [visible]="true"> </dxo-view-toolbar>
+  <dxo-main-toolbar [visible]="true">
+    <dxi-command name="undo"></dxi-command>
+    <dxi-command name="redo"></dxi-command>
+    <dxi-command name="separator"></dxi-command>
+    <dxi-command name="fontName"></dxi-command>
+    <dxi-command name="fontSize"></dxi-command>
+    <dxi-command name="separator"></dxi-command>
+    <dxi-command name="bold"></dxi-command>
+    <dxi-command name="italic"></dxi-command>
+    <dxi-command name="underline"></dxi-command>
+    <dxi-command name="separator"></dxi-command>
+    <dxi-command name="fontColor"></dxi-command>
+    <dxi-command name="lineColor"></dxi-command>
+    <dxi-command name="fillColor"></dxi-command>
+    <dxi-command name="separator"></dxi-command>
+    <dxi-command
+      name="clear"
+      icon="clearsquare"
+      text="Clear Diagram"
+    ></dxi-command>
+  </dxo-main-toolbar>
+  <dxo-toolbox
+    visibility="visible"
+    [showSearch]="false"
+    [shapeIconsPerRow]="4"
+    [width]="220"
+  >
+    <dxi-group category="general" title="General"></dxi-group>
+    <dxi-group
+      category="flowchart"
+      title="Flowchart"
+      [expanded]="true"
+    ></dxi-group>
+    <dxi-group category="hardware" title="Hardware"></dxi-group>
+  </dxo-toolbox>
+
+</dx-diagram>
+-->

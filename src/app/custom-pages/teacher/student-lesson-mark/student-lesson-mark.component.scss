@@ -1,0 +1,88 @@
+@use "../../../../variables.scss" as *;
+@use "sass:math";
+
+:host {
+  --side-panel-toolbar-height: 76px;
+
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+
+  .grid {
+    .name-template {
+      .position {
+        font-size: 12px;
+        color: var(--texteditor-label-color);
+      }
+    }
+
+    ::ng-deep & {
+      .dx-datagrid-header-panel {
+        padding: 0 var(--content-padding);
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: var(--toolbar-margin-bottom) 0;
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+      }
+    }
+
+    .grid-header {
+      @include header();
+    }
+  }
+
+  user-panel {
+    display: inherit;
+  }
+}
+
+.cards {
+  display: flex;
+  gap: 10px
+}
+
+.item {
+  margin-bottom: 20px;
+}
+
+mathjax {
+  display: block;
+}
+
+.ng-true {
+  color: #1fd744;
+}
+
+::ng-deep .mjx-chtml {
+  padding: 1px 5px !important;
+}
+
+::ng-deep {
+
+}
+
+.question-item {
+  padding: 10px;
+  background: #FAFAFA;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.answer-item {
+  background: #F5F5F5;
+  padding: 10px;
+  font-size: 15px;
+}

@@ -1,0 +1,153 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="dataSource"
+    [remoteOperations]="true"
+
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+  >
+    <dxo-paging
+      [pageSize]="20"
+      [pageIndex]="0">
+    </dxo-paging>
+    <dxo-pager
+      [visible]="true"
+      [displayMode]="'full'"
+      [showPageSizeSelector]="true"
+      [showInfo]="true"
+      [showNavigationButtons]="true"
+    >
+    </dxo-pager>
+    <!--<dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>-->
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <!--<dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>-->
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [allowExportSelectedData]="true"
+      [formats]="['xlsx', 'pdf']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Quản lý điểm
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Lớp</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-tag-box
+          [items]="classSource"
+          placeholder="Chọn lớp"
+          [(value)]="filterClassIds"
+          displayExpr="name"
+          valueExpr="id"
+          (valueChange)="doFilterClass($event)"
+          [searchEnabled]="true">
+        </dx-tag-box>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Môn học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <!--<dx-tabs
+          secondary="secondary"
+          [width]="(screen.xSmallScreenChanged | async) ? 220 : 'auto'"
+          [showNavButtons]="false"
+          [scrollByContent]="true"
+          [selectedIndex]="0"
+          [items]="filterSubjectItems"
+          (onItemClick)="tabSubjectChange($event)"
+        ></dx-tabs>-->
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          keyExpr="id"
+          displayExpr="text"
+          [items]="filterSubjectItems"
+          (onItemClick)="tabSubjectChange($event)"
+          [selectedItemKey]="filterSubjectId"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Tên bài giảng</label>
+      </dxi-item>
+      <dxi-item location="before">
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder=""
+          valueChangeEvent="keyup input change"
+          (valueChange)="doFilterKeyword($event)"
+          [(value)]="filterKeyword">
+        </dx-text-box>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+
+    <dxi-column dataField="khoaHocName" caption="Tên khóa học" [width]="400"></dxi-column>
+    <dxi-column dataField="name" caption="Tên học liệu" cellTemplate="cellDetailLink"></dxi-column>
+    <dxi-column dataField="view" caption="Lượt xem" [width]="100"></dxi-column>
+    <dxi-column dataField="classes" [width]="120" caption="Lớp học" cellTemplate="cellClasses"></dxi-column>
+
+    <!--<dxi-column caption="Chức năng" [width]="140" cellTemplate="cellButton"></dxi-column>-->
+    <div *dxTemplate="let cellInfo of 'cellStatus'">
+      <span *ngIf="!cellInfo.data.isRunning" class="tag red">Hết hạn làm bài</span>
+      <span *ngIf="cellInfo.data.isRunning" class="tag processing">Đang hoạt động</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <a title="Xem kết quả bài giảng" class="a-link bold" (click)="viewKetQua(cellInfo.data)">
+        {{cellInfo.value}}
+      </a>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellClasses'">
+        <span (click)="viewKetQua(cellInfo.data, cls.id)" class="tag processing" title="Xem điểm lớp {{cls.name}}"
+              *ngFor="let cls of cellInfo.value">
+          {{cls.name}}
+        </span>
+    </div>
+  </dx-data-grid>
+
+</div>
+<div class="popup-wrapper">
+  <dx-popup
+    [cssClass]="'custom-popup-class'"
+    [title]="viewResultTitle"
+    [(visible)]="isShowClassResultView"
+    [fullScreen]="!!(screen.xSmallScreenChanged | async)"
+    width="100%"
+    height="100%"
+  >
+    <app-student-lesson-class-score [user]="user" [baiGiang]="baiGiangItem"></app-student-lesson-class-score>
+    <!--<div class="">
+      <dx-button
+        text="Đóng"
+        icon="close"
+        type="default"
+        stylingMode="contained"
+        (onClick)="isShowClassResultView = false"
+      ></dx-button>
+    </div>-->
+  </dx-popup>
+</div>

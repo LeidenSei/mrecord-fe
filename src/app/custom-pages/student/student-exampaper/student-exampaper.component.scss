@@ -1,0 +1,396 @@
+@use "../../../../variables.scss" as *;
+@use "sass:math";
+
+:host {
+  --side-panel-toolbar-height: 76px;
+
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+
+  .grid {
+    .name-template {
+      .position {
+        font-size: 12px;
+        color: var(--texteditor-label-color);
+      }
+    }
+
+    ::ng-deep & {
+      .dx-datagrid-header-panel {
+        padding: 0 var(--content-padding);
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: var(--toolbar-margin-bottom) 0;
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+      }
+    }
+
+    .grid-header {
+      @include header();
+    }
+  }
+
+  user-panel {
+    display: inherit;
+  }
+}
+
+.form-container {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+@media only screen and (max-width: 430px) {
+  .form-container {
+    gap: 10px;
+    height: 100%;
+    flex-direction: column;
+  }
+  .result-info {
+    padding: 0 !important;
+  }
+  ::ng-deep .dx-popup-content {
+    padding: 10px !important;
+  }
+}
+
+.div-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.result-info {
+  padding: 10px;
+}
+
+.custom-style {
+  font-size: 18px;
+
+  .item {
+    padding-left: 4px;
+
+    &:nth-child(1) {
+      color: rgb(199, 66, 0);
+    }
+
+    &:nth-child(2) {
+      color: rgb(45, 0, 170);
+    }
+
+    &:nth-child(3) {
+      color: rgb(207, 7, 147);
+    }
+  }
+}
+
+.countdown-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 2px solid #007bff;
+  background-color: #f8f9fa;
+  margin: 0 auto;
+  margin-bottom: 10px;
+}
+
+table {
+}
+
+.countdown-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #343a40;
+}
+
+countdown {
+  font-size: 36px;
+  font-weight: bold;
+  color: #007bff;
+  display: flex;
+}
+
+.hours, .minutes, .seconds {
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: #e9ecef;
+  border-radius: 5px;
+}
+
+.hours {
+  color: #dc3545;
+}
+
+.minutes {
+  color: #28a745;
+}
+
+.seconds {
+  color: #ffc107;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+span.score {
+  font-size: 16px;
+}
+
+span.score.true {
+  color: #28a745
+}
+
+span.score.false {
+  color: red
+}
+
+.container-auto {
+  ul, li {
+    padding: 0;
+    list-style: none;
+  }
+
+  .question-list {
+    padding-left: 0;
+    margin-top: 20px;
+  }
+
+  .question-list li {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+  }
+
+  .question-list li:hover {
+    background-color: #f1f1f1;
+  }
+
+  .active-question {
+    border: 1px solid #007bff !important;
+    background-color: #e0f7ff !important;
+  }
+
+  .c-answer {
+    background-color: #fff3cd;
+    padding: 0px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+    color: #333;
+    display: inline-block;
+    border: solid 1px #ffc107;
+    margin-left: 2px;
+  }
+
+  /* Phần carousel câu hỏi */
+  .carousel-slide {
+    padding: 0 15px;
+    border-radius: 10px;
+  }
+
+  .question-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .answer-button {
+    display: block;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1.2em;
+  }
+
+  .answer-button:hover {
+    background-color: #f1f1f1;
+  }
+
+  .selected-answer {
+    border-color: #ffc107;
+    background-color: #fff3cd !important;
+  }
+
+  /* Countdown style */
+  .countdown-wrapper {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .countdown-title {
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+}
+
+::ng-deep .carousel-indicators {
+  display: none !important;
+}
+
+::ng-deep math {
+  font-size: 20px !important;
+}
+
+.correct-answer {
+  background-color: lightgreen;
+}
+
+.wrong-answer {
+  background-color: lightcoral;
+}
+
+
+.question-container {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+
+  .question-text {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .answer-list {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  .answer-list li {
+    //background-color: #ffffff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .answer-list li:hover {
+    //background-color: #f1f1f1;
+  }
+
+  .correct-answer {
+    background-color: #d4edda;
+    border-color: #28a745;
+  }
+
+  .wrong-answer {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+  }
+
+  .selected-answer {
+    border-color: #ffc107;
+  }
+
+  .selected-answer:hover {
+    //background-color: #fff3cd;
+  }
+}
+
+::ng-deep .custom-carousel{
+  .carousel-control-prev,
+  .carousel-control-next {
+    position: absolute;
+    top: 100%;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(0, 0, 0, 0.5); /* Nền đen trong suốt */
+    border-radius: 50%; /* Bo tròn nút */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.5rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .carousel-control-prev {
+    left: 30px; /* Vị trí nút Prev */
+  }
+
+  .carousel-control-next {
+    right: 30px; /* Vị trí nút Next */
+  }
+
+  .carousel-control-prev:hover,
+  .carousel-control-next:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* Tăng độ đậm nền khi hover */
+  }
+}
+
+
+.pdf-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  border: solid 1px #CCC;
+}
+
+.zoom-button {
+  position: absolute;
+  top: 10px; /* Bạn có thể điều chỉnh để nút ở vị trí mong muốn */
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.5); /* Nền đen với độ mờ */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0.5; /* Hiển thị mờ khi không hover */
+  transition: opacity 0.3s ease, background-color 0.3s ease;
+  z-index: 9999;
+}
+
+.zoom-button.zoom-in {
+  right: 70px; /* Đặt nút Zoom In cách mép phải 60px */
+}
+
+.zoom-button.zoom-out {
+  right: 30px; /* Đặt nút Zoom Out cách mép phải 10px */
+}
+
+.zoom-button:hover {
+  opacity: 1; /* Tăng độ sáng khi hover */
+  background-color: rgba(0, 0, 0, 0.7); /* Nền đen đậm hơn khi hover */
+}

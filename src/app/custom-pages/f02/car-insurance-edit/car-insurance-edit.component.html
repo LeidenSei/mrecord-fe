@@ -1,0 +1,1826 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-toolbar class="theme-dependent" [class.scrolled]="isContentScrolled">
+    <dxi-item location="before">
+      <div class="header-text">
+        <i class="dx-icon-textdocument" style="font-size: 20px"></i>
+        {{pageTitle}}</div>
+      <div class="help-text">Nhập thông tin theo từng bước. Vui lòng nhập đầy đủ thông tin vào trường bắt buộc có dấu
+        <code>*</code>
+        .
+      </div>
+    </dxi-item>
+    <dxi-item location="after" locateInMenu="never">
+      <dx-button
+        text="Quay lại"
+        stylingMode="outlined"
+        icon="back"
+        type="normal"
+        (onClick)="backToList()"
+      >
+      </dx-button>
+    </dxi-item>
+    <dxi-item location="after" locateInMenu="never">
+      <dx-button
+        [visible]="hasRoleDuyet"
+        text="Duyệt hồ sơ"
+        icon="check"
+        type="success"
+        stylingMode="contained"
+        (onClick)="doApprove()"
+      >
+      </dx-button>
+    </dxi-item>
+    <dxi-item location="after" locateInMenu="never">
+      <dx-button
+        [visible]="hasRoleTrinhDuyet"
+        text="Trình duyệt"
+        icon="exportselected"
+        type="danger"
+        stylingMode="contained"
+        (onClick)="sendApprove()"
+      >
+      </dx-button>
+    </dxi-item>
+    <dxi-item location="after" locateInMenu="never">
+      <dx-button
+        [visible]="hasRoleCapNhat"
+        text="Lưu"
+        icon="save"
+        type="default"
+        stylingMode="contained"
+        (onClick)="save()"
+      >
+      </dx-button>
+    </dxi-item>
+  </dx-toolbar>
+  <dx-scroll-view class="view-wrapper-scroll" (onScroll)="scroll($event)">
+    <div class="cards-container">
+      <dx-validation-group #validationGroup>
+        <div class="cards-container">
+          <div class="profile-card basic-info-card">
+            <div class="panel">
+              <div class="title-text panel-header">
+                <i class="dx-icon-textdocument" style="font-size: 15px"></i> Thông tin chung
+
+                <span *ngIf="dataItem.status >= 0" class="status status-salaried status-{{dataItem.status}}">
+                  {{dataItem.statusText}}
+                </span>
+              </div>
+              <div class="form-container">
+                <dx-form
+                    #formChung
+                    [screenByWidth]="getSizeQualifier"
+                    [(formData)]="dataItem"
+                    labelLocation="top"
+                    labelMode="outside"
+                    [colCount]="12">
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="6">
+                    <dxo-label text="Kênh khai thác"></dxo-label>
+                    <dx-select-box
+                      stylingMode="outlined"
+                      displayExpr="name"
+                      valueExpr="id"
+                      [dataSource]="kenhKhaiThacSource"
+                      (valueChange)="changeSource($event)"
+                      [(value)]="dataItem.kenhKhaiThac"
+                    >
+                    </dx-select-box>
+                  </dxi-item>
+                  <dxi-item [isRequired]="true" [colSpan]="6">
+                    <dxo-label text="Hình thức khai thác"></dxo-label>
+                    <dx-select-box
+                      stylingMode="outlined"
+                      [showClearButton]="true"
+                      displayExpr="name"
+                      valueExpr="id"
+                      [dataSource]="hinhThucKhaiThacSource"
+                      [(value)]="dataItem.hinhThucKhaiThac"
+                    >
+                    </dx-select-box>
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Số hợp đồng (tự sinh)"></dxo-label>
+                    <dx-text-box
+                      [readOnly]="true"
+                      stylingMode="outlined"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.code"
+                      [inputAttr]="{ class: 'form-editor-input' }"
+                    >
+                    </dx-text-box>
+                  </dxi-item>
+                  <dxi-item [colSpan]="4">
+                    <dxo-label text="Số tham chiếu"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.soThamChieu"
+                      [inputAttr]="{ class: 'form-editor-input' }"
+                    >
+                    </dx-text-box>
+                  </dxi-item>
+                  <dxi-item [colSpan]="4">
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Loại hình bảo hiểm"></dxo-label>
+                    <dx-select-box
+                      stylingMode="outlined"
+                      [showClearButton]="true"
+                      displayExpr="name"
+                      valueExpr="id"
+                      (valueChange)="changeLoaiHinh($event)"
+                      [dataSource]="loaiHinhBaoHiemSource"
+                      [(value)]="dataItem.loaiHinhBaoHiem"
+                    >
+                    </dx-select-box>
+                  </dxi-item>
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Số GCNBH"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.soGcnbh">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập Số GCNBH' }]"></dx-validator>
+                    </dx-text-box>
+                  </dxi-item>
+                  <dxi-item [colSpan]="4">
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Khách hàng (Mã)"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      placeholder="Nhập mã khách hàng"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.khachHangMa">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập Số GCNBH' }]"></dx-validator>
+                    </dx-text-box>
+                  </dxi-item>
+                  <dxi-item [colSpan]="8" [isRequired]="true">
+                    <dxo-label text="Họ và tên"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      placeholder="Nhập tên khách hàng"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.khachHangTen">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập Số GCNBH' }]"></dx-validator>
+                      <dxi-button
+                        name="icon"
+                        location="after"
+                        [options]="customerOption"
+                      ></dxi-button>
+                    </dx-text-box>
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Người thanh toán bảo hiểm (Mã)"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      placeholder="Nhập mã người thanh toán bảo hiểm"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.nguoiThanhToanMa">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập mã Người thanh toán bảo hiểm' }]"></dx-validator>
+                    </dx-text-box>
+                  </dxi-item>
+                  <dxi-item [colSpan]="8" [isRequired]="true">
+                    <dxo-label text="Họ và tên"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      placeholder="Nhập tên người thanh toán bảo hiểm"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.nguoiThanhToanTen">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập tên Người thanh toán bảo hiểm' }]"></dx-validator>
+                      <dxi-button
+                        name="icon"
+                        location="after"
+                        [options]="nguoiThanhToanOption"
+                      ></dxi-button>
+                    </dx-text-box>
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Chủ xe"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.chuXeTen">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập tên Chủ xe' }]"></dx-validator>
+                    </dx-text-box>
+                  </dxi-item>
+                  <dxi-item [colSpan]="4">
+                    <dxo-label text="Số điện thoại chủ xe"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.chuXePhone">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập Số điện thoại chủ xe' }]"></dx-validator>
+                    </dx-text-box>
+                  </dxi-item>
+                  <dxi-item [colSpan]="4">
+                    <dxo-label text="CMND/HC/CCCD/MST chủ xe"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.chuXeCmnd">
+                    </dx-text-box>
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="12">
+                    <dxo-label text="Địa chỉ chủ xe"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.chuXeDiaChi">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập Địa chỉ chủ xe' }]"></dx-validator>
+                    </dx-text-box>
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Cán bộ khai thác"></dxo-label>
+                    <dx-select-box
+                      stylingMode="outlined"
+                      [showClearButton]="true"
+                      [searchEnabled]="true"
+                      displayExpr="fullname"
+                      valueExpr="id"
+                      [dataSource]="taiKhoanSource"
+                      [(value)]="dataItem.canBoKhaiThacId"
+                    >
+                    </dx-select-box>
+                  </dxi-item>
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Cán bộ cấp đơn"></dxo-label>
+                    <dx-select-box
+                      stylingMode="outlined"
+                      [showClearButton]="true"
+                      [searchEnabled]="true"
+                      displayExpr="fullname"
+                      valueExpr="id"
+                      [dataSource]="taiKhoanSource"
+                      [(value)]="dataItem.canBoCapDonId"
+                    >
+                    </dx-select-box>
+                  </dxi-item>
+                  <dxi-item [isRequired]="true" [colSpan]="2">
+                    <dxo-label text="Ngày cấp"></dxo-label>
+                    <dx-date-box
+                      [(value)]="dataItem.ngayCapDon"
+                      stylingMode="outlined"
+                      placeholder="dd/MM/yyyy"
+                      displayFormat="dd/MM/y"
+                      pickerType="calendar"
+                    ></dx-date-box>
+                  </dxi-item>
+                  <dxi-item [isRequired]="true" [colSpan]="2">
+                    <dxo-label text="Ngày nhập đơn"></dxo-label>
+                    <dx-date-box
+                      [(value)]="dataItem.ngayNhapDon"
+                      stylingMode="outlined"
+                      placeholder="dd/MM/yyyy"
+                      displayFormat="dd/MM/y"
+                      pickerType="calendar"
+                    ></dx-date-box>
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Loại tiền"></dxo-label>
+                    <dx-select-box
+                      stylingMode="outlined"
+                      [showClearButton]="true"
+                      displayExpr="name"
+                      valueExpr="value"
+                      (valueChange)="changeCurrency($event)"
+                      [dataSource]="currencySource"
+                      [(value)]="dataItem.currencyCode"
+                    >
+                    </dx-select-box>
+                  </dxi-item>
+                  <dxi-item [isRequired]="true" [colSpan]="4">
+                    <dxo-label text="Tỷ giá thực tế"></dxo-label>
+                    <dx-text-box
+                      stylingMode="outlined"
+                      valueChangeEvent="keyup input change"
+                      [(value)]="dataItem.tyGia">
+                      <dx-validator
+                        [validationRules]="[{ type: 'required', message: 'Chưa nhập Số GCNBH' }]"></dx-validator>
+                    </dx-text-box>
+                  </dxi-item>
+                  <dxi-item [colSpan]="4">
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+
+                  <!---------------------------start line-------------------------------->
+                  <!---------------------------end line---------------------------------->
+                </dx-form>
+              </div>
+            </div>
+          </div>
+          <div class="profile-card basic-info-card" *ngIf="dataItem.kenhKhaiThac === 3">
+            <div class="panel">
+              <div class="title-text panel-header">
+                <i class="dx-icon-textdocument" style="font-size: 15px"></i> Trung gian bảo hiểm
+              </div>
+              <div class="form-container">
+                <dx-form
+                    #formTrungGian
+                    [screenByWidth]="getSizeQualifier"
+                    [(formData)]="dataItem"
+                    labelLocation="top"
+                    labelMode="outside"
+                    [colCount]="12">
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [colSpan]="12">
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-2">
+                        <item-label-top [label]="'Vay qua ngân hàng'"></item-label-top>
+                        <dx-switch [(value)]="dataItem.isVayNganHang"></dx-switch>
+                      </div>
+                      <div class="col-md-3">
+                        <item-label-top [required]="true" [label]="'Nguồn dịch vụ'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          (valueChange)="changeNguonDichVu($event)"
+                          [dataSource]="nguonDichVuSource"
+                          [(value)]="dataItem.nguonDichVuId"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-3" *ngIf="showNguonDvBank">
+                        <item-label-top [required]="true" [label]="'Ngân hàng'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="bankSource"
+                          [(value)]="dataItem.nganHangVayId"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-3">
+                        <item-label-top [required]="false" [label]="'Nguồn dịch vụ chi tiết'"></item-label-top>
+                        <!--<dx-text-box
+                          stylingMode="outlined"
+                          valueChangeEvent="keyup input change"
+                          [(value)]="dataItem.nguonDichVuChiTietText">
+
+                        </dx-text-box>-->
+
+                        <dx-autocomplete
+                          stylingMode="outlined"
+                          placeholder=""
+                          [(value)]="dataItem.nguonDichVuChiTietText"
+                          valueExpr="name"
+                          [dataSource]="nguonDichVuChiTietSource"
+                        >
+                        </dx-autocomplete>
+
+                        <!--<dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          (valueChange)="changeNguonDichVuChiTiet($event)"
+                          [dataSource]="nguonDichVuChiTietSource"
+                          [(value)]="dataItem.nguonDichVuChiTietId"
+                        >
+                        </dx-select-box>-->
+                      </div>
+                      <div class="col-md-3" *ngIf="dataItem.isVayNganHang && !showNguonDvBank">
+                        <item-label-top [required]="true" [label]="'Ngân hàng thụ hưởng'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="bankSource"
+                          [(value)]="dataItem.nganHangThuHuongId"
+                        >
+                        </dx-select-box>
+                      </div>
+                    </div>
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-2">
+
+                      </div>
+                      <div class="col-md-3" *ngIf="showNguonDvBank">
+                        <item-label-top [label]="'Cán bộ ngân hàng'"></item-label-top>
+                        <dx-text-box
+                          stylingMode="outlined"
+                          valueChangeEvent="keyup input change"
+                          [(value)]="dataItem.canBoNganHang">
+                        </dx-text-box>
+                      </div>
+                      <div class="col-md-3" *ngIf="showNguonDvBank">
+                        <item-label-top [label]="'Khối khách hàng'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="khoiKhangHangSource"
+                          [(value)]="dataItem.khoiKhachHang"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-3" *ngIf="showNguonDvBank">
+                        <item-label-top [required]="true" [label]="'Ngân hàng thụ hưởng'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="bankSource"
+                          [(value)]="dataItem.nganHangThuHuongId"
+                        >
+                        </dx-select-box>
+                      </div>
+                    </div>
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-2">
+                        <item-label-top [label]="'Phối hợp khai thác'"></item-label-top>
+                        <dx-switch [(value)]="dataItem.isPhoiHop"></dx-switch>
+                      </div>
+                      <div class="col-md-3">
+                        <item-label-top [label]="'Hình thức phối hợp'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="hinhThucPhoiHopSource"
+                          [(value)]="dataItem.hinhThucPhoiHop"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-3">
+                        <item-label-top [label]="'Chương trình BHXCG'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="chuongTrinhBHXCGSource"
+                          [(value)]="dataItem.chuongTrinhBhxcg"
+                        >
+                        </dx-select-box>
+                      </div>
+                    </div>
+                  </dxi-item>
+                  <!---------------------------end line---------------------------------->
+                </dx-form>
+              </div>
+            </div>
+          </div>
+          <div class="profile-card basic-info-card">
+            <div class="panel">
+              <div class="title-text panel-header">
+                <i class="dx-icon-user" style="font-size: 15px"></i> Đối tượng bảo hiểm
+              </div>
+              <div class="form-container">
+                <dx-form
+                    #formDoiTuong
+                    [screenByWidth]="getSizeQualifier"
+                    [(formData)]="dataItem"
+                    [readOnly]="true"
+                    labelLocation="top"
+                    labelMode="outside"
+                    [colCount]="12">
+                  <!---------------------------start line-------------------------------->
+                  <dxi-item [colSpan]="12">
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-2">
+                        <item-label-top [label]="'Phân loại xe'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="phanLoaiXeSource"
+                          [(value)]="dataItem.phanLoaiXe"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-2">
+                        <item-label-top [required]="true" [label]="'Mục đích kinh doanh'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          (valueChange)="loadNhomXe()"
+                          [dataSource]="mucDichKinhDoanhSource"
+                          [(value)]="dataItem.mucDichKinhDoanh"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [required]="true" [label]="'Dòng xe'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          (valueChange)="loadNhomXe()"
+                          [dataSource]="dongXeSource"
+                          [(value)]="dataItem.dongXe"
+                        >
+                          <dx-validator
+                            [validationRules]="[{ type: 'required', message: 'Chưa nhập Dòng xe' }]"></dx-validator>
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [required]="true" [label]="'Nhóm xe'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          (valueChange)="loadPhiTNDS()"
+                          (onFocusIn)="activeCalculatePhi()"
+                          (onSelectionChanged)="onOptionChanged($event)"
+                          [dataSource]="nhomXeSourceFilter"
+                          [(value)]="dataItem.nhomXe"
+                        >
+                        </dx-select-box>
+                      </div>
+                    </div>
+                    <!---------------------------end line---------------------------------->
+
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-4">
+                        <item-label-top [required]="true" [label]="'Loại xe'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="loaiXeSource"
+                          [(value)]="dataItem.loaiXeId"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [required]="true" [label]="'Nhãn hiệu xe'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          (valueChange)="hangXeChange($event)"
+                          [dataSource]="hangXeSource"
+                          [(value)]="dataItem.nhanHieuXeId"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Số loại'"></item-label-top>
+                        <!--<dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="name"
+                          [dataSource]="kyHieuXeSource"
+                          [(value)]="dataItem.soLoaiText"
+                        >
+                        </dx-select-box>-->
+                        <dx-autocomplete
+                          stylingMode="outlined"
+                          placeholder="Nhập nhãn hiệu xe..."
+                          [(value)]="dataItem.soLoaiText"
+                          valueExpr="name"
+                          [dataSource]="kyHieuXeSource"
+                        >
+                        </dx-autocomplete>
+                      </div>
+                    </div>
+                    <!---------------------------end line---------------------------------->
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Nguồn gốc'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="nguonGocXeSource"
+                          [(value)]="dataItem.nguonGocXe"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Tháng sản xuất'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="id"
+                          valueExpr="id"
+                          [dataSource]="thangSanXuatSource"
+                          [(value)]="dataItem.thangSanXuat"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [required]="true" [label]="'Năm sản xuất'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="id"
+                          valueExpr="id"
+                          [dataSource]="namSanXuatSource"
+                          [(value)]="dataItem.namSanXuat"
+                        >
+                        </dx-select-box>
+                      </div>
+                    </div>
+                    <!---------------------------end line---------------------------------->
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-1">
+                        <item-label-top [label]="'Đã có biển'"></item-label-top>
+                        <dx-switch [(value)]="dataItem.isCoBien"></dx-switch>
+                      </div>
+                      <div class="col-md-1">
+                        <item-label-top [label]="'Xe cải tạo'"></item-label-top>
+                        <dx-switch [(value)]="dataItem.isCaiTao"></dx-switch>
+                      </div>
+                      <div class="col-md-2">
+                        <item-label-top [required]="true" [label]="'Loại biển'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          [dataSource]="loaiBienSource"
+                          [(value)]="dataItem.loaiBien"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [required]="true" [label]="'Biển kiểm soát'"></item-label-top>
+                        <dx-text-box
+                          stylingMode="outlined"
+                          valueChangeEvent="keyup input change"
+                          [(value)]="dataItem.bienKiemSoat">
+                          <dx-validator
+                            [validationRules]="[{ type: 'required', message: 'Chưa nhập Biển kiểm soát' }]"></dx-validator>
+                        </dx-text-box>
+                      </div>
+                      <div class="col-md-2">
+                        <item-label-top [label]="'Số khung'"></item-label-top>
+                        <dx-text-box
+                          stylingMode="outlined"
+                          valueChangeEvent="keyup input change"
+                          [(value)]="dataItem.soKhung">
+                        </dx-text-box>
+                      </div>
+                      <div class="col-md-2">
+                        <item-label-top [label]="'Số máy'"></item-label-top>
+                        <dx-text-box
+                          stylingMode="outlined"
+                          valueChangeEvent="keyup input change"
+                          [(value)]="dataItem.soMay">
+                        </dx-text-box>
+                      </div>
+                    </div>
+                    <!---------------------------end line---------------------------------->
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-4">
+                        <item-label-top [required]="true" [label]="'Số chỗ ngồi'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="id"
+                          (onFocusIn)="activeCalculatePhi()"
+                          (valueChange)="loadPhiTNDS()"
+                          [dataSource]="soChoNgoiSource"
+                          [(value)]="dataItem.soChoNgoi"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Màu sơn'"></item-label-top>
+                        <dx-select-box
+                          stylingMode="outlined"
+                          [showClearButton]="true"
+                          [searchEnabled]="true"
+                          displayExpr="name"
+                          valueExpr="name"
+                          [dataSource]="mauSonSource"
+                          [(value)]="dataItem.mauSon"
+                        >
+                        </dx-select-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Trọng tải (kg)'"></item-label-top>
+                        <dx-number-box
+                          format="#,##0"
+                          (onFocusIn)="activeCalculatePhi()"
+                          (valueChange)="loadPhiTNDS()"
+                          stylingMode="outlined"
+                          [(value)]="dataItem.trongTai"
+                        ></dx-number-box>
+                      </div>
+                    </div>
+                    <!---------------------------end line---------------------------------->
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Giá trị thực tế'"></item-label-top>
+                        <dx-number-box
+                          format="#,##0"
+                          stylingMode="outlined"
+                          [(value)]="dataItem.giaTriThucTe"
+                        ></dx-number-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Xe mới 100% ?'"></item-label-top>
+                        <dx-switch [(value)]="dataItem.isXeMoi100"></dx-switch>
+                      </div>
+                    </div>
+                    <!---------------------------end line---------------------------------->
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Link Website giá xe 1'"></item-label-top>
+                        <dx-text-box
+                          stylingMode="outlined"
+                          valueChangeEvent="keyup input change"
+                          [(value)]="dataItem.linkWebsite1">
+                        </dx-text-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Link Website giá xe 2'"></item-label-top>
+                        <dx-text-box
+                          stylingMode="outlined"
+                          valueChangeEvent="keyup input change"
+                          [(value)]="dataItem.linkWebsite2">
+                        </dx-text-box>
+                      </div>
+                      <div class="col-md-4">
+                        <item-label-top [label]="'Link Website giá xe 3'"></item-label-top>
+                        <dx-text-box
+                          stylingMode="outlined"
+                          valueChangeEvent="keyup input change"
+                          [(value)]="dataItem.linkWebsite3">
+                        </dx-text-box>
+                      </div>
+                    </div>
+                    <!---------------------------end line---------------------------------->
+                  </dxi-item>
+                </dx-form>
+              </div>
+            </div>
+          </div>
+          <div class="profile-card basic-info-card">
+            <div class="panel">
+              <div class="title-text panel-header">
+                <i class="dx-icon-user" style="font-size: 15px"></i> Phạm vi bảo hiểm
+              </div>
+              <div class="form-container">
+                <dx-form
+                    #formPhamVi
+                    [screenByWidth]="getSizeQualifier"
+                    [(formData)]="dataItem"
+                    [readOnly]="true"
+                    labelLocation="top"
+                    labelMode="outside"
+                    [colCount]="12">
+
+                  <dxi-item [colSpan]="12">
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-2">
+                        <item-label-top [required]="true" [label]="'Thời hạn bảo hiểm. Từ ngày'"></item-label-top>
+                        <dx-date-box
+                          [(value)]="dataItem.thoiHanTuNgay"
+                          stylingMode="outlined"
+                          type="datetime"
+                          placeholder="dd/MM/yyyy"
+                          displayFormat="HH:mm dd/MM/y"
+                          (valueChange)="changeThoiHan()"
+                          pickerType="calendar"
+                        ></dx-date-box>
+                      </div>
+                      <div class="col-md-2">
+                        <item-label-top [required]="true" [label]="'Đến ngày'"></item-label-top>
+                        <dx-date-box
+                          [(value)]="dataItem.thoiHanDenNgay"
+                          stylingMode="outlined"
+                          placeholder="dd/MM/yyyy"
+                          displayFormat="HH:mm dd/MM/y"
+                          type="datetime"
+                          (valueChange)="changeThoiHan()"
+                          pickerType="calendar"
+                        ></dx-date-box>
+                      </div>
+                      <div class="col-md-2"></div>
+                      <div class="col-md-2">
+                        <item-label-top [required]="true" [label]="'Số ngày tham gia'"></item-label-top>
+                        <dx-number-box
+                          (valueChange)="changeNgayThamGia($event)"
+                          stylingMode="outlined"
+                          [(value)]="dataItem.ngayThamGia"
+                        ></dx-number-box>
+                      </div>
+                    </div>
+                    <!----------------------------end line--------------------------------->
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item collapse-group">
+                      <div class="col-md-12">
+                        <item-label-top [required]="true" [label]="'Phạm vi bảo hiểm'"></item-label-top>
+                        <div class="c-item" *ngIf="dataItem.loaiHinhBaoHiem === 2">
+                          <div class="c-title">
+                            <dx-switch [(value)]="dataItem.isPhamVi01" (valueChange)="phamViChange($event)"></dx-switch>
+                            1. Vật chất xe
+                          </div>
+                          <div class="c-body">
+                            <div class="row">
+                              <div class="col-md-4">
+                                <item-label-top [label]="'Mức miễn thường'"></item-label-top>
+                                <dx-select-box
+                                  stylingMode="outlined"
+                                  [showClearButton]="true"
+                                  [searchEnabled]="true"
+                                  displayExpr="name"
+                                  valueExpr="id"
+                                  [dataSource]="mucMienThuongSource"
+                                  [(value)]="dataItem.mucMienThuong"
+                                >
+                                </dx-select-box>
+                              </div>
+                              <div class="col-md-4">
+                                <item-label-top [label]="'Số tiền'"></item-label-top>
+                                <dx-number-box
+                                  format="#,##0"
+                                  stylingMode="outlined"
+                                  [(value)]="dataItem.soTienMienThuong"
+                                ></dx-number-box>
+                              </div>
+                              <div class="col-md-4">
+                                <item-label-top [label]="'Số tiền giảm miễn thường'"></item-label-top>
+                                <dx-number-box
+                                  format="#,##0"
+                                  stylingMode="outlined"
+                                  [(value)]="dataItem.soTienGiamMienThuong"
+                                ></dx-number-box>
+                              </div>
+                            </div>
+                            <table class="table table-bordered datatable dataTable no-footer dtr-column"
+                                   *ngIf="dataItem.isPhamVi01">
+                              <thead class="thead-light text-center">
+                              <tr role="row">
+                                <th class="cell sorting_disabled w1p control not-desktop text-center" rowspan="1"
+                                    colspan="1" style="display: none;"><i class="fa fa-ellipsis-v"></i></th>
+                                <th width="20%" rowspan="1" colspan="2">Phạm vi bảo hiểm</th>
+                                <th width="10%" rowspan="1" colspan="1">Số tiền bảo hiểm</th>
+                                <th width="5%" rowspan="1" colspan="1">Phí (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">Phí BH (có VAT)</th>
+                                <th width="6%" rowspan="1" colspan="1">VAT (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">VAT</th>
+                                <th width="5%" rowspan="1" colspan="1">COM (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">COM</th>
+                                <th width="19%" rowspan="1" colspan="1">Định mức</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr>
+                                <td colspan="2">
+                                  <strong>
+                                    I. Vật chất xe
+                                  </strong></td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01.soTien"
+                                    (valueChange)="changePhi01(objPhamVi01, 'soTien')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0.00"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01.phiPercent"
+                                    (valueChange)="changePhi01(objPhamVi01, 'phiPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01.phiBhCoVat"
+                                    (valueChange)="changePhi01(objPhamVi01, 'phiBhCoVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-select-box
+                                    stylingMode="outlined"
+                                    [searchEnabled]="true"
+                                    displayExpr="name"
+                                    valueExpr="id"
+                                    [dataSource]="vatSource"
+                                    [(value)]="objPhamVi01.vatPercent"
+                                    (valueChange)="changePhi01(objPhamVi01, 'vatPercent')"
+                                  >
+                                  </dx-select-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01.phiVat"
+                                    (valueChange)="changePhi01(objPhamVi01, 'phiVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    stylingMode="outlined"
+                                    format="#,##0.00"
+                                    [(value)]="objPhamVi01.comPercent"
+                                    (valueChange)="changePhi01(objPhamVi01, 'comPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01.phiCom"
+                                    (valueChange)="changePhi01(objPhamVi01, 'phiCom')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+
+                                </td>
+                              </tr>
+                              <tr>
+                                <td colspan="10">
+                                  <strong>II. Điều khoản sửa đổi bổ sung</strong></td>
+                              </tr>
+                              <tr *ngFor="let item of objPhamVi011">
+                                <td>
+                                  <dx-check-box
+                                    [(value)]="item.checked"
+                                    (valueChange)="changePhi01(objPhamVi01, 'checkbox')"
+                                    [elementAttr]="{ 'aria-label': 'Checked' }"
+                                  ></dx-check-box>
+                                </td>
+                                <td colspan="1">
+                                  <strong style="font-weight: 500">{{item.name}}</strong></td>
+                                <td>
+                                  <!--{{item.soTien}}-->
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0.0"
+                                    stylingMode="outlined"
+                                    [(value)]="item.phiPercent"
+                                    (valueChange)="changePhi11(item, 'phiPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="item.phiBhCoVat"
+                                    (valueChange)="changePhi11(item, 'phiBhCoVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <td colspan="2">
+                                  <strong>
+                                    Tổng cộng
+                                  </strong></td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01Total.soTien"
+                                    (valueChange)="changePhi(objPhamVi01Total, 'soTien')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0.0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01Total.phiPercent"
+                                    (valueChange)="changePhi(objPhamVi01Total, 'phiPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01Total.phiBhCoVat"
+                                    (valueChange)="changePhi(objPhamVi01Total, 'phiBhCoVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-select-box
+                                    stylingMode="outlined"
+                                    [searchEnabled]="true"
+                                    displayExpr="name"
+                                    valueExpr="id"
+                                    [dataSource]="vatSource"
+                                    [(value)]="objPhamVi01Total.vatPercent"
+                                    (valueChange)="changePhi(objPhamVi01Total, 'vatPercent')"
+                                  >
+                                  </dx-select-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01Total.phiVat"
+                                    (valueChange)="changePhi(objPhamVi01Total, 'phiVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    stylingMode="outlined"
+                                    format="#,##0.00"
+                                    [(value)]="objPhamVi01Total.comPercent"
+                                    (valueChange)="changePhi(objPhamVi01Total, 'comPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi01Total.phiCom"
+                                    (valueChange)="changePhi(objPhamVi01Total, 'phiCom')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+
+                                </td>
+                              </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <div class="c-item" *ngIf="dataItem.loaiHinhBaoHiem === 1">
+                          <div class="c-title">
+                            <dx-switch [(value)]="dataItem.isPhamVi02" (valueChange)="phamViChange($event)"></dx-switch>
+                            2. TNDS bắt buộc (đối với người thứ ba và hành khách trên xe)
+                          </div>
+                          <div class="c-body">
+                            <table class="table table-bordered datatable dataTable no-footer dtr-column"
+                                   *ngIf="dataItem.isPhamVi02">
+                              <thead class="thead-light text-center">
+                              <tr role="row">
+                                <th class="cell sorting_disabled w1p control not-desktop text-center" rowspan="1"
+                                    colspan="1" style="display: none;"><i class="fa fa-ellipsis-v"></i></th>
+                                <th width="20%" rowspan="1" colspan="1">Phạm vi bảo hiểm</th>
+                                <th width="10%" rowspan="1" colspan="1">Số tiền bảo hiểm</th>
+                                <th width="5%" rowspan="1" colspan="1">Phí (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">Phí BH (có VAT)</th>
+                                <th width="6%" rowspan="1" colspan="1">VAT (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">VAT</th>
+                                <th width="5%" rowspan="1" colspan="1">COM (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">COM</th>
+                                <th width="19%" rowspan="1" colspan="1">Định mức</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr>
+                                <td>
+                                  <strong>TNDS bắt buộc (đối với người thứ ba và hành khách trên xe)</strong></td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi02.soTien"
+                                    (valueChange)="changePhi(objPhamVi02, 'soTien')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0.000"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi02.phiPercent"
+                                    (valueChange)="changePhi(objPhamVi02, 'phiPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi02.phiBhCoVat"
+                                    (valueChange)="changePhi(objPhamVi02, 'phiBhCoVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-select-box
+                                    stylingMode="outlined"
+                                    [searchEnabled]="true"
+                                    displayExpr="name"
+                                    valueExpr="id"
+                                    [dataSource]="vatSource"
+                                    [(value)]="objPhamVi02.vatPercent"
+                                    (valueChange)="changePhi(objPhamVi02, 'vatPercent')"
+                                  >
+                                  </dx-select-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi02.phiVat"
+                                    (valueChange)="changePhi(objPhamVi02, 'phiVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    stylingMode="outlined"
+                                    format="#,##0.00"
+                                    [(value)]="objPhamVi02.comPercent"
+                                    (valueChange)="changePhi(objPhamVi02, 'comPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi02.phiCom"
+                                    (valueChange)="changePhi(objPhamVi02, 'phiCom')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-text-box
+                                    stylingMode="outlined"
+                                    value="TNDS bắt buộc với người thứ ba">
+                                  </dx-text-box>
+
+                                </td>
+                              </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <div class="c-item">
+                          <div class="c-title">
+                            <dx-switch [(value)]="dataItem.isPhamVi03" (valueChange)="phamViChange($event)"></dx-switch>
+                            3. TNDS tự nguyện tăng thêm ngoài mức bắt buộc
+                          </div>
+                          <div class="c-body">
+                            <table class="table table-bordered datatable dataTable no-footer dtr-column"
+                                   *ngIf="dataItem.isPhamVi03">
+                              <thead class="thead-light text-center">
+                              <tr role="row">
+                                <th class="cell sorting_disabled w1p control not-desktop text-center" rowspan="1"
+                                    colspan="1" style="display: none;"><i class="fa fa-ellipsis-v"></i></th>
+                                <th width="20%" rowspan="1" colspan="1">Phạm vi bảo hiểm</th>
+                                <th width="10%" rowspan="1" colspan="1">Số tiền bảo hiểm</th>
+                                <th width="5%" rowspan="1" colspan="1">Phí (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">Phí BH (có VAT)</th>
+                                <th width="6%" rowspan="1" colspan="1">VAT (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">VAT</th>
+                                <th width="5%" rowspan="1" colspan="1">COM (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">COM</th>
+                                <th width="19%" rowspan="1" colspan="1">Định mức</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr *ngFor="let obj of objPhamVi03s;let i = index">
+                                <td>
+                                  <span [class]="i == 2 ? 'bold' : ''">{{obj.name}}</span>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="obj.soTien"
+                                    (valueChange)="changePhi(obj, 'soTien')"
+                                  ></dx-number-box>
+                                  {{obj.unitText}}
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0.0"
+                                    stylingMode="outlined"
+                                    [(value)]="obj.phiPercent"
+                                    (valueChange)="changePhi(obj, 'phiPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="obj.phiBhCoVat"
+                                    (valueChange)="changePhi(obj, 'phiBhCoVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-select-box
+                                    stylingMode="outlined"
+                                    [searchEnabled]="true"
+                                    displayExpr="name"
+                                    valueExpr="id"
+                                    [dataSource]="vatSource"
+                                    [(value)]="obj.vatPercent"
+                                    (valueChange)="changePhi(obj, 'vatPercent')"
+                                  >
+                                  </dx-select-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="obj.phiVat"
+                                    (valueChange)="changePhi(obj, 'phiVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    stylingMode="outlined"
+                                    format="#,##0.00"
+                                    [(value)]="obj.comPercent"
+                                    (valueChange)="changePhi(obj, 'comPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="obj.phiCom"
+                                    (valueChange)="changePhi(obj, 'phiCom')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-text-box *ngIf="i == 2"
+                                               stylingMode="outlined"
+                                               value="TNDS tự nguyện tăng thêm ngoài mức bắt buộc">
+                                  </dx-text-box>
+                                </td>
+                              </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <div class="c-item">
+                          <div class="c-title">
+                            <dx-switch [(value)]="dataItem.isPhamVi04" (valueChange)="phamViChange($event)"></dx-switch>
+                            4. Tai nạn lái, phụ xe và người ngồi trên xe
+                          </div>
+                          <div class="c-body">
+                            <div *ngIf="dataItem.isPhamVi04" style="margin-top: 8px">
+                              <div class="row">
+                                <div class="col-md-2">
+                                  <label>Số người tham gia</label></div>
+                                <div class="col-md-2">
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    (valueChange)="changeTongTienPV04(dataItem)"
+                                    [(value)]="dataItem.phamVi04SoNguoi"
+                                  ></dx-number-box>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-2"><label>Số tiền BH/1 người</label></div>
+                                <div class="col-md-2">
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    (valueChange)="changeTongTienPV04(dataItem)"
+                                    [(value)]="dataItem.phamVi04SoTien"
+                                  ></dx-number-box>
+                                </div>
+                              </div>
+                            </div>
+                            <table class="table table-bordered datatable dataTable no-footer dtr-column"
+                                   *ngIf="dataItem.isPhamVi04">
+                              <thead class="thead-light text-center">
+                              <tr role="row">
+                                <th class="cell sorting_disabled w1p control not-desktop text-center" rowspan="1"
+                                    colspan="1" style="display: none;"><i class="fa fa-ellipsis-v"></i></th>
+                                <th width="20%" rowspan="1" colspan="1">Phạm vi bảo hiểm</th>
+                                <th width="10%" rowspan="1" colspan="1">Tổng tiền bảo hiểm</th>
+                                <th width="5%" rowspan="1" colspan="1">Phí (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">Phí BH (có VAT)</th>
+                                <th width="6%" rowspan="1" colspan="1">VAT (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">VAT</th>
+                                <th width="5%" rowspan="1" colspan="1">COM (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">COM</th>
+                                <th width="19%" rowspan="1" colspan="1">Định mức</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr>
+                                <td>
+                                  <strong>Tai nạn lái, phụ xe và người ngồi trên xe</strong></td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi04.soTien"
+                                    [readOnly]="true"
+                                    (valueChange)="changePhi(objPhamVi04, 'soTien')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0.0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi04.phiPercent"
+                                    (valueChange)="changePhi(objPhamVi04, 'phiPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi04.phiBhCoVat"
+                                    (valueChange)="changePhi(objPhamVi04, 'phiBhCoVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-select-box
+                                    stylingMode="outlined"
+                                    [searchEnabled]="true"
+                                    displayExpr="name"
+                                    valueExpr="id"
+                                    [dataSource]="vatSource"
+                                    [(value)]="objPhamVi04.vatPercent"
+                                    (valueChange)="changePhi(objPhamVi04, 'vatPercent')"
+                                  >
+                                  </dx-select-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    [readOnly]="true"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi04.phiVat"
+                                    (valueChange)="changePhi(objPhamVi04, 'phiVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    stylingMode="outlined"
+                                    format="#,##0.00"
+                                    [readOnly]="true"
+                                    [(value)]="objPhamVi04.comPercent"
+                                    (valueChange)="changePhi(objPhamVi04, 'comPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [readOnly]="true"
+                                    [(value)]="objPhamVi04.phiCom"
+                                    (valueChange)="changePhi(objPhamVi04, 'phiCom')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-text-box
+                                    stylingMode="outlined"
+                                    value="Tai nạn lái, phụ xe và người ngồi trên xe">
+                                  </dx-text-box>
+                                </td>
+                              </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <div class="c-item" *ngIf="dataItem.loaiHinhBaoHiem === 2">
+                          <div class="c-title">
+                            <dx-switch [(value)]="dataItem.isPhamVi05" (valueChange)="phamViChange($event)"></dx-switch>
+                            5. TNDS của chủ xe với hàng hóa
+                          </div>
+                          <div class="c-body">
+                            <div *ngIf="dataItem.isPhamVi05" style="margin-top: 8px">
+                              <div class="row">
+                                <div class="col-md-2">
+                                  <label>Trọng tải hàng hóa(kg)</label></div>
+                                <div class="col-md-2">
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    (valueChange)="changeTongTienPV05(dataItem)"
+                                    [(value)]="dataItem.phamVi05TrongTai"
+                                  ></dx-number-box>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-2"><label>Số tiền BH/1 tấn</label></div>
+                                <div class="col-md-2">
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    (valueChange)="changeTongTienPV05(dataItem)"
+                                    [(value)]="dataItem.phamVi05SoTien"
+                                  ></dx-number-box>
+                                </div>
+                              </div>
+                            </div>
+                            <table class="table table-bordered datatable dataTable no-footer dtr-column"
+                                   *ngIf="dataItem.isPhamVi05">
+                              <thead class="thead-light text-center">
+                              <tr role="row">
+                                <th class="cell sorting_disabled w1p control not-desktop text-center" rowspan="1"
+                                    colspan="1" style="display: none;"><i class="fa fa-ellipsis-v"></i></th>
+                                <th width="20%" rowspan="1" colspan="1">Phạm vi bảo hiểm</th>
+                                <th width="10%" rowspan="1" colspan="1">Tổng tiền bảo hiểm</th>
+                                <th width="5%" rowspan="1" colspan="1">Phí (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">Phí BH (có VAT)</th>
+                                <th width="6%" rowspan="1" colspan="1">VAT (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">VAT</th>
+                                <th width="5%" rowspan="1" colspan="1">COM (%)</th>
+                                <th width="10%" rowspan="1" colspan="1">COM</th>
+                                <th width="19%" rowspan="1" colspan="1">Định mức</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr>
+                                <td>
+                                  <strong>Tai nạn lái, phụ xe và người ngồi trên xe</strong></td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi05.soTien"
+                                    [readOnly]="true"
+                                    (valueChange)="changePhi(objPhamVi05, 'soTien')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0.0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi05.phiPercent"
+                                    (valueChange)="changePhi(objPhamVi05, 'phiPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi05.phiBhCoVat"
+                                    (valueChange)="changePhi(objPhamVi05, 'phiBhCoVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-select-box
+                                    stylingMode="outlined"
+                                    [searchEnabled]="true"
+                                    displayExpr="name"
+                                    valueExpr="id"
+                                    [dataSource]="vatSource"
+                                    [(value)]="objPhamVi05.vatPercent"
+                                    (valueChange)="changePhi(objPhamVi05, 'vatPercent')"
+                                  >
+                                  </dx-select-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    [readOnly]="true"
+                                    stylingMode="outlined"
+                                    [(value)]="objPhamVi05.phiVat"
+                                    (valueChange)="changePhi(objPhamVi05, 'phiVat')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    stylingMode="outlined"
+                                    format="#,##0.00"
+                                    [readOnly]="true"
+                                    [(value)]="objPhamVi05.comPercent"
+                                    (valueChange)="changePhi(objPhamVi05, 'comPercent')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-number-box
+                                    format="#,##0"
+                                    stylingMode="outlined"
+                                    [readOnly]="true"
+                                    [(value)]="objPhamVi05.phiCom"
+                                    (valueChange)="changePhi(objPhamVi05, 'phiCom')"
+                                  ></dx-number-box>
+                                </td>
+                                <td>
+                                  <dx-text-box
+                                    stylingMode="outlined"
+                                    value="TNDS của chủ xe với hàng hóa">
+                                  </dx-text-box>
+                                </td>
+                              </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!----------------------------end line--------------------------------->
+
+                    <!---------------------------start line-------------------------------->
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-4">
+                        <table class="table table-bordered datatable dataTable no-footer dtr-column">
+                          <thead class="thead-light text-center">
+                          <tr role="row">
+                            <th width="70%" class="text-left">Quyền lợi</th>
+                            <th width="30%">Phí BH có VAT</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          <tr>
+                            <td>Mức trách nhiệm của VNI</td>
+                            <td>
+                              <dx-number-box
+                                stylingMode="outlined"
+                                format="#,##0"
+                                [(value)]="dataItem.tongTien"
+                                [readOnly]="true"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Vật chất xe</td>
+                            <td>
+                              <dx-number-box
+                                stylingMode="outlined"
+                                format="#,##0"
+                                [(value)]="dataItem.tong01"
+                                [readOnly]="true"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          <tr *ngIf="dataItem.isPhamVi02">
+                            <td>TNDS bắt buộc (đối với người thứ ba và hành khách trên xe)</td>
+                            <td>
+                              <dx-number-box
+                                stylingMode="outlined"
+                                format="#,##0"
+                                [(value)]="dataItem.tong02"
+                                [readOnly]="true"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          <tr *ngIf="dataItem.isPhamVi03">
+                            <td>TNDS tự nguyện tăng thêm ngoài mức bắt buộc</td>
+                            <td>
+                              <dx-number-box
+                                stylingMode="outlined"
+                                format="#,##0"
+                                [(value)]="dataItem.tong03"
+                                [readOnly]="true"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          <tr *ngIf="dataItem.isPhamVi04">
+                            <td>Tai nạn lái, phụ xe và người ngồi trên xe</td>
+                            <td>
+                              <dx-number-box
+                                stylingMode="outlined"
+                                format="#,##0"
+                                [(value)]="dataItem.tong04"
+                                [readOnly]="true"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          <tr *ngIf="dataItem.isPhamVi05">
+                            <td>TNDS của chủ xe với hàng hóa</td>
+                            <td>
+                              <dx-number-box
+                                stylingMode="outlined"
+                                format="#,##0"
+                                [(value)]="dataItem.tong05"
+                                [readOnly]="true"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          <!--<tr>
+                            <td>Cứu hộ khẩn cấp</td>
+                            <td>{{this.dataItem.tong06}}</td>
+                          </tr>-->
+                          <tr>
+                            <td><strong>Tổng phí BH (chưa VAT)</strong></td>
+                            <td>
+                              <dx-number-box
+                                format="#,##0"
+                                stylingMode="outlined"
+                                [readOnly]="true"
+                                [(value)]="dataItem.tongPhiChuaVat"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><strong>Tổng VAT</strong></td>
+                            <td>
+                              <dx-number-box
+                                format="#,##0"
+                                stylingMode="outlined"
+                                [readOnly]="true"
+                                [(value)]="dataItem.tongPhiVat"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><strong>Tổng phí BH (có VAT)</strong></td>
+                            <td>
+                              <dx-number-box
+                                format="#,##0"
+                                stylingMode="outlined"
+                                [readOnly]="true"
+                                [(value)]="dataItem.tongPhiCoVat"
+                              ></dx-number-box>
+                            </td>
+                          </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="col-md-8">
+                        <item-label-top [bold]="true" [label]="'Lịch thanh toán'"></item-label-top>
+                        <table class="table table-bordered datatable dataTable no-footer dtr-column">
+                          <thead class="thead-light text-center">
+                          <tr role="row">
+                            <th width="60px" class="text-left">Lần</th>
+                            <th width="140px">Ngày thanh toán</th>
+                            <th>Phí BH(có VAT)</th>
+                            <th>Thành tiền VAT</th>
+                            <th>Phí BH(chưa VAT)</th>
+                            <th width="60px"></th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let item of lichThanhToanF02s; let i = index">
+                              <td>
+                                <dx-number-box
+                                  stylingMode="outlined"
+                                  [readOnly]="true"
+                                  [(value)]="item.lan"
+                                ></dx-number-box>
+                              </td>
+                              <td>
+                                <dx-date-box
+                                  [(value)]="item.ngayThanhToan"
+                                  stylingMode="outlined"
+                                  type="date"
+                                  placeholder="dd/MM/yyyy"
+                                  displayFormat="dd/MM/y"
+                                  pickerType="calendar"
+                                ></dx-date-box>
+                              </td>
+                              <td>
+                                <dx-number-box
+                                  format="#,##0"
+                                  stylingMode="outlined"
+                                  (valueChange)="changePhiLichTT(item, 'tongPhi', i)"
+                                  [(value)]="item.tongPhi"
+                                ></dx-number-box>
+                              </td>
+                              <td>
+                                <dx-number-box
+                                  format="#,##0"
+                                  stylingMode="outlined"
+                                  [readOnly]="true"
+                                  (valueChange)="changePhiLichTT(item, 'vat', i)"
+                                  [(value)]="item.vat"
+                                ></dx-number-box>
+                              </td>
+                              <td>
+                                <dx-number-box
+                                  format="#,##0"
+                                  stylingMode="outlined"
+                                  (valueChange)="changePhiLichTT(item, 'phiChuaVat', i)"
+                                  [(value)]="item.phiChuaVat"
+                                ></dx-number-box>
+                              </td>
+                              <td>
+                                <dx-button
+                                  text="Xóa"
+                                  icon="trash"
+                                  type="danger"
+                                  stylingMode="contained"
+                                  (onClick)="deleteRowLichTT(item)"
+                                >
+                                </dx-button>
+                              </td>
+                            </tr>
+                          </tbody>
+                          <tfoot>
+                            <tr>
+                              <td colspan="6" class="text-center">
+                                <dx-button
+                                  text="Thêm"
+                                  icon="plus"
+                                  type="success"
+                                  stylingMode="contained"
+                                  (onClick)="addRowLichTT()"
+                                >
+                                </dx-button>
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="row dx-item dx-box-item">
+                      <div class="col-md-6">
+                        <item-label-top [bold]="true" [label]="'Ghi chú nội bộ'"></item-label-top>
+                        <dx-text-area
+                          [height]="60"
+                          stylingMode="outlined"
+                          [(value)]="dataItem.ghiChuNoiBo"
+                          [autoResizeEnabled]="false"
+                          [inputAttr]="{ 'aria-label': 'Notes' }"
+                        >
+                        </dx-text-area>
+                      </div>
+                      <div class="col-md-6">
+                        <item-label-top [bold]="true" [label]="'Ghi chú cho khách hàng'"></item-label-top>
+                        <dx-text-area
+                          [height]="60"
+                          stylingMode="outlined"
+                          [(value)]="dataItem.ghiChuKhachHang"
+                          [autoResizeEnabled]="false"
+                          [inputAttr]="{ 'aria-label': 'Notes' }"
+                        >
+                        </dx-text-area>
+                      </div>
+                    </div>
+                    <!----------------------------end line--------------------------------->
+                  </dxi-item>
+                </dx-form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dx-validation-group>
+    </div>
+  </dx-scroll-view>
+</div>
+
+<dx-popup
+  title="Danh sách khách hàng"
+  [(visible)]="isPopupKhachHangOpened"
+  [fullScreen]="!!(screen.xSmallScreenChanged | async)"
+  [width]="1200"
+  [height]="730"
+>
+  <app-car-customer (customerSelect)="doSelectCustomer($event)"></app-car-customer>
+</dx-popup>

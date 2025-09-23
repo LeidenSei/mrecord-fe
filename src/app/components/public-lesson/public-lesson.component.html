@@ -1,0 +1,54 @@
+<div class="body">
+  <div class="header" style="background: #FAFAFA;padding: 6px;border-bottom: solid 1px #EEE;">
+    <div class="d-flex" style="width: 350px;margin: auto;gap: 10px;">
+      <img src="/assets/images/logo_green.png" style="max-width: 36px;">
+      <div style="font-size: 25px;"><span _ngcontent-ng-c2563582591="" style="color: #e95b27;">m</span><span
+        style="color: #22a507;">Learning</span> - <span style="font-size: 20px;">Cầu nối tri thức</span></div>
+    </div>
+  </div>
+  <div class="container" *ngIf="dataItem">
+    <div class="row">
+      <div class="col-md-8">
+        <h1>{{dataItem.name}}</h1>
+        <div class="item">
+          <label>
+            <i class="dx-icon-edit" style="font-size: 16px"></i>
+            Người tạo: </label>
+          <strong>Giáo viên {{dataItem.creatorName}}</strong>
+        </div>
+        <div class="item">
+          <label>
+            <i class="dx-icon-home" style="font-size: 16px"></i>
+            Trường: </label>
+          <strong>{{dataItem.schoolName}}</strong>
+        </div>
+        <div class="item">
+          <label>
+            <i class="dx-icon-event" style="font-size: 16px"></i>
+            Ngày tạo: </label>
+          <span>{{dataItem.dateCreated | date: 'dd/MM/yyyy'}}</span>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="float-end qr-link">
+          <qrcode [qrdata]="url" [width]="150" [errorCorrectionLevel]="'L'"></qrcode>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+    <label class="d-flex align-items-center" style="font-size: 15px;gap: 5px;margin-bottom: 10px">
+      <i class="dx-icon-info" style="font-size: 16px"></i>
+      Nội dung: </label>
+    <div class="p-3 border" style="border-radius: 6px;">
+      <iframe
+        allow="microphone; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+        allowfullscreen [class]="lessonType === 2 ? 'show' : 'hidden'" scrolling="no"
+        style="border:none;overflow-x: hidden;" [id]="frameId" width="100%"
+        [height]="iframeHeight"></iframe>
+    </div>
+  </div>
+  <div class="footer">
+    Copyright © 2024. Develop by mSchool team.
+  </div>
+</div>
+

@@ -1,0 +1,430 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <!--<pdf-viewer [src]="pdfSrc"
+              [render-text]="true"
+              [original-size]="false"
+              style="width: 400px; height: 500px"
+  ></pdf-viewer>-->
+
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="dataSource"
+    [remoteOperations]="{ paging: true }"
+    (onSelectionChanged)="handleSelectionChange($event)"
+    [selectedRowKeys]="selectedItems"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+  >
+    <!--<dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>-->
+    <dxo-paging
+      [pageSize]="20"
+      [pageIndex]="0">
+    </dxo-paging>
+    <dxo-pager
+      [visible]="true"
+      [displayMode]="'full'"
+      [showPageSizeSelector]="true"
+      [showInfo]="true"
+      [showNavigationButtons]="true"
+    >
+    </dxo-pager>
+    <dxo-load-panel [showPane]="true" [enabled]="true"
+                    [text]="'Đang tải dữ liệu...'"
+    ></dxo-load-panel>
+    <dxo-selection
+      selectAllMode="page"
+      showCheckBoxesMode="always"
+      [mode]="getModeSelection()"
+    ></dxo-selection>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Khóa học đã tạo
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Năm học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="schoolYearSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="schoolYearChange($event)"
+          [selectedItemKey]="filterSchoolYear"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="allowEdit()">
+        <dx-button
+          [disabled]="this.selectedItems.length === 0"
+          text="Cập nhật lớp phụ trách"
+          icon="save"
+          type="default"
+          stylingMode="outlined"
+          (onClick)="showPopupUpdateLessonClass()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="allowEdit()">
+        <dx-button
+          text="Thêm mới"
+          icon="plus"
+          type="default"
+          stylingMode="contained"
+          (onClick)="addItemClick()"
+        ></dx-button>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+
+    <dxi-column dataField="name" caption="Tên khóa học"  cellTemplate="cellDetailLink"></dxi-column>
+    <dxi-column alignment="center" cellTemplate="cellTrangThai" caption="Trạng thái" [width]="120" [visible]="showTrangThaiDuyet"></dxi-column>
+    <dxi-column alignment="center" [width]="120" dataField=""  [visible]="allowEdit()" [allowFiltering]="false" caption="Tạo bài giảng"
+                cellTemplate="cellTaoBaiGiang"></dxi-column>
+    <!--<dxi-column alignment="center" [width]="120" dataField="" [allowFiltering]="false" caption="Upload tài liệu"
+                cellTemplate="cellUploadFile"></dxi-column>-->
+
+    <dxi-column dataField="dateCreated" [width]="120" caption="Ngày tạo" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>
+    <dxi-column dataField="subjectName" [allowFiltering]="false" caption="Môn học" [width]="110"></dxi-column>
+    <!--<dxi-column dataField="giaTriCotLoi" caption="Giá trị cốt lõi" [width]="200"></dxi-column>-->
+    <dxi-column cellTemplate="cellChiaSe" [allowFiltering]="false" caption="Chia sẻ" cssClass="white-space-normal" [width]="200"></dxi-column>
+    <dxi-column dataField="className" [allowFiltering]="false" cellTemplate="cellClasses" caption="Lớp" cssClass="white-space-normal"
+                [width]="100"></dxi-column>
+
+    <dxi-column dataField="orderText" alignment="center" [width]="70" caption="Hiển thị"></dxi-column>
+    <dxi-column type="buttons" fixedPosition="right" caption="Chức năng" [fixed]="true" [visible]="allowEdit()">
+      <dxi-button
+        hint="Sửa khóa học"
+        cssClass="dx-button-success"
+        [onClick]="onEditClick"
+        icon="edit"
+      ></dxi-button>
+      <dxi-button
+        hint="Xem danh sách bài giảng"
+        [onClick]="onBaiGiangView"
+        icon="info"
+      ></dxi-button>
+      <dxi-button
+        hint="Xóa khóa học"
+        cssClass="dx-button-danger"
+        [onClick]="onDeleteClick"
+        icon="trash"
+        type="danger"
+      ></dxi-button>
+    </dxi-column>
+    <div *dxTemplate="let cellInfo of 'cellClasses'">
+      {{cellInfo.value}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellChiaSe'">
+      <!--<dx-button
+        type="default"
+        stylingMode="contained"
+        (click)="taoBaiGiang(cellInfo.data)" id="saveButton" icon="plus" text="Tạo nhanh"></dx-button>-->
+      <span *ngIf="cellInfo.data.displaySettings.hocSinhTrongLop" class="tag processing">HS lớp</span>
+      <span *ngIf="cellInfo.data.displaySettings.hocSinhTrongTruong" class="tag processing">HS trường</span>
+      <span *ngIf="cellInfo.data.displaySettings.giaoVienTrongSo" class="tag processing">GV trong sở</span>
+      <span *ngIf="cellInfo.data.displaySettings.giaoVienTrongTruong"
+            class="tag processing">GV trường</span>
+      <span *ngIf="cellInfo.data.displaySettings.riengTu" class="tag red">Riêng tư</span>
+      <span *ngIf="cellInfo.data.displaySettings.chiaSeHocLieuSoChung"
+            class="tag processing">Chia sẻ học liệu số chung</span>
+      <span *ngIf="cellInfo.data.displaySettings.chiaSeHocLieuSoPhongGD" class="tag processing">Chia sẻ học liệu số phòng GD</span>
+      <span *ngIf="cellInfo.data.displaySettings.chiaSeDuThiGiaoVienGioi" class="tag success">Chia sẻ dự thi GVG</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellTaoBaiGiang'">
+      <dx-button
+        type="success"
+        stylingMode="contained"
+        (click)="taoBaiGiang(cellInfo.data)" id="saveButton" icon="plus"></dx-button>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellUploadFile'">
+      <dx-button
+        type="success"
+        hint="Tải lên tài liệu"
+        (click)="showUploadForm(cellInfo.data)" id="saveButton" icon="plus"></dx-button>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <a title="Xem danh sách bài giảng" class="a-link" (click)="viewDsBaiGiang(cellInfo.data.id, cellInfo.data.name)">
+        {{cellInfo.data.name}} <span style="color: #333;font-size: 12px;"
+                                     *ngIf="cellInfo.data.baiGiangIds.length"> {{cellInfo.data.baiGiangIds.length}} bài giảng</span>
+        <span style="color: #333;font-size: 12px;"
+              *ngIf="cellInfo.data.taiLieuIds.length">, {{cellInfo.data.taiLieuIds.length}} tài liệu</span>
+      </a>
+      <!--<span *ngIf="cellInfo.data.trangThai" class="tag success float-none">Đã duyệt</span>-->
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellTrangThai'">
+      <span class="tag processing float-none" *ngIf="cellInfo.data.trangThai === 10">TCM duyệt</span>
+      <span class="tag warning float-none" *ngIf="cellInfo.data.trangThai === 0">Chờ duyệt</span>
+
+      <span class="tag red float-none" *ngIf="cellInfo.data.trangThai === 5">TCM đề nghị chỉnh sửa</span>
+      <span class="tag red float-none no-border" *ngIf="cellInfo.data.trangThai === 15">BGH từ chối</span>
+      <span class="tag success float-none" *ngIf="cellInfo.data.trangThai === 20">BGH duyệt</span>
+    </div>
+  </dx-data-grid>
+
+</div>
+
+<dx-popup
+  [title]="editTitle"
+  [(visible)]="isShowEdit"
+  class="form-popup"
+  [fullScreen]="!!(screen.xSmallScreenChanged | async)"
+  [width]="1000"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupEdit()"
+      ></dx-button>
+      <dx-button
+        text="Cập nhật"
+        stylingMode="contained"
+        type="default"
+        [disabled]="toDisplaySettingMessage() !== ''"
+        (onClick)="onSaveClick()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <dx-validation-group #khoaHocvalidationGroup>
+    <dx-form
+        #formChung
+        [screenByWidth]="getSizeQualifier"
+        [(formData)]="dataItem"
+        labelLocation="top"
+        labelMode="outside"
+        [colCount]="12">
+
+
+      <!---------------------------start line-------------------------------->
+      <dxi-item [isRequired]="true" [colSpan]="9">
+        <dxo-label text="Tên khóa học"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder="Nhập tên khóa học"
+          valueChangeEvent="keyup input change"
+          [(value)]="dataItem.name">
+          <dx-validator
+            [validationRules]="[{ type: 'required', message: 'Chưa nhập tên khóa học' }]"></dx-validator>
+        </dx-text-box>
+      </dxi-item>
+      <dxi-item [colSpan]="3">
+        <dxo-label text="Thứ tự hiển thị"></dxo-label>
+        <dx-number-box
+          width="100px"
+          [(ngModel)]="dataItem.order"
+          [showSpinButtons]="true">
+        </dx-number-box>
+        <div class="fst-italic pt-2" style="font-size: 12px">Thứ tự lớn sẽ hiển thị bên trên</div>
+      </dxi-item>
+
+      <!---------------------------start line-------------------------------->
+      <dxi-item [isRequired]="false" [colSpan]="12">
+        <dxo-label text="Giá trị cốt lõi"></dxo-label>
+        <dx-text-box
+          stylingMode="outlined"
+          placeholder=""
+          valueChangeEvent="keyup input change"
+          [(value)]="dataItem.giaTriCotLoi">
+        </dx-text-box>
+      </dxi-item>
+      <!---------------------------start line-------------------------------->
+      <dxi-item [isRequired]="false" [colSpan]="12">
+        <dxo-label text="Mô tả"></dxo-label>
+        <dx-text-area
+          [height]="60"
+          stylingMode="outlined"
+          [(value)]="dataItem.moTa"
+          [autoResizeEnabled]="false"
+          [inputAttr]="{ 'aria-label': 'Notes' }"
+        >
+        </dx-text-area>
+      </dxi-item>
+      <!---------------------------start line-------------------------------->
+      <dxi-item [isRequired]="true" [colSpan]="4">
+        <dxo-label text="Loại sách"></dxo-label>
+        <dx-select-box
+          placeholder="Chọn loại sách"
+          stylingMode="outlined"
+          displayExpr="label"
+          valueExpr="value"
+          [dataSource]="loaiSachSource"
+          [(value)]="dataItem.loaiSach"
+        >
+          <dx-validator
+            [validationRules]="[{ type: 'required', message: 'Chưa chọn loại sách' }]"></dx-validator>
+        </dx-select-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="4">
+        <dxo-label text="Khối lớp"></dxo-label>
+        <dx-select-box
+          placeholder="Chọn khối lớp"
+          stylingMode="outlined"
+          [dataSource]="gradeSource"
+          [(value)]="dataItem.grade"
+        >
+          <dx-validator
+            [validationRules]="[{ type: 'required', message: 'Chưa chọn khối lớp' }]"></dx-validator>
+        </dx-select-box>
+      </dxi-item>
+      <dxi-item [isRequired]="true" [colSpan]="4">
+        <dxo-label text="Môn học"></dxo-label>
+        <dx-select-box
+          stylingMode="outlined"
+          placeholder="Chọn môn học"
+          [showClearButton]="true"
+          displayExpr="name"
+          valueExpr="id"
+          [dataSource]="editSubjectSource"
+          [(value)]="dataItem.subjectId"
+        >
+          <dx-validator
+            [validationRules]="[{ type: 'required', message: 'Chưa chọn môn học' }]"></dx-validator>
+        </dx-select-box>
+      </dxi-item>
+
+      <!---------------------------start line-------------------------------->
+      <dxi-item [isRequired]="true" [colSpan]="12">
+        <dxo-label text="Ảnh đại diện"></dxo-label>
+        <div #dropzone_external id="dropzone-external"
+             style="width: 80px;height: 80px;border: dashed 1px #CCC;display: block">
+          <img *ngIf="dataItem.anhDaiDien" [src]="dataItem.anhDaiDien" width="100%">
+          <em *ngIf="!dataItem.anhDaiDien">Nhấn vào đây để tải lên ảnh đại diện</em>
+        </div>
+        <dx-file-uploader
+            #fileUploader
+            uploadMode="instantly"
+            [uploadHeaders]="uploadHeaders"
+            [(uploadUrl)]="uploadUrl"
+            [selectButtonText]="'Chọn hình ảnh'"
+            [uploadButtonText]="'Upload files'"
+            name="formFile"
+            [multiple]="false"
+            [visible]="false"
+            (onUploadStarted)="onUploadStarted($event)"
+            (onUploaded)="onUploaded($event)"
+            (onUploadError)="onUploadError($event)">
+        </dx-file-uploader>
+      </dxi-item>
+      <dxi-item [colSpan]="12">
+        <dxo-label text="Chế độ hiển thị"></dxo-label>
+        <div class="message message-error">
+          <span *ngIf="toDisplaySettingMessage()">{{toDisplaySettingMessage()}}</span>
+        </div>
+      </dxi-item>
+      <!---------------------------start line-------------------------------->
+      <dxi-item [colSpan]="4">
+        <dx-check-box [(value)]="dataItem.displaySettings.danhChoHocSinh" text="Dành cho học sinh"></dx-check-box>
+        <div *ngIf="dataItem.displaySettings.danhChoHocSinh" style="padding-left: 10px">
+          <dx-check-box [(value)]="dataItem.displaySettings.hocSinhTrongLop" text="Trong lớp"></dx-check-box>
+          <dx-tag-box *ngIf="dataItem.displaySettings.hocSinhTrongLop"
+                      [items]="filterTeacherClassSource"
+                      [(value)]="dataItem.displaySettings.classIds"
+                      displayExpr="name"
+                      valueExpr="id"
+                      [searchEnabled]="true"
+                      [inputAttr]="{ 'aria-label': 'Product' }"
+          >
+          </dx-tag-box>
+        </div>
+        <div *ngIf="dataItem.displaySettings.danhChoHocSinh" style="padding-left: 10px">
+          <dx-check-box [(value)]="dataItem.displaySettings.hocSinhTrongTruong" text="Trường đang dạy"></dx-check-box>
+        </div>
+      </dxi-item>
+      <dxi-item [colSpan]="4">
+        <dx-check-box [(value)]="dataItem.displaySettings.danhChoGiaoVien" text="Dành cho giáo viên"></dx-check-box>
+        <div *ngIf="dataItem.displaySettings.danhChoGiaoVien" style="padding-left: 10px">
+          <dx-check-box [(value)]="dataItem.displaySettings.giaoVienTrongTruong" text="Trường đang dạy"></dx-check-box>
+        </div>
+        <div *ngIf="dataItem.displaySettings.danhChoGiaoVien" style="padding-left: 10px">
+          <dx-check-box [(value)]="dataItem.displaySettings.giaoVienTrongSo"
+                        text="Trường trong cộng đồng GV TPHCM"></dx-check-box>
+        </div>
+      </dxi-item>
+      <dxi-item [colSpan]="4">
+        <dx-check-box  (valueChange)="changeRiengTu($event)" [(value)]="dataItem.displaySettings.riengTu"
+                      text="Riêng tư"></dx-check-box>
+      </dxi-item>
+
+      <dxi-item [colSpan]="12">
+        <div>
+          <dx-check-box [(value)]="dataItem.displaySettings.chiaSeHocLieuSoChung"
+                        text="Chia sẻ lên Ngân hàng Học liệu số dùng chung"></dx-check-box>
+        </div>
+        <div>
+          <dx-check-box [(value)]="dataItem.displaySettings.chiaSeHocLieuSoPhongGD"
+                        text="Chia sẻ lên Ngân hàng Học liệu số của Phòng Giáo dục và Đào tạo"></dx-check-box>
+        </div>
+        <div>
+          <dx-check-box [(value)]="dataItem.displaySettings.chiaSeDuThiGiaoVienGioi" text="Chia sẻ dự thi GVG cấp Quận"></dx-check-box>
+        </div>
+        <div>
+          <dx-check-box [(value)]="dataItem.displaySettings.nopBaiTapHuanHe" text="Nộp bài tập huấn hè"></dx-check-box>
+        </div>
+      </dxi-item>
+
+    </dx-form>
+  </dx-validation-group>
+</dx-popup>
+
+<dx-popup
+  [title]="'Cập nhật lớp phụ trách'"
+  [(visible)]="isShowUpdateClass"
+  class="form-popup"
+  [width]="600"
+  [height]="300"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Bỏ qua"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupUpdateClass()"
+      ></dx-button>
+      <dx-button
+        [disabled]="changedClassesIds.length === 0"
+        text="Cập nhật"
+        stylingMode="contained"
+        type="default"
+        (onClick)="onUpdateClassClick()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="popup-content">
+    <div class="alert alert-warning text-center">
+      <div class="mb-2" style="font-size: 15px">
+        Bạn có chắc muốn cập nhật <strong>{{selectedItems.length}} khóa học</strong> được chọn về lớp dưới đây không ?
+      </div>
+      <dx-tag-box
+        [items]="filterTeacherClassSource"
+        [(value)]="changedClassesIds"
+        displayExpr="name"
+        placeholder="Chọn lớp học"
+        valueExpr="id"
+        [searchEnabled]="true"
+        [inputAttr]="{ 'aria-label': 'Product' }"
+      >
+      </dx-tag-box>
+    </div>
+  </div>
+</dx-popup>

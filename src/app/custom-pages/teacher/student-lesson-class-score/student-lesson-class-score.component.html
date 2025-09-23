@@ -1,0 +1,74 @@
+<div class="view-wrapper">
+  <dx-data-grid
+    class="grid theme-dependent"
+    columnResizingMode="widget"
+    [dataSource]="studentSource"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    (onExporting)="onExporting($event)"
+  >
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-toolbar>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Lớp học</label>
+      </dxi-item>
+      <dxi-item location="before"  locateInMenu="auto">
+        <dx-tabs
+          secondary="secondary"
+          [width]="(screen.xSmallScreenChanged | async) ? 220 : 'auto'"
+          [showNavButtons]="false"
+          [scrollByContent]="true"
+          [selectedIndex]="selectedIndex"
+          [items]="classSource"
+          (onItemClick)="classChange($event)"
+        ></dx-tabs>
+      </dxi-item>
+      <dxi-item name="exportButton"></dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="60" caption="STT"
+    ></dxi-column>
+    <dxi-column dataField="code" [width]="120" caption="Mã học sinh"></dxi-column>
+    <dxi-column dataField="fullName" caption="Họ và tên" cellTemplate="cellDetailLink"></dxi-column>
+    <dxi-column dataField="className" [width]="200" caption="Lớp"></dxi-column>
+
+    <!--<dxi-column caption="Giới tính" [width]="140" cellTemplate="cellGender"></dxi-column>-->
+    <dxi-column dataField="ngayHoanThanh" dataType="date"
+                format="HH:mm dd/MM/yyyy" caption="Thời gian làm bài" [width]="200"></dxi-column>
+
+    <dxi-column dataField="seen" caption="Đã xem" [width]="200"></dxi-column>
+    <dxi-column dataField="caudung" caption="Số câu đúng" [width]="200"></dxi-column>
+    <dxi-column dataField="diem" caption="Điểm" [width]="200"></dxi-column>
+
+    <div *dxTemplate="let cellInfo of 'cellNgayHoanThanh'">
+      {{cellInfo.data.ketQua?.ngayHoanThanh}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellGender'">
+      {{cellInfo.data.sex == 1 ? 'Nam' : 'Nữ'}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDateRange'">
+      {{cellInfo.data.beginDate | date: 'dd/MM/yy'}} - {{cellInfo.data.expiredDate | date: 'dd/MM/yy'}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      {{cellInfo.data | fullName}}
+    </div>
+  </dx-data-grid>
+</div>
+

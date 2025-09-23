@@ -1,0 +1,182 @@
+@use "../../../../variables.scss" as *;
+@use "sass:math";
+
+:host {
+  --side-panel-toolbar-height: 76px;
+
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+
+  .grid {
+    .name-template {
+      .position {
+        font-size: 12px;
+        color: var(--texteditor-label-color);
+      }
+    }
+
+    ::ng-deep & {
+      .dx-datagrid-header-panel {
+        padding: 0 var(--content-padding);
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: var(--toolbar-margin-bottom) 0;
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+      }
+    }
+
+    .grid-header {
+      @include header();
+    }
+  }
+
+  user-panel {
+    display: inherit;
+  }
+}
+
+.ul_images {
+  display: flex;
+  padding: 0;
+  gap: 5px;
+}
+
+.ul_images li {
+  list-style: none;
+}
+
+.ul_images img {
+  height: 60px;
+}
+.ul_files{
+  padding: 0;
+}
+.ul_files li, .ul-class li {
+  list-style: none;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ul_files a {
+  text-decoration: none;
+}
+.ul_files a.link {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.view-popup-scroll{
+  overflow-y: auto;
+}
+.list-container{
+  height: calc(100vh - 190px);
+  overflow-y: auto;
+  background: #FAFAFA;
+}
+.result-list-item{
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 40px calc(100% - 40px);
+  .result-icon i{
+    font-size: 20px;
+  }
+}
+.color-danger span, .color-danger i{
+  color: red;
+}
+.color-primary span, .color-primary i{
+  color: #4074cc;
+}
+.color-success i{
+  color: #2dd36f;
+}
+.result-mark{
+  font-size: 14px;
+  strong{
+    color: orange;
+    margin-right: 8px;
+  }
+  em{
+    font-style: normal;
+  }
+}
+.no-mark{
+  color: var(--ion-color-primary);
+}
+.no-result{
+  color: var(--ion-color-danger);
+}
+.mark-info{
+  border: solid 1px #b6c9ee;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  label{
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  strong{
+    color: orange;
+    font-size: 30px;
+  }
+  p{
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+  }
+}
+.mark-info > div{
+  padding: 6px;
+}
+.mark-info > div:first-child{
+  border-right: solid 1px #b6c9ee;
+}
+.input-mark{
+  border: none;
+  width: 100%;
+  outline: none;
+  color: orange;
+  font-size: 30px;
+  text-align: center;
+}
+.input-review{
+  border: none;
+  outline: none;
+  width: 100%;
+}
+.btn.btn-sm.d-block{
+  line-height: 18px;
+  margin: auto;
+  width: auto;
+}
+.a-item {
+  padding: 4px 2px;
+}
+.result-info span, .result-info strong{
+  font-size: 15px;
+}
+.mark-toolbar{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  h5{
+    font-size: 18px;
+    margin: 0;
+  }
+}

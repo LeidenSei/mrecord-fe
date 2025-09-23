@@ -1,0 +1,370 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+    [rowAlternationEnabled]="true"
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    (onExporting)="onExporting($event)"
+    (onSelectionChanged)="handleSelectionChange($event)"
+  >
+    <dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item name="exportButton"></dxi-item>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Ký duyệt thay giáo viên bộ môn <span *ngIf="studentCount > 0">&nbsp;({{studentCount}})</span>
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Năm học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="schoolYearSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="schoolYearChange($event)"
+          [selectedItemKey]="filterSchoolYear"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Giáo viên</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-select-box
+          [width]="200"
+          [searchEnabled]="true"
+          placeholder="Chọn giáo viên"
+          stylingMode="outlined"
+          displayExpr="name"
+          valueExpr="id"
+          (onItemClick)="teacherChange($event)"
+          [dataSource]="teacherSource"
+          [(value)]="filterTeacherId"
+        >
+          <dx-validator
+            [validationRules]="[{ type: 'required', message: 'Chưa chọn môn học' }]"></dx-validator>
+        </dx-select-box>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Môn học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-select-box
+          placeholder="Chọn môn học"
+          stylingMode="outlined"
+          displayExpr="name"
+          valueExpr="id"
+          (onItemClick)="subjectChange($event)"
+          [dataSource]="subjectSource"
+          [(value)]="filterSubjectId"
+        >
+          <dx-validator
+            [validationRules]="[{ type: 'required', message: 'Chưa chọn môn học' }]"></dx-validator>
+        </dx-select-box>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto">
+        <dx-button
+          class="btn-info"
+          [disabled]="!selectedItems.length"
+          text="Ký duyệt điểm"
+          icon="rename"
+          type="default"
+          stylingMode="contained"
+          (onClick)="requestSigned()"
+        ></dx-button>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+    <dxi-column dataField="className" [width]="120" caption="Tên lớp" alignment="center"></dxi-column>
+    <dxi-column dataField="subjectName" caption="Tên môn"></dxi-column>
+    <dxi-column dataField="teacherName" [width]="220" caption="Giáo viên"></dxi-column>
+    <dxi-column dataField="" [width]="120" caption="Điểm" cellTemplate="cellDetailLink" alignment="center"></dxi-column>
+
+    <dxi-column dataField="signed" [width]="120" caption="Trạng thái ký" alignment="center"></dxi-column>
+    <dxi-column dataField="dateSigned"  dataType="date" format="dd/MM/yyyy HH:mm" [width]="140" caption="Ngày ký" alignment="center"></dxi-column>
+    <!--<dxi-column type="buttons" fixedPosition="right" caption="Ký" [fixed]="true">
+      <dxi-button
+        hint="Ký duyệt bộ môn"
+        cssClass="dx-button-success"
+        [onClick]="onSign"
+        icon="rename"
+      ></dxi-button>
+    </dxi-column>-->
+    <div *dxTemplate="let cellInfo of 'cellNhanXet'">
+      <dx-text-area
+        [(value)]="cellInfo.data.nhaN_XET_GVCN"
+        placeholder="Nhập nhận xét chung"
+        [height]="100"
+        [autoResizeEnabled]="true">
+      </dx-text-area>
+    </div>
+
+    <div *dxTemplate="let cellInfo of 'cellGender'">
+      {{cellInfo.data.sex == 1 ? 'Nam' : 'Nữ'}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDateRange'">
+      {{cellInfo.data.beginDate | date: 'dd/MM/yy'}} - {{cellInfo.data.expiredDate | date: 'dd/MM/yy'}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellPhone'">
+      {{getPhoneStudent(cellInfo.data)}}
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellStatusGVCN'">
+      <span class="sign-status {{cellInfo.data.status >= 20 ? 'signed' : ''}}">{{cellInfo.data.statusGVCN}}</span>
+      <a style="font-size: 12px" *ngIf="cellInfo.data.status === 20" target="_blank" [href]="cellInfo.data.signedFileUrl">
+        (Xem file)
+      </a>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <a (click)="showDetail(cellInfo.data)" style="font-size: 12px" target="_blank">
+        (Chi tiết)
+      </a>
+    </div>
+  </dx-data-grid>
+</div>
+
+
+<dx-popup
+  title="Xác thực ký số"
+  [(visible)]="isShowSignLoading"
+  class="form-popup"
+  width="500px"
+  height="400px"
+  (onHiding)="handleCloseLoading()"
+>
+  <div class="popup-content">
+    <p>
+      Yêu cầu ký số đã được gửi về thiết bị di động.<br>
+      Mở ứng dụng <strong>MySign</strong> và nhấn <strong>Xác nhận</strong> để ký tài liệu.
+    </p>
+    <p><strong>Ứng dụng:</strong> MySign</p>
+    <p><strong>Trạng thái:</strong> Đang thực hiện ký</p>
+
+    <div class="timer-box text-center mt-4">
+      <div class="timer-label">Thời gian còn lại</div>
+      <div class="timer-value">{{ countdownDisplay }}</div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  title="Cập nhật trạng thái"
+  [(visible)]="isShowSignLoadingPrincipal"
+  class="form-popup"
+  width="400px"
+  height="220px"
+  (onHiding)="handleCloseLoading()"
+>
+  <div class="popup-content">
+    <p>
+      Dữ liệu đang được ký duyệt.<br>
+      <strong>Vui lòng chờ trong giây lát</strong>
+    </p>
+    <!--Loading here-->
+    <div class="mt-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  title="Ký số học bạ"
+  [(visible)]="isShowPreview"
+  class="form-popup"
+  width="800px"
+  height="80vh"
+>
+  <div class="row">
+    <div class="'col-12'">
+      <div class="frame-wrapper">
+        <div class="frame-title flex-space-between">
+          <h6 [class]="dataItem.status == 20 ? 'gvcn_signed' : ''">{{dataItem.studentName}}</h6>
+          <!--Trạng thái giáo án: {{taiLieuItem.trangThaiDuyet}}-->
+          <div class="buttons" *ngIf="dataItem && dataItem.status < 20">
+            <dx-button
+              text="Ký số"
+              [elementAttr]="{ id: 'elementId', class: 'color-white' }"
+              icon="rename"
+              type="success"
+              stylingMode="contained"
+              (onClick)="doSign()"
+            ></dx-button>
+          </div>
+        </div>
+        <!--<iframe scrolling="no"
+                style="border:none;overflow-x: hidden;" id="h5pFrame" width="100%"
+                [height]="iframeHeight"></iframe>-->
+        <ng-container>
+          <ngx-doc-viewer
+            [url]="pdfUrl"
+            viewer="google"
+            style="width:100%;height:65vh;"
+          ></ngx-doc-viewer>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+
+<div class="popup-wrapper">
+  <dx-popup
+    [title]="'Điểm chi tiết theo lớp'"
+    [(visible)]="isShowClassResultView"
+    width="80%"
+    height="80%"
+  >
+    <dx-data-grid
+      [rowAlternationEnabled]="true"
+      class="grid theme-dependent"
+      columnResizingMode="widget"
+      [dataSource]="studentSource"
+      [allowColumnReordering]="true"
+      [showBorders]="true"
+      [showColumnLines]="true"
+      [showRowLines]="true"
+      [columnMinWidth]="50"
+      [columnAutoWidth]="true"
+      [columnResizingMode]="'nextColumn'"
+      [allowColumnResizing]="true"
+      (onExporting)="onExporting($event)"
+    >
+      <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+      <dxo-sorting mode="multiple"></dxo-sorting>
+      <dxo-header-filter [visible]="false"></dxo-header-filter>
+
+      <dxi-column
+        fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="60" caption="STT"
+      ></dxi-column>
+      <dxi-column dataField="code" [width]="120" caption="Mã học sinh"></dxi-column>
+      <dxi-column dataField="fullName" caption="Họ và tên"></dxi-column>
+      <dxi-column dataField="className" [width]="200" caption="Lớp"></dxi-column>
+
+      <dxi-column dataField="mucDatDuoc" caption="Mức đạt được" [width]="200"></dxi-column>
+      <dxi-column dataField="diem" caption="Điểm" [width]="200"></dxi-column>
+
+      <div *dxTemplate="let cellInfo of 'cellNgayHoanThanh'">
+        {{cellInfo.data.ketQua?.ngayHoanThanh}}
+      </div>
+      <div *dxTemplate="let cellInfo of 'cellGender'">
+        {{cellInfo.data.sex == 1 ? 'Nam' : 'Nữ'}}
+      </div>
+      <div *dxTemplate="let cellInfo of 'cellDateRange'">
+        {{cellInfo.data.beginDate | date: 'dd/MM/yy'}} - {{cellInfo.data.expiredDate | date: 'dd/MM/yy'}}
+      </div>
+      <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+        {{cellInfo.data | fullName}}
+      </div>
+    </dx-data-grid>
+    <div class="clearfix">
+      <div class="float-end text-center" *ngIf="signInfo && signInfo.signed">
+        <div><em>Ngày {{signInfo.signedDate | date: 'dd'}} tháng {{signInfo.signedDate | date: 'MM'}} năm {{signInfo.signedDate | date: 'yyyy'}}</em></div>
+        <div style="height: 60px;margin: 10px 0;">
+          <img style="max-height: 60px" [src]="signInfo.signUrl">
+        </div>
+        <div><strong style="font-size: 14pt">{{signInfo.teacherName}}</strong></div>
+      </div>
+    </div>
+  </dx-popup>
+</div>
+
+<div class="popup-wrapper">
+  <dx-popup
+    [title]="classMarkTitle"
+    [(visible)]="isShowClassResultViewC2"
+    width="80%"
+    height="80%"
+  >
+    <dx-data-grid
+      [rowAlternationEnabled]="true"
+      class="grid theme-dependent"
+      columnResizingMode="widget"
+      [dataSource]="studentSource"
+      [allowColumnReordering]="true"
+      [showBorders]="true"
+      [showColumnLines]="true"
+      [showRowLines]="true"
+      [columnMinWidth]="50"
+      [columnAutoWidth]="true"
+      [columnResizingMode]="'nextColumn'"
+      [allowColumnResizing]="true"
+      (onExporting)="onExporting($event)"
+    >
+      <dxo-paging [pageSize]="100"></dxo-paging>
+      <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+      <dxo-sorting mode="multiple"></dxo-sorting>
+      <dxo-header-filter [visible]="false"></dxo-header-filter>
+
+      <dxi-column
+        fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="60" caption="STT"
+      ></dxi-column>
+      <dxi-column dataField="code" [width]="120" caption="Mã học sinh"></dxi-column>
+      <dxi-column dataField="fullName" caption="Họ và tên"></dxi-column>
+      <dxi-column dataField="className" [width]="200" caption="Lớp"></dxi-column>
+
+      <dxi-column dataField="hocKy1" caption="Học kỳ 1" [width]="200"></dxi-column>
+      <dxi-column dataField="hocKy2" caption="Học kỳ 2" [width]="200"></dxi-column>
+      <dxi-column dataField="caNam" caption="Cả năm" [width]="200"></dxi-column>
+      <dxi-column dataField="hocKy3" caption="Rèn luyện lại" [width]="200"></dxi-column>
+
+      <div *dxTemplate="let cellInfo of 'cellNgayHoanThanh'">
+        {{cellInfo.data.ketQua?.ngayHoanThanh}}
+      </div>
+      <div *dxTemplate="let cellInfo of 'cellGender'">
+        {{cellInfo.data.sex == 1 ? 'Nam' : 'Nữ'}}
+      </div>
+      <div *dxTemplate="let cellInfo of 'cellDateRange'">
+        {{cellInfo.data.beginDate | date: 'dd/MM/yy'}} - {{cellInfo.data.expiredDate | date: 'dd/MM/yy'}}
+      </div>
+      <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+        {{cellInfo.data | fullName}}
+      </div>
+    </dx-data-grid>
+    <div class="clearfix">
+      <div class="float-end text-center ms-5 mt-2" *ngFor="let info of signInfos">
+        <div><em>Ngày {{info.signedDate | date: 'dd'}} tháng {{info.signedDate | date: 'MM'}} năm {{info.signedDate | date: 'yyyy'}}</em></div>
+        <div style="height: 60px;margin: 10px 0;">
+          <img style="max-height: 60px" [src]="info.signUrl">
+        </div>
+        <div><strong style="font-size: 14pt">{{info.teacherName}}</strong></div>
+      </div>
+
+    </div>
+  </dx-popup>
+</div>
+

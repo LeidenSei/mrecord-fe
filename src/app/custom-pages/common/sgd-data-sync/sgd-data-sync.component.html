@@ -1,0 +1,174 @@
+<dx-scroll-view class="view-wrapper-scroll">
+  <div class="view-wrapper">
+    <dx-toolbar class="theme-dependent" [class.scrolled]="true">
+      <dxi-item location="before">
+        <div class="header-text">
+          <i class="dx-icon-chart" style="font-size: 20px"></i>
+          Đồng bộ dữ liệu
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Năm học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="schoolYearSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="schoolYearChange($event)"
+          [selectedItemKey]="filterSchoolYear"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+    </dx-toolbar>
+    <!--<div class="alert alert-info mt-2 mb-0" *ngIf="msg">
+      {{msg}}
+    </div>-->
+    <div class="cards mt-2 mb-2">
+      <div class="card sales">
+        <dx-button
+          [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+          text="Đồng bộ dữ liệu học sinh"
+          icon="save"
+          type="default"
+          stylingMode="contained"
+          (onClick)="syncStudentList()"
+        ></dx-button>
+      </div>
+      <div class="card sales">
+        <dx-button
+          *ngIf="isElementary"
+          [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+          text="Đồng bộ dữ liệu điểm tổng kết tiểu học"
+          icon="save"
+          type="default"
+          stylingMode="contained"
+          (onClick)="syncDuLieuDiemTongKetTieuHoc()"
+        ></dx-button>
+
+        <dx-button *ngIf="!isElementary"
+          [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+          text="Đồng bộ dữ liệu điểm C2"
+          icon="save"
+          type="default"
+          stylingMode="contained"
+          (onClick)="syncDuLieuDiemMonHocC2()"
+        ></dx-button>
+      </div>
+      <div class="card sales">
+        <dx-button *ngIf="isElementary"
+          [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+          text="Đồng bộ dữ liệu điểm NLPM tiểu học"
+          icon="save"
+          type="default"
+          stylingMode="contained"
+          (onClick)="syncDuLieuNangLucPhamChat()"
+        ></dx-button>
+
+        <dx-button *ngIf="!isElementary"
+                   [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+                   text="Đồng bộ dữ liệu điểm tổng kết C2"
+                   icon="save"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="syncDuLieuDiemTongKetC2()"
+        ></dx-button>
+      </div>
+      <div class="card sales">
+        <!--<dx-button
+                   [disabled]="isShowSignLoadingPrincipal"
+                   text="Xóa dữ liệu học bạ & ký GVBM"
+                   icon="save"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="clearSignedGVBM()"
+        ></dx-button>-->
+        <div class="card sales">
+          <dx-button
+            [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+            text="Đồng bộ dữ liệu khen thuởng"
+            icon="save"
+            type="default"
+            stylingMode="contained"
+            (onClick)="syncDuLieuKhenThuong()"
+          ></dx-button>
+        </div>
+      </div>
+    </div>
+    <div class="cards mt-2 mb-2">
+      <div class="card sales">
+        <dx-button
+          [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+          text="Đồng bộ dữ liệu lớp học (1)"
+          icon="save"
+          type="default"
+          stylingMode="contained"
+          (onClick)="syncClassList()"
+        ></dx-button>
+      </div>
+      <div class="card sales">
+        <dx-button
+          [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+          text="Fix dữ liệu học bạ lớp học"
+          icon="save"
+          type="default"
+          stylingMode="contained"
+          (onClick)="fixClassId()"
+        ></dx-button>
+      </div>
+      <div class="card sales" *ngIf="isElementary">
+        <dx-button [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+                   text="Đồng bộ dữ liệu đánh giá định kỳ"
+                   icon="save"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="syncDuLieuDiemTieuHoc()"
+        ></dx-button>
+      </div>
+      <div class="card sales">
+        <dx-button
+                   [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+                   text="Đồng bộ dữ liệu giáo viên (2)"
+                   icon="save"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="syncDuLieuGiaoVien()"
+        ></dx-button>
+      </div>
+      <div class="card sales" *ngIf="!isElementary">
+        <dx-button
+          class="btn-red"
+          [disabled]="isShowSignLoadingPrincipal || !isLoginSGD"
+          text="Xóa chữ ký & cập nhật PCCM lớp (3) [Quan trọng]"
+          icon="save"
+          type="default"
+          stylingMode="contained"
+          (onClick)="syncDuLieuPCCMLop()"
+        ></dx-button>
+      </div>
+    </div>
+  </div>
+</dx-scroll-view>
+
+<dx-popup
+  title="Đồng bộ dữ liệu"
+  [(visible)]="isShowSignLoadingPrincipal"
+  class="form-popup"
+  width="300px"
+  height="200px"
+>
+  <div class="popup-content">
+    <p>
+      Dữ liệu đang được đồng bộ<br>
+      <strong>Vui lòng chờ trong giây lát</strong>
+    </p>
+    <!--Loading here-->
+    <div class="mt-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</dx-popup>

@@ -1,0 +1,131 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    height="100%"
+    columnResizingMode="widget"
+    [dataSource]="dataSource"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    (onRowClick)="rowClick($event)"
+    (onExporting)="onExporting($event)"
+  >
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [allowExportSelectedData]="true"
+      [formats]="['xlsx', 'pdf']"
+    >
+    </dxo-export>
+
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-car" style="font-size: 16px"></i>
+          F02 - Bảo hiểm ô tô</div>
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto">
+        <dx-button
+          text="Thêm mới"
+          icon="plus"
+          type="default"
+          stylingMode="contained"
+          (onClick)="addItemClick()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item
+        location="after"
+        locateInMenu="auto"
+        showText="inMenu"
+        widget="dxButton"
+        [options]="{
+          text: 'Refresh',
+          icon: 'refresh',
+          onClick: refresh,
+          stylingMode: 'text'
+        }"
+      ></dxi-item>
+      <dxi-item location="after" locateInMenu="auto">
+        <div class="separator"></div>
+      </dxi-item>
+      <dxi-item name="exportButton"></dxi-item>
+      <dxi-item location="after" locateInMenu="auto">
+        <div class="separator"></div>
+      </dxi-item>
+      <dxi-item name="columnChooserButton" locateInMenu="auto"></dxi-item>
+      <dxi-item name="searchPanel" locateInMenu="auto"></dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      [fixed]="true" fixedPosition="left"
+      dataField="code"
+      caption="Số đơn"
+      cellTemplate="cellCode"
+    ></dxi-column>
+
+    <dxi-column dataField="ngayCapDon" caption="Ngày cấp" dataType="date" format="dd/MM/yyyy"></dxi-column>
+    <dxi-column dataField="khachHangTen" caption="Tên khách hàng" cellTemplate="cellKhachHang"></dxi-column>
+
+    <dxi-column dataField="tongTien" format="#,##0" caption="MTN"></dxi-column>
+    <dxi-column dataField="tongPhiChuaVat" format="#,##0" caption="Phí chưa VAT"></dxi-column>
+    <dxi-column dataField="tongPhiVat" format="#,##0" caption="Tiền VAT"></dxi-column>
+    <dxi-column dataField="tongPhiCoVat" format="#,##0" caption="Phí có VAT"></dxi-column>
+    <dxi-column dataField="canBoKhaiThac.fullname" caption="CB khai thác"></dxi-column>
+    <dxi-column dataField="canBoCapDon.fullname" caption="CB cấp đơn"></dxi-column>
+    <dxi-column dataField="statusText" cellTemplate="cellStatus" caption="Trạng thái"></dxi-column>
+    <dxi-column type="buttons" [fixed]="true" fixedPosition="right">
+      <dxi-button
+        hint="Sửa hồ sơ"
+        [onClick]="onEditClick"
+        icon="edit"
+      ></dxi-button>
+      <dxi-button
+        hint="Xóa hồ sơ"
+        [onClick]="onDeleteClick"
+        icon="trash"
+      ></dxi-button>
+    </dxi-column>
+    <div *dxTemplate="let cellInfo of 'name'" class="name-template">
+      <a (click)="goEdit(cellInfo.data)">
+        <div>{{ cellInfo.data.name }}</div>
+        <div class="position">{{ cellInfo.data.position }}</div>
+      </a>
+    </div>
+
+
+    <div *dxTemplate="let cellInfo of 'cellCode'">
+      <a (click)="goEdit(cellInfo.data)">
+        <div>
+          {{cellInfo.data.code}}.{{cellInfo.data.soGcnbh}}</div>
+        <span style="font-size: 12px">Ngày tạo: {{cellInfo.data.createdDate | date: 'dd/MM/yyyy'}}</span>
+      </a>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellKhachHang'">
+      <a (click)="goEdit(cellInfo.data)">
+        <div>
+          {{cellInfo.data.khachHangTen}}</div>
+        <span style="font-size: 12px;background: #8bc34a;margin-right: 10px">SK: {{cellInfo.data.soKhung}}</span><span
+        style="font-size: 12px;background: #cddc39">SM: {{cellInfo.data.soMay}}</span>
+      </a>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellStatus'">
+      <span class="status status-salaried status-{{cellInfo.data.status}}">
+        {{cellInfo.data.statusText}}
+      </span>
+    </div>
+  </dx-data-grid>
+
+</div>

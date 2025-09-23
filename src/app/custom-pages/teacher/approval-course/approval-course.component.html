@@ -1,0 +1,184 @@
+<div class="view-wrapper list-page crm-contact-list pb-0">
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText="Không có dữ liệu khóa học"
+    columnResizingMode="widget"
+    [dataSource]="dataSource"
+    [remoteOperations]="{ paging: true }"
+    (onSelectionChanged)="handleSelectionChange($event)"
+
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+  >
+    <dxo-paging
+      [pageSize]="20"
+      [pageIndex]="0">
+    </dxo-paging>
+    <dxo-pager
+      [visible]="true"
+      [displayMode]="'full'"
+      [showPageSizeSelector]="true"
+      [showInfo]="false"
+      [showNavigationButtons]="true"
+    >
+    </dxo-pager>
+    <!--<dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>-->
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <dxo-selection
+      selectAllMode="page"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [allowExportSelectedData]="true"
+      [formats]="['xlsx', 'pdf']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Duyệt khóa học môn {{subject ? subject.name : ''}}
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Năm học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="schoolYearSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="schoolYearChange($event)"
+          [selectedItemKey]="filterSchoolYear"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Khối học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="gradeSource"
+          (onItemClick)="gradeChange($event)"
+          [selectedItemKey]="gradeSource[0]"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Môn học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="filterSubjectSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="subjectChange($event)"
+          [selectedItemKey]="filterSubjectId"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Trạng thái duyệt</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="approveSource"
+          keyExpr="status"
+          displayExpr="name"
+          (onItemClick)="statusChange($event)"
+          [selectedItemKey]="approveSource[0].status"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+
+      <dxi-item location="after" locateInMenu="auto" [visible]="multipleApproved">
+        <dx-button
+          [disabled]="!selectedItems.length"
+          text="Duyệt"
+          icon="todo"
+          type="default"
+          stylingMode="contained"
+          (onClick)="doApproveMutiple()"
+        ></dx-button>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+
+    <dxi-column title="Xem và duyệt" dataField="name" caption="Tên khóa học" cellTemplate="cellDetailLink"></dxi-column>
+    <dxi-column alignment="center" dataField="dateCreated" [width]="120" caption="Ngày tạo" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>
+    <dxi-column dataField="creator" [width]="200" caption="Giáo viên tạo"></dxi-column>
+    <dxi-column alignment="center" dataField="subjectName" [width]="100" caption="Bộ môn"></dxi-column>
+    <dxi-column alignment="center" dataField="grade" [width]="100" caption="Khối lớp"></dxi-column>
+    <dxi-column alignment="center" cellTemplate="cellSoNoiDung" caption="Số nội dung" [width]="120"></dxi-column>
+
+    <dxi-column alignment="center" cellTemplate="cellTrangThai" caption="Trạng thái" [width]="120"></dxi-column>
+    <dxi-column alignment="center" cellTemplate="cellFunctionTemplate" caption="Chức năng" [width]="150"></dxi-column>
+    <!--<dxi-column dataField="approverName" caption="Người duyệt" cellTemplate="cellApproverName" [width]="200"></dxi-column>
+    <dxi-column dataField="dateApproved" [width]="120" caption="Ngày duyệt" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>-->
+    <!--<dxi-column cellTemplate="cellChiaSe" caption="Chia sẻ" cssClass="white-space-normal" [width]="200"></dxi-column>-->
+    <div *dxTemplate="let cellInfo of 'cellFunctionTemplate'">
+      <dx-button
+        text="Xem và duyệt"
+        [elementAttr]="{ id: 'elementId', class: 'grid-button grid-button-success' }"
+        type="success"
+        stylingMode="outlined"
+        (onClick)="onBaiGiangDuyet(cellInfo.data)"
+      ></dx-button>
+    </div>
+    <!--<dxi-column type="buttons" fixedPosition="right" caption="Chức năng">
+      <dxi-button
+        hint="Xem và duyệt"
+        cssClass="dx-button-success"
+        text="Xem và duyệt"
+        [onClick]="onBaiGiangDuyet"
+        icon="checklist"
+      ></dxi-button>
+    </dxi-column>-->
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <a title="Xem danh sách bài giảng và duyệt" class="a-link" (click)="onBaiGiangDuyet(cellInfo.data)">{{cellInfo.data.name}}</a>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellSoNoiDung'">
+      {{cellInfo.data.soNoiDung}}
+    </div>
+
+    <div *dxTemplate="let cellInfo of 'cellApproverName'">
+      <span *ngIf="cellInfo.data.trangThai === 10">{{cellInfo.data.approverName === '' ? 'admin' : cellInfo.data.approverName}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellTrangThai'">
+      <span class="tag processing float-none" *ngIf="cellInfo.data.trangThai === 10">TTCM duyệt</span>
+      <span class="tag warning float-none" *ngIf="cellInfo.data.trangThai === 0">Chờ duyệt</span>
+
+      <span class="tag red float-none no-border" *ngIf="cellInfo.data.trangThai === 5">Tổ chuyên môn đề nghị chỉnh sửa</span>
+      <span class="tag red float-none no-border" *ngIf="cellInfo.data.trangThai === 15">BGH từ chối</span>
+      <span class="tag success float-none no-border" *ngIf="cellInfo.data.trangThai === 20">BGH duyệt</span>
+    </div>
+  </dx-data-grid>
+
+</div>
+
+
+

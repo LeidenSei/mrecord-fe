@@ -1,0 +1,478 @@
+<div class="view-wrapper list-page crm-contact-list">
+
+  <!--<dx-load-panel
+      #loadPanel
+      shadingColor="rgba(0,0,0,0.4)"
+      [position]="{ of: '#doc-viewer' }"
+      [(visible)]="docLoading"
+      [message]="'Đang tải dữ liệu...'"
+      [showIndicator]="true"
+      [showPane]="true"
+      [shading]="true"
+      [hideOnOutsideClick]="false"
+  >
+  </dx-load-panel>-->
+
+  <dx-data-grid
+    noDataText=""
+    class="grid theme-dependent"
+    columnResizingMode="widget"
+    [dataSource]="dataSource"
+    [remoteOperations]="true"
+
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+  >
+    <dxo-paging
+      [pageSize]="20"
+      [pageIndex]="0">
+    </dxo-paging>
+    <dxo-pager
+      [visible]="true"
+      [displayMode]="'full'"
+      [showPageSizeSelector]="true"
+      [showInfo]="false"
+      [showNavigationButtons]="true"
+    >
+    </dxo-pager>
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <!--<dxo-selection
+      selectAllMode="allPages"
+      showCheckBoxesMode="always"
+      mode="multiple"
+    ></dxo-selection>-->
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-export
+      [enabled]="true"
+      [allowExportSelectedData]="true"
+      [formats]="['xlsx', 'pdf']"
+    >
+    </dxo-export>
+    <dxo-toolbar>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-textdocument" style="font-size: 16px"></i>
+          Trắc nghiệm trực tuyến
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-tabs
+          secondary="secondary"
+          [showNavButtons]="false"
+          [scrollByContent]="true"
+          [selectedIndex]="0"
+          [items]="filterStatusItems"
+          (onItemClick)="tabStatusChange($event)"
+        ></dx-tabs>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Môn học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="filterSubjectItems"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="subjectChange($event)"
+          [selectedItemKey]="filterSubjectId"
+          [dropDownOptions]="{ width: '100px' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+
+      <dxi-item location="after" locateInMenu="auto">
+        <!--<dx-button
+          text="Thêm mới"
+          icon="plus"
+          type="default"
+          stylingMode="contained"
+          (onClick)="addItemClick()"
+        ></dx-button>-->
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+    <!--<dxi-column caption="Mã đề" [width]="60" dataField="code"></dxi-column>-->
+    <dxi-column caption="Tên đề" dataField="name" [width]="220" cellTemplate="cellDetailLink"></dxi-column>
+    <dxi-column caption="Giáo viên" dataField="createUserFullName" [width]="140"></dxi-column>
+    <dxi-column dataField="subjectName" [width]="120" caption="Môn học"></dxi-column>
+    <!--<dxi-column dataField="beginDate" [width]="120" caption="Thời hạn" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>-->
+    <dxi-column [width]="130" caption="Thời hạn từ" dataType="date"
+                cellTemplate="cellFromDate"></dxi-column>
+    <dxi-column [width]="130" caption="Đến" dataType="date"
+                cellTemplate="cellToDate"></dxi-column>
+    <dxi-column [width]="140" caption="Trạng thái đề" cellTemplate="cellStatus"></dxi-column>
+    <dxi-column dataField="timeToDo" [width]="100" caption="Số lần tối đa"></dxi-column>
+    <dxi-column dataField="time" [width]="120" caption="TG làm bài (phút)"></dxi-column>
+
+    <dxi-column dataField="doCount" [width]="120" caption="Đã thực hiện"></dxi-column>
+    <dxi-column caption="Chức năng" [fixed]="true" fixedPosition="right" [width]="120"
+                cellTemplate="cellButtons"></dxi-column>
+
+    <div *dxTemplate="let cellInfo of 'cellButtons'">
+      <button *ngIf="cellInfo.data.isAvailable && !cellInfo.data.isAuto" title="Kiểm tra ngay"
+              (click)="doExam(cellInfo.data)"
+              class="btn btn-sm btn-primary me-2">
+        <span class="dx-icon-video"></span>
+      </button>
+      <button *ngIf="cellInfo.data.isAvailable && cellInfo.data.isAuto" title="Kiểm tra ngay"
+              (click)="doAutoExam(cellInfo.data)"
+              class="btn btn-sm btn-warning me-2">
+        <span class="dx-icon-video"></span>
+      </button>
+      <button title="Xem kết quả" *ngIf="cellInfo.data.doCount > 0" (click)="onViewResultClick(cellInfo.data)"
+              class="btn btn-sm btn-success me-2">
+        <span class="dx-icon-eyeopen"></span>
+      </button>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellStatus'">
+      <span *ngIf="!cellInfo.data.isAvailable && cellInfo.data.notStart" class="tag warning">Chưa tới TG làm bài</span>
+      <span *ngIf="!cellInfo.data.isAvailable && !cellInfo.data.notStart && !cellInfo.data.isRunning" class="tag red">Hết hạn làm bài</span>
+      <span *ngIf="!cellInfo.data.isAvailable && cellInfo.data.isRunning" class="tag warning">Hết số lần làm bài</span>
+      <span *ngIf="cellInfo.data.isAvailable" class="tag processing">Đang hoạt động</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellFromDate'">
+      <span>{{cellInfo.data.fromDate | date: 'HH:mm dd/MM/yy'}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellToDate'">
+      <span>{{cellInfo.data.toDate | date: 'HH:mm dd/MM/yy'}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <span>{{cellInfo.data.name}}</span>
+      <span style="color: red;font-size: 20px;margin-left: 8px;" title="Đề thi có áp dụng chống gian lận"
+            class="dx-icon-photo" *ngIf="cellInfo.data.isAntiCheating"></span>
+    </div>
+  </dx-data-grid>
+
+</div>
+
+
+<dx-popup
+  title="Xem kết quả"
+  [(visible)]="isShowResult"
+  [showCloseButton]="true"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '800px'"
+  [height]="isSmallScreen() ? '100%' : '80%'"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Đóng"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupViewResult()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="form-container-no-flex">
+    <div class="alert alert-info text-center">
+      Tổng số lần thi: <strong>{{studentResults.length}}</strong> Điểm cao nhất: <strong>{{getMaxMarkResult()}}</strong>
+    </div>
+    <dx-data-grid
+      noDataText=""
+      id="gridResult"
+      width="100%"
+      [dataSource]="studentResults"
+      keyExpr="id"
+      [showBorders]="true"
+      (onContentReady)="onContentReady($event)"
+    >
+      <dxi-column dataField="stt" caption="Lần" [width]="65"></dxi-column>
+      <dxi-column dataField="startTime" dataType="date" format="HH:mm dd/MM/yyyy"
+                  caption="Thời gian bắt đầu"></dxi-column>
+      <dxi-column dataField="endTime" dataType="date" format="HH:mm dd/MM/yyyy"
+                  caption="Thời gian kết thúc"></dxi-column>
+      <dxi-column dataField="totalMark" caption="Điểm" [width]="80"></dxi-column>
+
+      <dxi-column dataField="actionMinutes" caption="Thời gian làm bài" [width]="160"></dxi-column>
+      <dxi-column cellTemplate="cellButtons" caption="" [width]="100"></dxi-column>
+      <div *dxTemplate="let cellInfo of 'cellButtons'">
+        <a *ngIf="!dataItem.isAuto" style="cursor: pointer" (click)="showResultDetail(cellInfo.data)">Chi tiết</a>
+        <a *ngIf="dataItem.isAuto" style="cursor: pointer" (click)="showResultAutoDetail(cellInfo.data)">Chi tiết</a>
+      </div>
+      <dxo-load-panel [enabled]="true"></dxo-load-panel>
+      <dxo-scrolling mode="virtual"></dxo-scrolling>
+      <dxo-sorting mode="none"></dxo-sorting>
+    </dx-data-grid>
+  </div>
+</dx-popup>
+
+
+<dx-popup
+  [title]="examTitle"
+  [(visible)]="isShowExamForm"
+  [showCloseButton]="false"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '100%'"
+  [height]="isSmallScreen() ? '100%' : '100%'"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Nộp bài"
+        icon="save"
+        type="default"
+        stylingMode="contained"
+        [disabled]="isSubmitting"
+        (onClick)="doSaveResult()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="form-container">
+    <dx-tab-panel
+      width="100%"
+      [animationEnabled]="true"
+      [swipeEnabled]="true"
+      [dataSource]="tabSource"
+      [tabsPosition]="'top'"
+      [stylingMode]="'secondary'"
+      [iconPosition]="'start'"
+    >
+      <div *dxTemplate="let tabPanelItem of 'item'">
+        <div class="p-2" *ngIf="isImage(tabPanelItem.source)">
+          <img style="max-width: 100%;height: auto" [src]="combineUrlSource(tabPanelItem.source)">
+        </div>
+        <div id="doc-viewer" style="position: relative; width:100%;height:100%" class="{{isSmallScreen() ? 'p-1' : ''}}">
+          <iframe allow="microphone; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; fullscreen"
+
+                  loading="lazy" *ngIf="typeOfMedia(tabPanelItem.source) === 'powerpoint'"
+                  [src]="tabPanelItem.source | safe: true"
+                  style="width:100%; height:100%;min-height: 300px;border: solid 1px #CCC"></iframe>
+          <div class="pdf-container">
+            <button class="zoom-button zoom-in" (click)="zoomIn()">
+              <span class="dx-icon-plus"></span>
+            </button>
+            <button class="zoom-button zoom-out" (click)="zoomOut()">
+              <span class="dx-icon-minus"></span>
+            </button>
+            <pdf-viewer *ngIf="typeOfMedia(tabPanelItem.source) === 'document'" [src]="tabPanelItem.source"
+                        [render-text]="true"
+                        [fit-to-page]="true"
+                        [zoom]="zoomLevel"
+                        [original-size]="false"
+                        style="width:100%; height:100%;min-height: 300px;border: solid 1px #CCC"
+            ></pdf-viewer>
+          </div>
+        </div>
+      </div>
+    </dx-tab-panel>
+    <div class="view-popup-scroll scroll-right" style="min-width: 300px">
+      <div *ngIf="dataItem.isAntiCheating">
+        <div class="alert alert-warning text-center" *ngIf="!countdown" style="font-size: 18px">
+          Chế độ chống gian lận thi cử đã được bật. Bài tập sẽ tự động nộp nếu bạn rời Tab quá <strong>10 giây</strong>.
+        </div>
+        <div class="alert alert-danger text-center" *ngIf="countdown" style="font-size: 18px">
+          Bạn đã rời khỏi tab, bài thi sẽ tự động nộp sau <strong>{{countdown}} giây</strong> nếu không quay lại.
+        </div>
+      </div>
+      <div class="result-info">
+        <div class="countdown-wrapper">
+          <div class="countdown-title">Thời gian làm bài:</div>
+          <countdown *ngIf="countdownConfig" [config]="countdownConfig" (event)="handleEvent($event)"></countdown>
+        </div>
+        <table class="table table-bordered">
+          <tbody>
+          <tr *ngFor="let item of resultQuestions;let stt = index" class="answer-item">
+            <td class="text-center">
+              {{stt + 1}}
+            </td>
+            <td>
+              <div class="d-flex gap-3">
+                <dx-check-box (valueChange)="changeAswer(item)" *ngFor="let an of item.answers" [(value)]="an.checked"
+                              [text]="an.name"></dx-check-box>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  [title]="resultDetailTitle"
+  [(visible)]="isShowResultDetail"
+  [showCloseButton]="true"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '600px'"
+  [height]="isSmallScreen() ? '100%' : '600px'"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Đóng"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="closePopupViewResultDetail()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="form-container-no-flex">
+    <div class="alert alert-info text-center">
+      Số điểm: <strong>{{currentResult.totalMark}}</strong> Số câu đúng: <strong>{{currentResult.rightCount}}</strong>
+    </div>
+    <table class="table table-bordered">
+      <thead>
+      <tr>
+        <th class="text-center">STT</th>
+        <th class="text-center">Đáp án</th>
+        <th class="text-center">Lựa chọn của bạn</th>
+        <th width="50px"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of questionWithRightAnswers;let stt = index" class="answer-item">
+        <td class="text-center">
+          {{stt + 1}}
+        </td>
+        <td class="text-center">
+          <div class="d-flex gap-2 justify-content-center">
+            <dx-check-box [disabled]="true" (valueChange)="changeAswer(item)" *ngFor="let an of item.answers"
+                          [(value)]="an.checked"
+                          [text]="an.name"></dx-check-box>
+          </div>
+        </td>
+        <td class="text-center">
+          <span class="score score {{item.isCorrect}}">{{item.myAnswer}}</span>
+        </td>
+        <td class="text-center">
+          <span *ngIf="item.isCorrect" class="dx-icon-check" style="font-size: 20px;color: #28a745"></span>
+          <span *ngIf="!item.isCorrect" class="dx-icon-remove" style="font-size: 20px;color: red"></span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</dx-popup>
+
+<dx-popup
+  [title]="resultDetailTitle"
+  [(visible)]="isShowResultAutoDetail"
+  [showCloseButton]="true"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '600px'"
+  [height]="isSmallScreen() ? '100%' : '600px'"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Đóng"
+        stylingMode="outlined"
+        type="normal"
+        (onClick)="isShowResultAutoDetail = false"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="form-container-no-flex">
+    <div class="alert alert-info text-center">
+      Số điểm: <strong>{{currentResult.totalMark}}</strong> Số câu đúng: <strong>{{currentResult.rightCount}}</strong>
+    </div>
+    <div *ngFor="let question of currentResult.studentAnswers2; let index = index" class="question-container">
+      <div class="question-text">
+        <strong>Câu {{index + 1}}.</strong><span [innerHTML]="question.htmlText"></span>
+      </div>
+      <ul class="answer-list">
+        <li *ngFor="let answer of question.answers; let i = index"
+            [ngClass]="{
+          'correct-answer': answer.isCorrect,
+          'wrong-answer': !answer.isCorrect && i === question.choosenIndex,
+          'selected-answer': i === question.choosenIndex
+        }">
+          <div>
+            <strong>{{alphabetArray[i]}}. </strong><span [innerHTML]="answer.htmlText"></span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  [title]="examTitle"
+  [(visible)]="isShowExamAutoForm"
+  [showCloseButton]="false"
+  class="form-popup"
+  [width]="isSmallScreen() ? '100%' : '100%'"
+  [height]="isSmallScreen() ? '100%' : '100%'"
+>
+  <dxi-toolbar-item toolbar="bottom" location="after">
+    <div class="form-popup-buttons-container">
+      <dx-button
+        text="Nộp bài"
+        icon="save"
+        type="default"
+        stylingMode="contained"
+        [disabled]="isSubmitting"
+        (onClick)="doSaveAutoResult()"
+      ></dx-button>
+    </div>
+  </dxi-toolbar-item>
+  <div class="container-auto">
+    <div *ngIf="dataItem.isAntiCheating">
+      <div class="alert alert-warning text-center" *ngIf="!countdown" style="font-size: 18px">
+        Chế độ chống gian lận thi cử đã được bật. Bài tập sẽ tự động nộp nếu bạn rời Tab quá <strong>10 giây</strong>.
+      </div>
+      <div class="alert alert-danger text-center" *ngIf="countdown" style="font-size: 18px">
+        Bạn đã rời khỏi tab, bài thi sẽ tự động nộp sau <strong>{{countdown}} giây</strong> nếu không quay lại.
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Danh sách câu hỏi bên trái -->
+      <div class="col-md-4">
+        <div class="result-info p-0">
+          <div class="countdown-wrapper">
+            <div class="countdown-title">Thời gian làm bài:</div>
+            <countdown *ngIf="countdownConfig" [config]="countdownConfig" (event)="handleEvent($event)"></countdown>
+          </div>
+        </div>
+        <div>
+          <dx-check-box [(value)]="isAutoNextQuestion" text="Tự động chuyển câu hỏi khi chọn đáp án"></dx-check-box>
+        </div>
+        <ul class="question-list d-grid gap-1" style="grid-template-columns: 24% 24% 24% 25%">
+          <li *ngFor="let question of shuffleQuestions; let i = index"
+              (click)="goToSlide(i)"
+              [ngClass]="{'active-question': i === currentSlide}">
+            <span>Câu {{ i + 1 }}</span>
+            <span class="c-answer" *ngIf="question.choosenIndex >= 0">{{alphabetArray[question.choosenIndex]}}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Carousel hiển thị các câu hỏi bên phải -->
+      <div class="col-md-8 custom-carousel">
+        <carousel #carousel [itemsPerSlide]="1" [singleSlideOffset]="true" [noWrap]="false" [interval]="0"
+                  (activeSlideChange)="onSlideChange($event)">
+          <slide *ngFor="let question of shuffleQuestions; let i = index">
+            <div class="carousel-slide">
+              <h5 class="question-title">Câu {{ i + 1 }}: <span [innerHTML]="question.htmlText"></span></h5>
+              <div *ngFor="let answer of question.answers; let j = index">
+                <button
+                  (click)="selectAnswer(question, i, j)"
+                  [ngClass]="{'selected-answer': userAnswers[i] === j}"
+                  class="answer-button">
+                  <strong>{{ alphabetArray[j] }}. </strong> <span [innerHTML]="answer.htmlText"></span>
+                </button>
+              </div>
+            </div>
+          </slide>
+        </carousel>
+      </div>
+    </div>
+  </div>
+</dx-popup>

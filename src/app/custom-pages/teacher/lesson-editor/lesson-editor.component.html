@@ -1,0 +1,103 @@
+<div class="view-wrapper list-page crm-contact-list" #scrollDiv (scroll)="onScroll($event)">
+  <dx-toolbar class="theme-dependent toolbar-sticky" [class.scrolled]="isContentScrolled">
+    <dxi-item location="before">
+      <div class="header-text" *ngIf="dataKhoaHoc">
+        <i class="dx-icon-textdocument" style="font-size: 20px"></i>
+        <span>{{pageTitle}}</span>
+        <span>&nbsp; - <span style="color: #0353b4;">{{dataKhoaHoc.name}}</span></span>
+      </div>
+
+      <div class="help-text">Vui lòng nhập đầy đủ thông tin vào trường bắt buộc có dấu
+        <code style="color: red">*</code>
+      </div>
+    </dxi-item>
+    <dxi-item location="after" locateInMenu="never">
+      <dx-button
+        text="Quay lại"
+        stylingMode="outlined"
+        icon="back"
+        type="normal"
+        (onClick)="backToList()"
+      >
+      </dx-button>
+    </dxi-item>
+    <!--<dxi-item location="after" locateInMenu="never">
+      <dx-button
+        text="Lưu bài giảng"
+        icon="save"
+        type="default"
+        stylingMode="contained"
+        (onClick)="save()"
+      >
+      </dx-button>
+    </dxi-item>-->
+  </dx-toolbar>
+  <div class="cards-container">
+    <div class="profile-card basic-info-card">
+      <div class="panel">
+        <!--<div class="title-text panel-header">
+          <i class="dx-icon-textdocument" style="font-size: 15px"></i> Thông tin chung
+        </div>-->
+        <div class="form-container">
+          <dx-validation-group #baiGiangValidationGroup>
+            <dx-form
+                #formChung
+                [screenByWidth]="getSizeQualifier"
+                [(formData)]="dataItem"
+                labelLocation="top"
+                labelMode="outside"
+                [colCount]="12">
+
+              <!---------------------------start line-------------------------------->
+              <dxi-item [colSpan]="6" [isRequired]="true">
+                <dxo-label text="Phần"></dxo-label>
+                <dx-select-box
+                  stylingMode="outlined"
+                  [showClearButton]="false"
+                  displayExpr="name"
+                  valueExpr="id"
+                  [dataSource]="phanSource"
+                  [(value)]="dataItem.phan"
+                ></dx-select-box>
+              </dxi-item>
+              <!---------------------------start line-------------------------------->
+              <dxi-item [isRequired]="true" [colSpan]="6">
+                <dxo-label text="Ảnh đại diện"></dxo-label>
+                <div #dropzone_external id="dropzone-external"
+                     style="width: 80px;height: 80px;border: dashed 1px #CCC;display: block">
+                  <img *ngIf="dataItem.anhDaiDien" [src]="dataItem.anhDaiDien" width="100%">
+                  <em *ngIf="!dataItem.anhDaiDien">Nhấn vào đây để tải lên ảnh đại diện</em>
+                </div>
+                <dx-file-uploader
+                    #fileUploader
+                    uploadMode="instantly"
+                    [uploadHeaders]="uploadHeaders"
+                    [(uploadUrl)]="uploadUrl"
+                    [selectButtonText]="'Chọn hình ảnh'"
+                    [uploadButtonText]="'Upload files'"
+                    name="formFile"
+                    [multiple]="false"
+                    [visible]="false"
+                    (onUploadStarted)="onUploadStarted($event)"
+                    (onUploaded)="onUploaded($event)"
+                    (onUploadError)="onUploadError($event)">
+                </dx-file-uploader>
+              </dxi-item>
+              <!---------------------------start line-------------------------------->
+              <dxi-item [colSpan]="12">
+                <dxo-label text="Chế độ hiển thị"></dxo-label>
+                <dx-check-box [(value)]="dataItem.riengTu" text="Chỉ mình tôi"></dx-check-box>
+              </dxi-item>
+              <!---------------------------start line-------------------------------->
+              <dxi-item [isRequired]="true" [colSpan]="12">
+                <dxo-label text="Nội dung H5P"></dxo-label>
+                <iframe scrolling="no" style="border: none;overflow-x: hidden;" id="reactFrame1" width="100%" [height]="iframeHeight"></iframe>
+              </dxi-item>
+            </dx-form>
+          </dx-validation-group>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

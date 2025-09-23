@@ -1,0 +1,109 @@
+<dx-scroll-view class="view-wrapper-scroll">
+  <div class="view-wrapper">
+    <dx-toolbar class="theme-dependent" [class.scrolled]="true">
+      <dxi-item location="before">
+        <div class="header-text">
+          <i class="dx-icon-chart" style="font-size: 20px"></i>
+          Khóa học của trường ({{totalItem}})
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Năm học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="schoolYearSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="schoolYearChange($event)"
+          [selectedItemKey]="filterSchoolYear"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        Khối học
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="filterGradeSource"
+          (onItemClick)="gradeChange($event)"
+          [selectedItemKey]="filterGradeSource[0]"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Môn học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="subjectSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="subjectChange($event)"
+          [selectedItemKey]="subjectSource[0].id"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+    </dx-toolbar>
+    <div class="div-pagging">
+      <pagination-controls previousLabel="<"
+                           nextLabel=">" (pageChange)="pageChange($event)" ></pagination-controls>
+    </div>
+    <dx-load-panel
+      [visible]="isLoading"
+      shadingColor="rgba(0,0,0,0.4)"
+      [showIndicator]="true"
+      [showPane]="true"
+      [shading]="true"
+      [closeOnOutsideClick]="false"
+      message="Đang tải dữ liệu..."
+    ></dx-load-panel>
+    <div class="cards" *ngIf="isLoading" style="height: 100%">
+      <div *ngFor="let skeleton of skeletonItems" class="card dx-widget">
+        <div class="skeleton-item">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-title" [ngStyle]="{'width': '80%'}"></div>
+          <div class="skeleton-description" [ngStyle]="{'width': '50%'}"></div>
+          <div class="skeleton-description" [ngStyle]="{'width': '70%'}"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cards" *ngIf="!isLoading">
+      <div class="card dx-widget" *ngFor="let item of datas | paginate: { itemsPerPage: pageSize, currentPage: currentPage, totalItems: totalItem  }">
+        <div class="card-img" (click)="viewBaiGiang(item)">
+          <img class="card-img-top" [src]="item.anhDaiDien ? item.anhDaiDien : '/assets/images/default.jpg'" style="width: 100%;"/>
+        </div>
+        <div class="card-body">
+          <h6 class="card-title" (click)="viewBaiGiang(item)">
+            {{item.name}}
+          </h6>
+          <div class="card-item">
+            <span class="dx-icon-clock"></span>
+            <label>
+              Ngày tạo: {{item.dateCreated | date: 'dd/MM/yyyy'}}</label>
+          </div>
+          <div class="card-item">
+            <span class="dx-icon-user"></span>
+            <label>
+              Người tạo: {{item.creator}}</label>
+          </div>
+          <div class="card-item">
+            <span class="dx-icon-info"></span>
+            <label>
+              Số nội dung: {{item.soNoiDung}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="div-pagging">
+      <pagination-controls previousLabel="<"
+                           nextLabel=">" (pageChange)="pageChange($event)" ></pagination-controls>
+    </div>
+  </div>
+</dx-scroll-view>

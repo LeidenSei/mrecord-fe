@@ -1,0 +1,45 @@
+<div class="view-wrapper">
+  <dx-data-grid
+    class="grid theme-dependent"
+    columnResizingMode="widget"
+    [dataSource]="dataSource"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    (onExporting)="onExporting($event)"
+  >
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    <dxo-paging [enabled]="true" [pageSize]="1000"></dxo-paging>
+    <dxo-load-panel [showPane]="false" [enabled]="false"></dxo-load-panel>
+    <dxo-selection
+      mode="single">
+    </dxo-selection>
+    <dxo-scrolling mode="standard"></dxo-scrolling>
+
+    <dxo-header-filter [visible]="false"></dxo-header-filter>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="60" caption="STT"
+    ></dxi-column>
+    <dxi-column dataField="khoaHocName" [width]="200" caption="Khóa học"></dxi-column>
+    <dxi-column dataField="name" caption="Bài giảng"></dxi-column>
+    <dxi-column dataField="dateCreated" dataType="date"
+                format="HH:mm dd/MM/yyyy" caption="Ngày tạo" [width]="200"></dxi-column>
+    <!--<dxi-column dataField="subjectName" [allowFiltering]="false" caption="Môn học" [width]="110"></dxi-column>
+    <dxi-column dataField="className" [allowFiltering]="false" cellTemplate="cellClasses" caption="Lớp" cssClass="white-space-normal"
+                [width]="100"></dxi-column>-->
+  </dx-data-grid>
+</div>
+

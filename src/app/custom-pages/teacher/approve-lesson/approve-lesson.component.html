@@ -1,0 +1,288 @@
+<div class="view-wrapper list-page crm-contact-list">
+  <dx-data-grid
+    class="grid theme-dependent"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [allowColumnResizing]="true"
+  >
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+
+    <dxo-toolbar>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-button
+          icon="back"
+          stylingMode="contained"
+          (onClick)="backToMyCouse()"
+        ></dx-button>
+      </dxi-item>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-file" style="font-size: 18px"></i>
+          <span style="color:#0353b4;" *ngIf="courseTitle">&nbsp;{{courseTitle}}</span>
+        </div>
+      </dxi-item>
+
+      <dxi-item location="after" locateInMenu="auto">
+      </dxi-item>
+      <dxi-item location="after" locateInMenu="auto" [visible]="checkButtonApproveAll()">
+        <dx-button text="Duyệt tất cả"
+                   icon="todo"
+                   type="default"
+                   stylingMode="contained"
+                   (onClick)="approveAllClick()"
+        ></dx-button>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" dataField="stt" alignment="center" [allowFiltering]="false" [width]="50" caption="STT"
+    ></dxi-column>
+
+    <dxi-column dataField="name"  cssClass="max-width-column" caption="Tên học liệu/tài liệu" cellTemplate="cellDetailLink"></dxi-column>
+    <!--<dxi-column alignment="center" [width]="120" dataField="" [allowFiltering]="false" caption="Riêng tư"
+                cellTemplate="cellRiengTu"></dxi-column>-->
+
+    <dxi-column alignment="left" [width]="200" dataField="" [allowFiltering]="false" caption="Loại học liệu"
+                cellTemplate="cellLoaiHocLieu"></dxi-column>
+    <!--<dxi-column cellTemplate="cellPhan" caption="Phần" cssClass="white-space-normal" [width]="200"></dxi-column>-->
+    <dxi-column dataField="dateCreated" [width]="120" caption="Ngày tạo" dataType="date"
+                format="dd/MM/yyyy"></dxi-column>
+    <dxi-column caption="Chức năng" cellTemplate="cellButton" [width]="120"></dxi-column>
+    <dxi-column caption="Trạng thái" cellTemplate="cellTrangThai" [width]="120"></dxi-column>
+    <dxi-column alignment="center" caption="Ghi chú" cellTemplate="cellNote" [width]="120"></dxi-column>
+    <div *dxTemplate="let cellInfo of 'cellTrangThai'">
+      <span class="tag warning float-none" *ngIf="cellInfo.data.trangThaiDuyet === 0">Chờ duyệt</span>
+      <span class="tag processing float-none" *ngIf="cellInfo.data.trangThaiDuyet === 10">TTCM duyệt</span>
+      <span class="tag red float-none no-border" *ngIf="cellInfo.data.trangThaiDuyet === 5">TCM đề nghị chỉnh sửa</span>
+      <span class="tag red float-none no-border" *ngIf="cellInfo.data.trangThaiDuyet === 15">BGH đề nghị chỉnh sửa</span>
+      <span class="tag success float-none no-border" *ngIf="cellInfo.data.trangThaiDuyet === 20">BGH duyệt</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellNote'">
+      <a *ngIf="cellInfo.data.trangThaiDuyet == 5 || cellInfo.data.trangThaiDuyet == 15" (click)="viewNote(cellInfo.data)">Xem</a>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellButton'">
+      <dx-button
+        text="Xem và duyệt"
+        [elementAttr]="{ id: 'elementId', class: 'grid-button grid-button-success' }"
+        type="success"
+        stylingMode="outlined"
+        (onClick)="showPopupDuyet(cellInfo.data)"
+      ></dx-button>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellPhan'">
+      <span *ngIf="cellInfo.data.phan">{{cellInfo.data.phan === 1 ? 'Tự nghiên cứu' : 'Kiểm tra đánh giá'}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellLoaiHocLieu'">
+      <span>{{cellInfo.data.loaiHocLieu === 2 ? 'Bài Giảng' : 'Tài liệu'}}</span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellDetailLink'">
+      <div class="max-width-column">
+        <a title="Xem và duyệt" class="a-link {{cellInfo.data.loaiHocLieu === 1 ? 'b-link' : ''}}"(click)="showPopupDuyet(cellInfo.data)">{{cellInfo.data.name}}</a>
+      </div>
+    </div>
+  </dx-data-grid>
+</div>
+
+<dx-popup
+  title="Duyệt học liệu"
+  [(visible)]="isShowApproveBaiGiangMode"
+  class="form-popup"
+  width="90%"
+  height="90%"
+>
+  <div class="row">
+    <div class="{{isShowFormNote ? 'col-7' : 'col-12'}} ">
+      <div class="frame-wrapper">
+        <div class="frame-title flex-space-between">
+          <h6>{{baiGiangItem.name}}</h6>
+          <!--Trạng thái bài giảng: {{baiGiangItem.trangThaiDuyet}}-->
+          <div class="buttons" *ngIf="baiGiangItem && checkButtonApproveBaiGiang()">
+            <dx-button
+              text="Phê duyệt"
+              [elementAttr]="{ id: 'elementId', class: 'color-white' }"
+              icon="todo"
+              type="success"
+              stylingMode="contained"
+              (onClick)="doApprovedBaiGiang()"
+            ></dx-button>
+
+            <dx-button
+              text="Đề nghị chỉnh sửa"
+              [elementAttr]="{ id: 'elementId', class: '', style:'margin-left:10px' }"
+              icon="rename"
+              type="default"
+              stylingMode="contained"
+              (onClick)="showFormNote()"
+            ></dx-button>
+          </div>
+        </div>
+        <iframe
+          allow="microphone; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowfullscreen scrolling="no"
+          style="border:none;overflow-x: hidden;" [id]="frameId" width="100%"
+          [height]="iframeHeight"></iframe>
+      </div>
+    </div>
+    <div class="col-5 dx-tab-border" *ngIf="isShowFormNote">
+      <h6>
+        Nội dung chỉnh sửa
+      </h6>
+      <dx-html-editor height="400px" [(value)]="baiGiangItem.yeuCauChinhSua">
+        <dxo-toolbar>
+          <dxi-item name="undo"></dxi-item>
+          <dxi-item name="redo"></dxi-item>
+          <dxi-item name="separator"></dxi-item>
+          <dxi-item
+            name="header"
+            [acceptedValues]="[false, 1, 2, 3, 4, 5]"
+            [options]="{ inputAttr: { 'aria-label': 'Header' } }"
+          ></dxi-item>
+          <dxi-item name="separator"></dxi-item>
+          <dxi-item name="bold"></dxi-item>
+          <dxi-item name="italic"></dxi-item>
+          <dxi-item name="strike"></dxi-item>
+          <dxi-item name="underline"></dxi-item>
+          <dxi-item name="separator"></dxi-item>
+          <dxi-item name="alignLeft"></dxi-item>
+          <dxi-item name="alignCenter"></dxi-item>
+          <dxi-item name="alignRight"></dxi-item>
+          <dxi-item name="alignJustify"></dxi-item>
+          <dxi-item name="separator"></dxi-item>
+        </dxo-toolbar>
+      </dx-html-editor>
+      <div style="margin-top: 10px">
+        <dx-button
+          text="Gửi đề nghị"
+          [elementAttr]="{ id: 'elementId', class: 'color-white' }"
+          icon="todo"
+          type="success"
+          stylingMode="contained"
+          (onClick)="tuChoiDuyetBaiGiang()"
+        ></dx-button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+<dx-popup
+  title="Nội dung đề nghị"
+  [(visible)]="isShowComment"
+  class="form-popup"
+  height="auto"
+  width="500px"
+>
+  <div [innerHTML]="baiGiangItem.yeuCauChinhSua">
+  </div>
+</dx-popup>
+
+
+<dx-popup
+  title="Duyệt tài liệu"
+  [(visible)]="isShowApproveTaiLieuMode"
+  class="form-popup"
+  width="90%"
+  height="90%"
+>
+  <div class="row">
+    <div class="{{isShowFormNote ? 'col-7' : 'col-12'}} ">
+      <div class="frame-wrapper">
+        <div class="frame-title flex-space-between">
+          <h6>{{taiLieuItem.name}}</h6>
+          Trạng thái tài liệu: {{taiLieuItem.trangThaiDuyet}}
+          <div class="buttons" *ngIf="taiLieuItem && checkButtonApproveTaiLieu()">
+            <dx-button
+              text="Phê duyệt"
+              [elementAttr]="{ id: 'elementId', class: 'color-white' }"
+              icon="todo"
+              type="success"
+              stylingMode="contained"
+              (onClick)="doApprovedTaiLieu()"
+            ></dx-button>
+
+            <dx-button
+              text="Đề nghị chỉnh sửa"
+              [elementAttr]="{ id: 'elementId', class: '', style:'margin-left:10px' }"
+              icon="rename"
+              type="default"
+              stylingMode="contained"
+              (onClick)="showFormNote()"
+            ></dx-button>
+          </div>
+        </div>
+        <!--<iframe scrolling="no"
+                style="border:none;overflow-x: hidden;" id="h5pFrame" width="100%"
+                [height]="iframeHeight"></iframe>-->
+        <ng-container>
+          <div class="p-2" *ngIf="typeOfMedia(taiLieuUrl) === 'image'">
+            <img style="max-width: 100%;height: auto" [src]="taiLieuUrl">
+          </div>
+          <div class="p-2" *ngIf="typeOfMedia(taiLieuUrl) === 'video'">
+            <video width="640" height="360" controls>
+              <source src="{{taiLieuUrl}}" type="video/mp4">
+            </video>
+          </div>
+          <ngx-doc-viewer *ngIf="typeOfMedia(taiLieuUrl) === 'document'"
+                          [url]="taiLieuUrl"
+                          viewer="google"
+                          style="width:100%;height:100vh;"
+          ></ngx-doc-viewer>
+          <iframe *ngIf="typeOfMedia(taiLieuUrl) === 'powerpoint'" [src]="taiLieuSafeUrl" width="100%" height="600px"></iframe>
+          <iframe allow="microphone; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen  *ngIf="typeOfMedia(taiLieuUrl) === 'html'"
+                  [src]="taiLieuUrl | safe"
+                  width="100%"
+                  height="600px"
+                  frameborder="0">
+          </iframe>
+        </ng-container>
+      </div>
+    </div>
+    <div class="col-5 dx-tab-border" *ngIf="isShowFormNote">
+      <h6>
+        Nội dung chỉnh sửa
+      </h6>
+      <dx-html-editor height="400px" [(value)]="taiLieuItem.yeuCauChinhSua">
+        <dxo-toolbar>
+          <dxi-item name="undo"></dxi-item>
+          <dxi-item name="redo"></dxi-item>
+          <dxi-item name="separator"></dxi-item>
+          <dxi-item
+            name="header"
+            [acceptedValues]="[false, 1, 2, 3, 4, 5]"
+            [options]="{ inputAttr: { 'aria-label': 'Header' } }"
+          ></dxi-item>
+          <dxi-item name="separator"></dxi-item>
+          <dxi-item name="bold"></dxi-item>
+          <dxi-item name="italic"></dxi-item>
+          <dxi-item name="strike"></dxi-item>
+          <dxi-item name="underline"></dxi-item>
+          <dxi-item name="separator"></dxi-item>
+          <dxi-item name="alignLeft"></dxi-item>
+          <dxi-item name="alignCenter"></dxi-item>
+          <dxi-item name="alignRight"></dxi-item>
+          <dxi-item name="alignJustify"></dxi-item>
+          <dxi-item name="separator"></dxi-item>
+        </dxo-toolbar>
+      </dx-html-editor>
+      <div style="margin-top: 10px">
+        <dx-button
+          text="Gửi đề nghị"
+          [elementAttr]="{ id: 'elementId', class: 'color-white' }"
+          icon="todo"
+          type="success"
+          stylingMode="contained"
+          (onClick)="tuChoiDuyetTaiLieu()"
+        ></dx-button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
