@@ -1,0 +1,134 @@
+<div class="score-entry-container">
+  <div class="main-content-wrapper">
+    <div class="header-controls">
+      <div class="filter-section">
+        <div class="filter-group">
+          <label>Theo lớp</label>
+          <select class="form-select" [(ngModel)]="selectedClass" (change)="onClassChanged()">
+            <option value="5B">5B</option>
+            <option value="5A">5A</option>
+            <option value="6A">6A</option>
+            <option value="6B">6B</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Theo tháng</label>
+          <select class="form-select" [(ngModel)]="selectedMonth" (change)="onMonthChanged()">
+            <option value="7/2025">7/2025</option>
+            <option value="6/2025">6/2025</option>
+            <option value="8/2025">8/2025</option>
+            <option value="9/2025">9/2025</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <dx-button
+          text="Gửi thông tin"
+          icon="email"
+          type="danger"
+          stylingMode="outlined"
+          (onClick)="sendNotification()">
+        </dx-button>
+        <dx-button
+          text="Nhập/Xuất dữ liệu"
+          icon="upload"
+          type="success"
+          stylingMode="outlined"
+          (onClick)="importData()">
+        </dx-button>
+        <dx-button
+          text="Cấu hình mẫu nhận xét"
+          icon="doc"
+          type="default"
+          stylingMode="outlined"
+          (onClick)="generateTemplate()">
+        </dx-button>
+        <dx-button
+          text="Lưu nhận xét"
+          icon="save"
+          type="default"
+          stylingMode="outlined"
+          (onClick)="saveComments()">
+        </dx-button>
+      </div>
+    </div>
+
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="checkbox-col">
+              <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()">
+            </th>
+            <th class="stt-col">STT</th>
+            <th class="name-col">Tên học sinh</th>
+            <th class="subject-col">Môn học và hoạt động giáo dục</th>
+            <th class="regular-col">Nhận xét năng lực chung</th>
+            <th class="ability-col">Năng lực đặc thù</th>
+            <th class="quality-col">Nhận xét phẩm chất chủ yếu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of studentList; let i = index" 
+              [class.selected]="student.selected"
+              [class.highlight]="student.id === 1">
+            <td class="checkbox-col">
+              <input type="checkbox" [(ngModel)]="student.selected">
+            </td>
+            <td class="stt-col">{{ i + 1 }}</td>
+            <td class="name-col">{{ student.name }}</td>
+            <td class="subject-col">
+              <div class="subject-input">
+                <input type="text" 
+                       class="form-input"
+                       [(ngModel)]="student.subjectComment"
+                       placeholder="Nhập nhận xét môn học..."
+                       (focus)="onCellFocus(student.id, 'subject')"
+                       [class.has-error]="student.id === 1 && !student.subjectComment">
+                <span class="error-icon" *ngIf="student.id === 1 && !student.subjectComment">⚠</span>
+              </div>
+            </td>
+            <td class="regular-col">
+              <input type="text" 
+                     class="form-input"
+                     [(ngModel)]="student.regularComment"
+                     placeholder="Nhận xét năng lực..."
+                     (focus)="onCellFocus(student.id, 'regular')">
+            </td>
+            <td class="ability-col">
+              <input type="text" 
+                     class="form-input"
+                     [(ngModel)]="student.abilityComment"
+                     placeholder="Năng lực đặc thù..."
+                     (focus)="onCellFocus(student.id, 'ability')">
+            </td>
+            <td class="quality-col">
+              <input type="text" 
+                     class="form-input"
+                     [(ngModel)]="student.qualityComment"
+                     placeholder="Nhận xét phẩm chất..."
+                     (focus)="onCellFocus(student.id, 'quality')">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer-legend">
+      <div class="legend-item">
+        <span class="legend-color red-box"></span>
+        <span>Giá trị chưa gửi tin nhắn đến học sinh</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color gray-box"></span>
+        <span>Giá trị đã gửi tin nhắn đến học sinh</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color blue-box"></span>
+        <span>Học sinh đã kích hoạt dịch vụ</span>
+      </div>
+    </div>
+  </div>
+</div>

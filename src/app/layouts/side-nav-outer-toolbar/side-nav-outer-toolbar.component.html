@@ -30,6 +30,11 @@
   </side-navigation-menu>
 
   <div class="content">
-    <router-outlet></router-outlet>
+    <div class="content-wrapper">
+      <app-breadcrumb></app-breadcrumb>
+      <div class="main-content">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
   </div>
 </dx-drawer>

@@ -1,0 +1,26 @@
+<div style="padding-top: 20px; padding-left: 20px; padding-right: 20px;">
+    <div class="breadcrumb-container">
+  <div class="breadcrumb-wrapper">
+    <ng-container *ngFor="let item of breadcrumbs; let last = last" style="padding: 20px;">
+      <div class="breadcrumb-item-wrapper">
+        <dx-button
+          *ngIf="!item.active"
+          [text]="item.label"
+          [icon]="item.icon"
+          stylingMode="text"
+          type="normal"
+          [elementAttr]="{ title: item.label }"
+          (onClick)="onBreadcrumbClick(item)"
+          class="breadcrumb-button">
+        </dx-button>
+
+        <div *ngIf="item.active" class="breadcrumb-current">
+          <i *ngIf="item.icon" class="dx-icon-{{ item.icon }} breadcrumb-icon"></i>
+          <span class="breadcrumb-text">{{ item.label }}</span>
+        </div>
+      </div>
+      <i *ngIf="!last" class="dx-icon-chevronright breadcrumb-separator"></i>
+    </ng-container>
+  </div>
+</div>
+</div>

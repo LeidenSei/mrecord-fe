@@ -1,0 +1,439 @@
+
+.score-entry-container {
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.main-content-wrapper {
+  background-color: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filter-section {
+  display: flex;
+  align-items: end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+  
+  label {
+    font-weight: 600;
+    color: #333;
+    font-size: 13px;
+    margin: 0;
+  }
+  
+  .form-select {
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 14px;
+    height: 38px;
+    transition: all 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    }
+    
+    &:hover {
+      border-color: #007bff;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  
+  dx-button {
+    ::ng-deep .dx-button {
+      min-width: 120px;
+      height: 38px;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+      
+      .dx-button-content {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        
+        .dx-icon {
+          font-size: 14px;
+        }
+        
+        .dx-button-text {
+          font-size: 13px;
+          font-weight: 500;
+        }
+      }
+    }
+
+    &.dx-button-danger {
+      ::ng-deep .dx-button {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border-color: #dc3545;
+        color: white;
+        
+        &:hover {
+          background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+          border-color: #c82333;
+        }
+      }
+    }
+
+    &.dx-button-success {
+      ::ng-deep .dx-button {
+        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        border-color: #28a745;
+        color: white;
+        
+        &:hover {
+          background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+          border-color: #218838;
+        }
+      }
+    }
+
+    &.dx-button-normal {
+      ::ng-deep .dx-button {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border-color: #007bff;
+        color: white;
+        
+        &:hover {
+          background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+          border-color: #0056b3;
+        }
+      }
+    }
+  }
+}
+
+.data-table-container {
+  background-color: #fafafa;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+  min-height: 500px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 1200px;
+  
+  thead {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    
+    th {
+      padding: 14px 10px;
+      text-align: center;
+      font-weight: 600;
+      color: #495057;
+      border-bottom: 2px solid #dee2e6;
+      border-right: 1px solid #dee2e6;
+      position: sticky;
+      top: 0;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      z-index: 10;
+      font-size: 13px;
+      
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
+  
+  tbody {
+    tr {
+      border-bottom: 1px solid #eee;
+      transition: all 0.2s ease;
+      background-color: white;
+      
+      &:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      
+      &.selected {
+        background-color: #e3f2fd;
+        border-left: 4px solid #2196f3;
+      }
+      
+      &.highlight {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        animation: highlight 2s ease-in-out;
+      }
+    }
+    
+    td {
+      padding: 10px;
+      vertical-align: middle;
+      border-right: 1px solid #eee;
+      
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
+}
+
+/* Column Widths */
+.checkbox-col {
+  width: 50px;
+  text-align: center;
+}
+
+.stt-col {
+  width: 60px;
+  text-align: center;
+  font-weight: 600;
+  color: #495057;
+}
+
+.name-col {
+  width: 180px;
+  font-weight: 600;
+  padding-left: 12px !important;
+  color: #333;
+}
+
+.subject-col {
+  width: 280px;
+}
+
+.regular-col {
+  width: 220px;
+}
+
+.ability-col {
+  width: 180px;
+}
+
+.quality-col {
+  width: 220px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 13px;
+  background-color: white;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    background-color: #f8f9ff;
+  }
+  
+  &:hover {
+    border-color: #007bff;
+  }
+  
+  &.has-error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+    }
+  }
+  
+  &::placeholder {
+    color: #999;
+    font-style: italic;
+    font-size: 12px;
+  }
+}
+
+.subject-input {
+  position: relative;
+  
+  .error-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #dc3545;
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 2;
+  }
+}
+
+.footer-legend {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+  padding: 16px 0;
+  border-top: 2px solid #f0f0f0;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.legend-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  
+  &.red-box {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  }
+  
+  &.gray-box {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  }
+  
+  &.blue-box {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  }
+}
+
+@media (max-width: 1400px) {
+  .action-buttons {
+    dx-button {
+      ::ng-deep .dx-button {
+        min-width: 100px;
+        font-size: 12px;
+        
+        .dx-button-content {
+          .dx-button-text {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .filter-section {
+    justify-content: center;
+  }
+  
+  .action-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .data-table-container {
+    margin: 0 -24px;
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .score-entry-container {
+    padding: 10px;
+  }
+  
+  .main-content-wrapper {
+    padding: 16px;
+    border-radius: 8px;
+  }
+  
+  .action-buttons {
+    dx-button {
+      ::ng-deep .dx-button {
+        min-width: 80px;
+        height: 34px;
+        font-size: 11px;
+        
+        .dx-button-content {
+          .dx-button-text {
+            font-size: 11px;
+          }
+          
+          .dx-icon {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+  
+  .footer-legend {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@keyframes highlight {
+  0% {
+    background-color: #fff3cd;
+  }
+  50% {
+    background-color: #ffc107;
+  }
+  100% {
+    background-color: #fff3cd;
+  }
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #007bff;
+  cursor: pointer;
+}
+

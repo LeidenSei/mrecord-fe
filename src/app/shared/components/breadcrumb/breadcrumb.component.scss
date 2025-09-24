@@ -1,0 +1,221 @@
+.breadcrumb-container {
+  border: 1px solid var(--dx-color-border, #ddd);
+  border-radius: 8px;
+  background-color: #fff;
+  padding: 20px;
+  overflow: visible;
+}
+
+.breadcrumb-wrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: visible;
+  gap: 0;
+  white-space: nowrap;
+  scrollbar-width: thin;
+  
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+}
+
+.breadcrumb-item-wrapper {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.breadcrumb-button {
+  overflow: visible !important;
+  flex-shrink: 0;
+  
+  ::ng-deep .dx-button {
+    background: transparent !important;
+    border: none !important;
+    padding: 4px 8px !important;
+    min-height: auto !important;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    min-width: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    
+    &:hover {
+      background-color: var(--dx-color-hover-bg, rgba(0, 0, 0, 0.04)) !important;
+      color: var(--dx-color-primary, #337ab7) !important;
+    }
+    
+    &:focus {
+      outline: 2px solid var(--dx-color-primary, #337ab7);
+      outline-offset: 2px;
+    }
+    
+    .dx-button-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: visible !important;
+      white-space: nowrap !important;
+      text-overflow: clip !important;
+      
+      .dx-icon {
+        font-size: 14px;
+        opacity: 0.8;
+        flex-shrink: 0;
+      }
+      
+      .dx-button-text {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--dx-color-primary, #337ab7);
+        overflow: visible !important;
+        text-overflow: clip !important;
+        white-space: nowrap !important;
+        max-width: none !important;
+        width: auto !important;
+      }
+    }
+  }
+}
+
+.breadcrumb-current {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background-color: var(--dx-color-primary, #337ab7);
+  color: white;
+  border-radius: 4px;
+  font-weight: 600;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  
+  .breadcrumb-icon {
+    font-size: 14px;
+    opacity: 0.9;
+    flex-shrink: 0;
+  }
+  
+  .breadcrumb-text {
+    font-size: 14px;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    max-width: none !important;
+  }
+}
+
+.breadcrumb-separator {
+  color: var(--dx-color-text-secondary, #999);
+  font-size: 12px;
+  margin: 0 8px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+::ng-deep {
+  .dx-theme-material {
+    .breadcrumb-container {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .breadcrumb-current {
+      background-color: var(--dx-color-primary, #1976d2);
+    }
+  }
+  
+  .dx-theme-bootstrap4 {
+    .breadcrumb-container {
+      border-color: var(--dx-color-border, #dee2e6);
+    }
+    
+    .breadcrumb-current {
+      background-color: var(--dx-color-primary, #007bff);
+    }
+  }
+  
+  .dx-theme-fluent {
+    .breadcrumb-container {
+ 
+      border-color: var(--dx-color-border, #edebe9);
+    }
+    
+    .breadcrumb-current {
+      background-color: var(--dx-color-primary, #0078d4);
+    }
+  }
+
+  .dx-button-content {
+    overflow: visible !important;
+  }
+  
+  .dx-button-text {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .breadcrumb-container {
+    padding: 6px 12px;
+    margin-bottom: 16px;
+  }
+  
+  .breadcrumb-wrapper {
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  
+  .breadcrumb-button {
+    ::ng-deep .dx-button {
+      padding: 2px 6px !important;
+      
+      .dx-button-content {
+        .dx-button-text {
+          font-size: 13px;
+        }
+        
+        .dx-icon {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+  
+  .breadcrumb-current {
+    padding: 2px 6px;
+    
+    .breadcrumb-text {
+      font-size: 13px;
+    }
+    
+    .breadcrumb-icon {
+      font-size: 12px;
+    }
+  }
+  
+  .breadcrumb-separator {
+    font-size: 10px;
+    margin: 0 4px;
+  }
+}
+
+@media print {
+  .breadcrumb-container {
+    display: none;
+  }
+}

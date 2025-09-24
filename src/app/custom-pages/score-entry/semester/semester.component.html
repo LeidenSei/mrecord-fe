@@ -1,0 +1,156 @@
+<div class="semester-evaluation-container">
+  <div class="header-controls">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Học kỳ</label>
+        <select class="form-select" [(ngModel)]="selectedSemester" (change)="onSemesterChanged($event)">
+          <option value="1">Học kỳ 1</option>
+          <option value="2">Học kỳ 2</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Khối</label>
+        <select class="form-select" [(ngModel)]="selectedGrade" (change)="onGradeChanged($event)">
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Lớp</label>
+        <select class="form-select" [(ngModel)]="selectedClass" (change)="onClassChanged($event)">
+          <option value="5B">5B</option>
+          <option value="5A">5A</option>
+          <option value="5C">5C</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Theo môn học</label>
+        <select class="form-select" [(ngModel)]="selectedSubject" (change)="onSubjectChanged($event)">
+          <option value="">Chọn môn học</option>
+          <option value="toan">Toán</option>
+          <option value="van">Văn</option>
+          <option value="anh">Tiếng Anh</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Thời điểm đánh giá</label>
+        <select class="form-select" [(ngModel)]="selectedPeriod" (change)="onPeriodChanged($event)">
+          <option value="">Chọn thời điểm</option>
+          <option value="giua-ky">Giữa kỳ</option>
+          <option value="cuoi-ky">Cuối kỳ</option>
+        </select>
+      </div>
+      
+      <div class="action-buttons">
+        <dx-button
+          text="Cập nhật"
+          icon="refresh"
+          type="default"
+          stylingMode="contained"
+          (onClick)="updateData()">
+        </dx-button>
+        
+        <dx-button
+          text="Chọn file tải lên..."
+          icon="upload"
+          type="default"
+          stylingMode="contained"
+          (onClick)="chooseFile()">
+        </dx-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="stt-col" rowspan="2">STT</th>
+          <th class="name-col" rowspan="2">Họ và tên</th>
+          <th class="achievement-col" colspan="4">Mức đạt được</th>
+          <th class="comment-col" rowspan="2">Mã nhận xét</th>
+          <th class="strength-col" colspan="2">Nhận xét điểm mạnh và các mặt cần rèn luyện (Nếu có)</th>
+        </tr>
+        <tr>
+          <th class="level-col t-col">T</th>
+          <th class="level-col h-col">H</th>
+          <th class="level-col c-col">C</th>
+          <th class="level-col x-col">Xóa</th>
+          <th class="strength-col">Nội dung</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of studentList; let i = index" class="student-row">
+          <td class="stt-col">{{ i + 1 }}</td>
+          <td class="name-col">{{ student.name }}</td>
+          <td class="level-col t-col">
+            <input type="radio" 
+                   [name]="'achievement_' + student.id" 
+                   value="T"
+                   [(ngModel)]="student.achievement"
+                   (change)="onAchievementChanged(student)">
+          </td>
+          <td class="level-col h-col">
+            <input type="radio" 
+                   [name]="'achievement_' + student.id" 
+                   value="H"
+                   [(ngModel)]="student.achievement"
+                   (change)="onAchievementChanged(student)">
+          </td>
+          <td class="level-col c-col">
+            <input type="radio" 
+                   [name]="'achievement_' + student.id" 
+                   value="C"
+                   [(ngModel)]="student.achievement"
+                   (change)="onAchievementChanged(student)">
+          </td>
+          <td class="level-col x-col">
+            <input type="radio" 
+                   [name]="'achievement_' + student.id" 
+                   value=""
+                   [(ngModel)]="student.achievement"
+                   (change)="onAchievementChanged(student)">
+          </td>
+          <td class="comment-col">
+            <input type="text" 
+                   class="form-input comment-input"
+                   [(ngModel)]="student.commentCode"
+                   placeholder="Mã..."
+                   (focus)="onCommentCodeFocus(student)">
+          </td>
+          <td class="strength-col content-col">
+            <textarea class="form-textarea content-textarea"
+                     [(ngModel)]="student.content"
+                     placeholder="Nhập nội dung nhận xét chi tiết..."
+                     rows="2"
+                     (focus)="onContentFocus(student)"></textarea>
+          </td>
+        </tr>
+
+        <tr *ngFor="let i of emptyRows" class="empty-row">
+          <td class="stt-col">{{ studentList.length + i + 1 }}</td>
+          <td class="name-col"></td>
+          <td class="level-col t-col"></td>
+          <td class="level-col h-col"></td>
+          <td class="level-col c-col"></td>
+          <td class="level-col x-col"></td>
+          <td class="comment-col"></td>
+          <td class="strength-col content-col"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<input type="file" 
+       #fileInput 
+       style="display: none" 
+       accept=".xlsx,.xls,.csv"
+       (change)="onFileSelected($event)">

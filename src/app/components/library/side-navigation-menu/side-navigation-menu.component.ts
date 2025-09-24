@@ -43,6 +43,7 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
   path: string;
   isElementary= false;
   grade: any = 'c2';
+  
   constructor(private elementRef: ElementRef,
               public authService: AuthService, private router: Router,
               public generalService: GeneralService,
@@ -83,12 +84,44 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
     }
   }
 
+  private addScoreEntryMenu(items: any[]): any[] {
+    const scoreEntryMenu = {
+      text: 'Nhập điểm',
+      path: '/score-entry',
+      icon: 'edit',
+      expanded: !this._compactMode,
+      items: [
+        {
+          text: 'Đánh giá thưởng xuyên tổng hợp',
+          path: '/score-entry/one-period',
+          icon: 'taskcomplete'
+        },
+        {
+          text: 'Đánh giá định kỳ và nhận xét môn học',
+          path: '/score-entry/semester',
+          icon: 'bookmark'
+        }
+      ]
+    };
+
+    const updatedItems = [...items];
+    const insertIndex = updatedItems.findIndex(item => item.text === 'Học bạ số') + 1;
+    
+    if (insertIndex > 0) {
+      updatedItems.splice(insertIndex, 0, scoreEntryMenu);
+    } else {
+      updatedItems.push(scoreEntryMenu);
+    }
+
+    return updatedItems;
+  }
+
   async ngOnInit(): Promise<void> {
     this.userData = await this.authService.getUser();
-    //console.log('userData', this.userData);
     let school = await lastValueFrom(this.generalService.getSchool(this.userData.data.schoolId));
     this.isElementary = school.type === 1;
     this.grade = this.isElementary ? 'c1' : 'c2';
+    
     if (this.userData.data.role === 2) {
       this.items = navigationAdmin.map((item: any) => {
         if (item.path && !(/^\//.test(item.path))) {
@@ -106,6 +139,9 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         return {...item, expanded: !this._compactMode};
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
+
+      this.items = this.addScoreEntryMenu(this.items);
+      
     } else if (this.userData.data.isBGH) {
       this.items = navigationAdmin.map((item: any) => {
         if (item.path && !(/^\//.test(item.path))) {
@@ -126,6 +162,8 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
       if (this.userData.data.role !== 3) {
         this.items = this.items.filter(en => en.icon !== 'card');
       }
+      this.items = this.addScoreEntryMenu(this.items);
+      
     } else if (this.userData.data.role === 3 && this.userData.data.isGVCN) {
       this.items = navigationTeacherHomeroom.map((item) => {
         if (item.path && !(/^\//.test(item.path))) {
@@ -146,6 +184,8 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         return {...item, expanded: !this._compactMode};
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
+      this.items = this.addScoreEntryMenu(this.items);
+      
     } else if (this.userData.data.role === 3) {
       this.items = navigationTeacher.map((item: any) => {
         if (item.path && !(/^\//.test(item.path))) {
@@ -163,6 +203,8 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         return {...item, expanded: !this._compactMode};
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
+      this.items = this.addScoreEntryMenu(this.items);
+      
     } else if (this.userData.data.role === 12) {
       this.items = navigationStudent.map((item: any) => {
         if (item.path && !(/^\//.test(item.path))) {
@@ -189,8 +231,8 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         }
         return {...item, expanded: !this._compactMode};
       });
+      this.items = this.addScoreEntryMenu(this.items);
     }
-
 
     if (this.userData.data.role === 2) {
       if (school.lmsApproveLevel === 0 || this.userData.data.role === 2) {
@@ -220,7 +262,6 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
   }
 
   onItemClick(event: DxTreeViewTypes.ItemClickEvent) {
-    //this.selectedItemChanged.emit(event);
     const item = event.itemData;
 
     if (event.event.ctrlKey || event.event.metaKey) {

@@ -42,10 +42,12 @@ import {CkeditorComponent} from "../custom-pages/controls/ckeditor/ckeditor.comp
 import {H5PModule} from "../custom-pages/controls/h5p/h5p.module";
 import {CKEditorModule} from "ckeditor4-angular";
 import {RoundPipeModule} from "../pipes/round.pipe";
+import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
 
 @NgModule({
   declarations: [
-    StudentExampaperResultDetailComponent
+    StudentExampaperResultDetailComponent,
+    BreadcrumbComponent
   ],
   imports: [
     CommonModule,
@@ -101,7 +103,8 @@ import {RoundPipeModule} from "../pipes/round.pipe";
     RoundPipeModule
   ],
   exports: [
-    StudentExampaperResultDetailComponent
+    StudentExampaperResultDetailComponent,
+    BreadcrumbComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]  // Thêm CUSTOM_ELEMENTS_SCHEMA để Angular hỗ trợ Web Components
 })

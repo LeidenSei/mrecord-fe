@@ -14,6 +14,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd, Event } from '@angular/router';
 import { ScreenService, AppInfoService } from '../../services';
 import { SideNavigationMenuModule, AppHeaderModule, AppFooterModule } from '../../components';
+// Import SharedModule thay vì import trực tiếp BreadcrumbComponent
+import { SharedModule } from '../../shared/shared.module';
 
 import { Subscription } from 'rxjs';
 
@@ -45,7 +47,6 @@ export class SideNavOuterToolbarComponent implements OnInit, OnDestroy {
   routerSubscription: Subscription;
 
   screenSubscription: Subscription;
-  //menuCompactMode = true;
 
   constructor(private screen: ScreenService, private router: Router, public appInfo: AppInfoService) {
     this.routerSubscription = this.router.events.subscribe((event: Event) => {
@@ -57,9 +58,7 @@ export class SideNavOuterToolbarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.menuOpened = this.screen.sizes['screen-large'];
-    //this.menuOpened = true;
     this.screenSubscription = this.screen.changed.subscribe(() => this.updateDrawer());
-
     this.updateDrawer();
   }
 
@@ -118,13 +117,16 @@ export class SideNavOuterToolbarComponent implements OnInit, OnDestroy {
 @NgModule({
   imports: [
     RouterModule,
+    CommonModule,
     SideNavigationMenuModule,
     DxDrawerModule,
     AppHeaderModule,
-    CommonModule,
-    AppFooterModule
+    AppFooterModule,
+    SharedModule
+  ],
+  declarations: [
+    SideNavOuterToolbarComponent
   ],
   exports: [SideNavOuterToolbarComponent],
-  declarations: [SideNavOuterToolbarComponent],
 })
 export class SideNavOuterToolbarModule { }

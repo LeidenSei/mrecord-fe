@@ -1,0 +1,321 @@
+.semester-evaluation-container {
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.header-controls {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 150px;
+  
+  label {
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+    margin: 0;
+  }
+  
+  .form-select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 13px;
+    height: 32px;
+    
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  margin-left: auto;
+  align-items: center;
+  
+  dx-button {
+    ::ng-deep .dx-button {
+      min-width: 140px;
+      height: 36px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+      
+      .dx-button-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        .dx-icon {
+          font-size: 16px;
+        }
+        
+        .dx-button-text {
+          font-size: 13px;
+        }
+      }
+    }
+    
+  }
+}
+
+.data-table-container {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 900px;
+  
+  thead {
+    background-color: #f1f3f4;
+    
+    th {
+      padding: 10px 8px;
+      text-align: center;
+      font-weight: 600;
+      color: #333;
+      border: 1px solid #dee2e6;
+      position: sticky;
+      top: 0;
+      background-color: #f1f3f4;
+      z-index: 10;
+      font-size: 12px;
+      vertical-align: middle;
+    }
+  }
+  
+  tbody {
+    tr {
+      border-bottom: 1px solid #eee;
+      
+      &:hover {
+        background-color: #f8f9fa;
+      }
+      
+      &.student-row {
+        background-color: white;
+      }
+      
+      &.empty-row {
+        background-color: #fafafa;
+        opacity: 0.7;
+      }
+    }
+    
+    td {
+      padding: 8px;
+      vertical-align: middle;
+      border: 1px solid #eee;
+      text-align: center;
+    }
+  }
+}
+
+.stt-col {
+  width: 50px;
+  min-width: 50px;
+}
+
+.name-col {
+  width: 180px;
+  min-width: 180px;
+  text-align: left !important;
+  padding-left: 12px !important;
+  font-weight: 500;
+}
+
+.achievement-col {
+  background-color: #e8f4f8;
+}
+
+.level-col {
+  width: 40px;
+  min-width: 40px;
+  
+  &.t-col {
+    background-color: #d4edda;
+  }
+  
+  &.h-col {
+    background-color: #fff3cd;
+  }
+  
+  &.c-col {
+    background-color: #f8d7da;
+  }
+  
+  &.x-col {
+    background-color: #f1f3f4;
+  }
+  
+  input[type="radio"] {
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+.comment-col {
+  width: 100px;
+  min-width: 100px;
+}
+
+.strength-col {
+  background-color: #f0f8ff;
+}
+
+.content-col {
+  width: 300px;
+  min-width: 300px;
+  text-align: left !important;
+  padding: 4px !important;
+}
+
+.form-input {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 12px;
+  background-color: white;
+  
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 1px rgba(0, 123, 255, 0.25);
+  }
+  
+  &.comment-input {
+    text-align: center;
+  }
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 12px;
+  background-color: white;
+  resize: vertical;
+  min-height: 40px;
+  font-family: inherit;
+  
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 1px rgba(0, 123, 255, 0.25);
+  }
+  
+  &.content-textarea {
+    min-height: 50px;
+  }
+}
+
+.footer-actions {
+  margin-top: 20px;
+  text-align: center;
+  
+  .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    
+    .icon-save {
+      font-size: 16px;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .filter-group {
+      min-width: unset;
+    }
+    
+    .action-buttons {
+      margin-left: 0;
+      justify-content: flex-start;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .semester-evaluation-container {
+    padding: 10px;
+  }
+  
+  .header-controls {
+    padding: 15px;
+  }
+  
+  .data-table-container {
+    margin: 0 -10px;
+    border-radius: 0;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    
+    .btn {
+      justify-content: center;
+    }
+  }
+}
+
+@media print {
+  .header-controls {
+    display: none;
+  }
+  
+  .footer-actions {
+    display: none;
+  }
+  
+  .data-table {
+    font-size: 11px;
+  }
+}

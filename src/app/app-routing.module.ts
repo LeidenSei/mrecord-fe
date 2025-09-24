@@ -162,6 +162,18 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'score-entry',
+        data: { 
+          breadcrumb: 'Nhập điểm',
+          breadcrumbIcon: 'edit'
+        },
+        canActivate: [AuthGuardService],
+        loadChildren: () =>
+          import('./custom-pages/score-entry/score-entry.module').then(
+            (m) => m.ScoreEntryModule,
+          ),
+      },
+      {
         path: 'admin',
         data: { breadcrumb: '' },
         canActivate: [AuthGuardService],
