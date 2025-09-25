@@ -39,7 +39,7 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
   @Output()
   openMenu = new EventEmitter<any>();
   userData: any;
-  items = [];
+  items: any[] = [];
   path: string;
   isElementary= false;
   grade: any = 'c2';
@@ -84,38 +84,6 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
     }
   }
 
-  private addScoreEntryMenu(items: any[]): any[] {
-    const scoreEntryMenu = {
-      text: 'Nhập điểm',
-      path: '/score-entry',
-      icon: 'edit',
-      expanded: !this._compactMode,
-      items: [
-        {
-          text: 'Đánh giá thưởng xuyên tổng hợp',
-          path: '/score-entry/one-period',
-          icon: 'taskcomplete'
-        },
-        {
-          text: 'Đánh giá định kỳ và nhận xét môn học',
-          path: '/score-entry/semester',
-          icon: 'bookmark'
-        }
-      ]
-    };
-
-    const updatedItems = [...items];
-    const insertIndex = updatedItems.findIndex(item => item.text === 'Học bạ số') + 1;
-    
-    if (insertIndex > 0) {
-      updatedItems.splice(insertIndex, 0, scoreEntryMenu);
-    } else {
-      updatedItems.push(scoreEntryMenu);
-    }
-
-    return updatedItems;
-  }
-
   async ngOnInit(): Promise<void> {
     this.userData = await this.authService.getUser();
     let school = await lastValueFrom(this.generalService.getSchool(this.userData.data.schoolId));
@@ -131,7 +99,7 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
           item.selected = true;
         }
         if (item.items?.length > 0){
-          let childItem = item.items.find(en => this.path.includes(en.path));
+          let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
           }
@@ -139,8 +107,6 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         return {...item, expanded: !this._compactMode};
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
-
-      this.items = this.addScoreEntryMenu(this.items);
       
     } else if (this.userData.data.isBGH) {
       this.items = navigationAdmin.map((item: any) => {
@@ -151,7 +117,7 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
           item.selected = true;
         }
         if (item.items?.length > 0){
-          let childItem = item.items.find(en => this.path.includes(en.path));
+          let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
           }
@@ -162,10 +128,9 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
       if (this.userData.data.role !== 3) {
         this.items = this.items.filter(en => en.icon !== 'card');
       }
-      this.items = this.addScoreEntryMenu(this.items);
       
     } else if (this.userData.data.role === 3 && this.userData.data.isGVCN) {
-      this.items = navigationTeacherHomeroom.map((item) => {
+      this.items = navigationTeacherHomeroom.map((item: any) => {
         if (item.path && !(/^\//.test(item.path))) {
           item.path = `/${item.path}`;
         }
@@ -173,18 +138,17 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
           item.selected = true;
         }
         if (item.items?.length > 0){
-          let childItem = item.items.find(en => this.path.includes(en.path));
+          let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
           }
         }
         if (item.text === 'Học bạ số' && this.isElementary) {
-          item.items = item.items.filter(en => en.type !== 'gvbm_thcs');
+          item.items = item.items?.filter((en: any) => en.type !== 'gvbm_thcs');
         }
         return {...item, expanded: !this._compactMode};
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
-      this.items = this.addScoreEntryMenu(this.items);
       
     } else if (this.userData.data.role === 3) {
       this.items = navigationTeacher.map((item: any) => {
@@ -195,7 +159,7 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
           item.selected = true;
         }
         if (item.items?.length > 0){
-          let childItem = item.items.find(en => this.path.includes(en.path));
+          let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
           }
@@ -203,7 +167,6 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         return {...item, expanded: !this._compactMode};
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
-      this.items = this.addScoreEntryMenu(this.items);
       
     } else if (this.userData.data.role === 12) {
       this.items = navigationStudent.map((item: any) => {
@@ -214,7 +177,7 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
           item.selected = true;
         }
         if (item.items?.length > 0){
-          let childItem = item.items.find(en => this.path.includes(en.path));
+          let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
           }
@@ -229,11 +192,17 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         if (this.path.includes(item.path) && item.path !== '') {
           item.selected = true;
         }
+        if (item.items?.length > 0){
+          let childItem = item.items.find((en: any) => this.path.includes(en.path));
+          if (childItem) {
+            childItem.selected = true;
+          }
+        }
         return {...item, expanded: !this._compactMode};
       });
-      this.items = this.addScoreEntryMenu(this.items);
     }
 
+    // Filter items based on school LMS approve level
     if (this.userData.data.role === 2) {
       if (school.lmsApproveLevel === 0 || this.userData.data.role === 2) {
         this.items = this.items.filter(en => en.icon !== 'taskcomplete');
@@ -250,6 +219,8 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         this.items = this.items.filter(en => en.icon !== 'exportselected');
       }
     }
+    
+    // Final filter by grade
     this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
   }
 

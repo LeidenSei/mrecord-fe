@@ -17,7 +17,28 @@ export const navigationPGD = [
     text: 'Học liệu dự thi',
     path: '/edu/shared-course/gvg',
   },
+  {
+    text: 'Nhập điểm',
+    path: '/score-entry',
+    icon: 'edit',
+    selected: false,
+    items: [
+      {
+        text: 'Đánh giá thưởng xuyên tổng hợp',
+        path: '/score-entry/one-period',
+        icon: 'taskcomplete',
+        selected: false
+      },
+      {
+        text: 'Đánh giá định kỳ và nhận xét môn học',
+        path: '/score-entry/semester',
+        icon: 'bookmark',
+        selected: false
+      }
+    ]
+  },
 ]
+
 export const navigationTeacherHomeroom = [
   {
     text: 'Trang chủ',
@@ -52,6 +73,26 @@ export const navigationTeacherHomeroom = [
     selected: false,
   },*/
   {
+    text: 'Nhập điểm',
+    path: '/score-entry',
+    icon: 'edit',
+    selected: false,
+    items: [
+      {
+        text: 'Đánh giá thưởng xuyên tổng hợp',
+        path: '/score-entry/one-period',
+        icon: 'taskcomplete',
+        selected: false
+      },
+      {
+        text: 'Đánh giá định kỳ và nhận xét môn học',
+        path: '/score-entry/semester',
+        icon: 'bookmark',
+        selected: false
+      }
+    ]
+  },
+  {
     text: 'Học bạ số',
     icon: 'exportpdf',
     path: '',
@@ -67,6 +108,7 @@ export const navigationTeacherHomeroom = [
       {
         text: 'Ký số lớp chủ nhiệm',
         path: '/transcript/sign-list-approve-c1',
+        selected: false
       },
     ],
   },
@@ -80,10 +122,12 @@ export const navigationTeacherHomeroom = [
       {
         text: 'Ký số lớp chủ nhiệm',
         path: '/transcript/sign-list-approve-c1',
+        selected: false
       },
     ],
   },
 ];
+
 export const navigationTeacher = [
   {
     text: 'Trang chủ',
@@ -106,6 +150,26 @@ export const navigationTeacher = [
     selected: false,
   },
   {
+    text: 'Nhập điểm',
+    path: '/score-entry',
+    icon: 'edit',
+    selected: false,
+    items: [
+      {
+        text: 'Đánh giá thưởng xuyên tổng hợp',
+        path: '/score-entry/one-period',
+        icon: 'taskcomplete',
+        selected: false
+      },
+      {
+        text: 'Đánh giá định kỳ và nhận xét môn học',
+        path: '/score-entry/semester',
+        icon: 'bookmark',
+        selected: false
+      }
+    ]
+  },
+  {
     text: 'Ký duyệt học bạ',
     type: 'gvbm_thcs',
     grade: 'c2',
@@ -123,6 +187,7 @@ export const navigationTeacher = [
       {
         text: 'Ký số lớp chủ nhiệm',
         path: '/transcript/sign-list-approve-c1',
+        selected: false
       },
     ],
   },
@@ -140,6 +205,7 @@ export const navigationTeacher = [
     ],
   },
 ];
+
 export const navigationAdmin = [
   {
     text: 'Trang chủ',
@@ -167,6 +233,26 @@ export const navigationAdmin = [
     selected: false,
   },
   {
+    text: 'Nhập điểm',
+    path: '/score-entry',
+    icon: 'edit',
+    selected: false,
+    items: [
+      {
+        text: 'Đánh giá thưởng xuyên tổng hợp',
+        path: '/score-entry/one-period',
+        icon: 'taskcomplete',
+        selected: false
+      },
+      {
+        text: 'Đánh giá định kỳ và nhận xét môn học',
+        path: '/score-entry/semester',
+        icon: 'bookmark',
+        selected: false
+      }
+    ]
+  },
+  {
     text: 'Khởi tạo học bạ',
     icon: 'refresh',
     path: '/transcript/sync-list-c1',
@@ -190,18 +276,22 @@ export const navigationAdmin = [
       {
         text: 'Ký thay GV bộ môn',
         path: '/transcript/principal-sign-subject',
+        selected: false
       },
       {
         text: 'Ký duyệt học bạ',
         path: '/transcript/sign-list-approve-c1',
+        selected: false
       },
       {
         text: 'Ký phát hành học bạ',
         path: '/transcript/sign-list-release-c1',
+        selected: false
       },
       {
         text: 'Đóng gói và nộp sở',
         path: '/transcript/packaged-list',
+        selected: false
       }
     ],
   },
@@ -215,14 +305,17 @@ export const navigationAdmin = [
       {
         text: 'Ký duyệt học bạ',
         path: '/transcript/sign-list-approve-c1',
+        selected: false
       },
       {
         text: 'Ký phát hành học bạ',
         path: '/transcript/sign-list-release-c1',
+        selected: false
       },
       {
         text: 'Đóng gói và nộp sở',
         path: '/transcript/packaged-list',
+        selected: false
       }
     ],
   },

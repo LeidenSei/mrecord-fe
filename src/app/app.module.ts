@@ -45,7 +45,8 @@ import {
 } from "devextreme-angular/ui/nested";
 import {FullNamePipeModule} from "./pipes/full-name.pipe";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
-
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+ModuleRegistry.registerModules([AllCommunityModule]);
 export function configServiceFactory(config: AppConfigService) {
   return () => config.load();
 }

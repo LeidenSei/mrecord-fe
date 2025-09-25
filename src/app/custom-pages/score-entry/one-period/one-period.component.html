@@ -28,92 +28,57 @@
           text="Gửi thông tin"
           icon="email"
           type="danger"
-          stylingMode="outlined"
           (onClick)="sendNotification()">
         </dx-button>
-        <dx-button
-          text="Nhập/Xuất dữ liệu"
-          icon="upload"
-          type="success"
-          stylingMode="outlined"
-          (onClick)="importData()">
-        </dx-button>
+        <div class="dropdown-container">
+          <button class="dropdown-btn" (click)="toggleImportDropdown()">
+            <div class="dropdown-main">
+              <span class="icon">⬆</span>
+              <span class="text">Nhập/Xuất dữ liệu</span>
+            </div>
+            <div class="dropdown-arrow">
+              <span>▼</span>
+            </div>
+          </button>
+        </div>
         <dx-button
           text="Cấu hình mẫu nhận xét"
           icon="doc"
           type="default"
-          stylingMode="outlined"
           (onClick)="generateTemplate()">
         </dx-button>
         <dx-button
           text="Lưu nhận xét"
           icon="save"
           type="default"
-          stylingMode="outlined"
           (onClick)="saveComments()">
         </dx-button>
       </div>
     </div>
 
-    <div class="data-table-container">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th class="checkbox-col">
-              <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()">
-            </th>
-            <th class="stt-col">STT</th>
-            <th class="name-col">Tên học sinh</th>
-            <th class="subject-col">Môn học và hoạt động giáo dục</th>
-            <th class="regular-col">Nhận xét năng lực chung</th>
-            <th class="ability-col">Năng lực đặc thù</th>
-            <th class="quality-col">Nhận xét phẩm chất chủ yếu</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let student of studentList; let i = index" 
-              [class.selected]="student.selected"
-              [class.highlight]="student.id === 1">
-            <td class="checkbox-col">
-              <input type="checkbox" [(ngModel)]="student.selected">
-            </td>
-            <td class="stt-col">{{ i + 1 }}</td>
-            <td class="name-col">{{ student.name }}</td>
-            <td class="subject-col">
-              <div class="subject-input">
-                <input type="text" 
-                       class="form-input"
-                       [(ngModel)]="student.subjectComment"
-                       placeholder="Nhập nhận xét môn học..."
-                       (focus)="onCellFocus(student.id, 'subject')"
-                       [class.has-error]="student.id === 1 && !student.subjectComment">
-                <span class="error-icon" *ngIf="student.id === 1 && !student.subjectComment">⚠</span>
-              </div>
-            </td>
-            <td class="regular-col">
-              <input type="text" 
-                     class="form-input"
-                     [(ngModel)]="student.regularComment"
-                     placeholder="Nhận xét năng lực..."
-                     (focus)="onCellFocus(student.id, 'regular')">
-            </td>
-            <td class="ability-col">
-              <input type="text" 
-                     class="form-input"
-                     [(ngModel)]="student.abilityComment"
-                     placeholder="Năng lực đặc thù..."
-                     (focus)="onCellFocus(student.id, 'ability')">
-            </td>
-            <td class="quality-col">
-              <input type="text" 
-                     class="form-input"
-                     [(ngModel)]="student.qualityComment"
-                     placeholder="Nhận xét phẩm chất..."
-                     (focus)="onCellFocus(student.id, 'quality')">
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- ag-Grid thay thế cho table -->
+    <div class="grid-container">
+      <ag-grid-angular
+        class="ag-theme-quartz student-grid"
+        [columnDefs]="columnDefs"
+        [defaultColDef]="defaultColDef"
+        [rowData]="studentList"
+        [rowSelection]="rowSelection"
+        [suppressRowClickSelection]="true"
+        [animateRows]="true"
+        [enableRangeSelection]="true"
+        [enableFillHandle]="true"
+        [undoRedoCellEditing]="true"
+        [stopEditingWhenCellsLoseFocus]="true"
+        [enterNavigatesVertically]="true"
+        [enterNavigatesVerticallyAfterEdit]="true"
+        [suppressHorizontalScroll]="false"
+        [context]="gridContext"
+        (gridReady)="onGridReady($event)"
+        (cellClicked)="onCellClicked($event)"
+        (cellEditingStopped)="onCellEditingStopped($event)"
+        (selectionChanged)="onSelectionChanged($event)">
+      </ag-grid-angular>
     </div>
 
     <div class="footer-legend">
@@ -131,4 +96,69 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal chọn comment -->
+  <dx-popup
+    [(visible)]="showCommentModal"
+    [showTitle]="true"
+    title="Chọn nhận xét có sẵn"
+    [dragEnabled]="false"
+    [closeOnOutsideClick]="true"
+    [width]="600"
+    [height]="500"
+    [showCloseButton]="true"
+    (onHiding)="closeCommentModal()">
+    
+    <div *dxTemplate="let data of 'content'">
+      <div class="modal-content">
+        <dx-text-box
+          [(value)]="searchText"
+          placeholder="Tìm kiếm nhận xét..."
+          [showClearButton]="true"
+          (onValueChanged)="filterComments()"
+          class="search-input">
+          <dx-button
+            name="search"
+            location="after"
+            icon="search"
+            stylingMode="text">
+          </dx-button>
+        </dx-text-box>
+
+        <div class="comment-categories" *ngIf="filteredComments.length > 0">
+          <div *ngFor="let category of getUniqueCategories(filteredComments)" class="category-section">
+            <h4 class="category-title">{{ category }}</h4>
+            <div class="comment-list">
+              <div 
+                *ngFor="let comment of getCommentsByCategory(filteredComments, category)"
+                class="comment-item"
+                (click)="selectComment(comment)">
+                <div class="comment-text">{{ comment.text }}</div>
+                <dx-button
+                  text="Chọn"
+                  type="default"
+                  stylingMode="contained"
+                  class="select-btn">
+                </dx-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="filteredComments.length === 0" class="no-results">
+          <i class="dx-icon-search"></i>
+          <p>Không tìm thấy nhận xét nào phù hợp</p>
+        </div>
+      </div>
+    </div>
+
+    <div *dxTemplate="let data of 'toolbarItems'">
+      <dx-button
+        text="Đóng"
+        type="normal"
+        stylingMode="contained"
+        (onClick)="closeCommentModal()">
+      </dx-button>
+    </div>
+  </dx-popup>
 </div>

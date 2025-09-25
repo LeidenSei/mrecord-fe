@@ -14,6 +14,7 @@ import { DxLoadPanelModule } from 'devextreme-angular/ui/load-panel';
 import { DxPopupModule } from 'devextreme-angular/ui/popup';
 import { DxTextAreaModule } from 'devextreme-angular/ui/text-area';
 import { DxBoxModule } from 'devextreme-angular';
+import { AgGridAngular } from 'ag-grid-angular';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { DxBoxModule } from 'devextreme-angular';
     DxLoadPanelModule,
     DxPopupModule,
     DxTextAreaModule,
-    DxBoxModule
+    DxBoxModule,
+    AgGridAngular,
   ]
 })
 export class ScoreEntryModule { }
