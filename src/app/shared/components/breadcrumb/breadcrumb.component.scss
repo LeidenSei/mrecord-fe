@@ -39,56 +39,7 @@
 .breadcrumb-button {
   overflow: visible !important;
   flex-shrink: 0;
-  
-  ::ng-deep .dx-button {
-    background: transparent !important;
-    border: none !important;
-    padding: 4px 8px !important;
-    min-height: auto !important;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    overflow: visible !important;
-    white-space: nowrap !important;
-    min-width: auto !important;
-    width: auto !important;
-    max-width: none !important;
-    
-    &:hover {
-      background-color: var(--dx-color-hover-bg, rgba(0, 0, 0, 0.04)) !important;
-      color: var(--dx-color-primary, #337ab7) !important;
-    }
-    
-    &:focus {
-      outline: 2px solid var(--dx-color-primary, #337ab7);
-      outline-offset: 2px;
-    }
-    
-    .dx-button-content {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      overflow: visible !important;
-      white-space: nowrap !important;
-      text-overflow: clip !important;
-      
-      .dx-icon {
-        font-size: 14px;
-        opacity: 0.8;
-        flex-shrink: 0;
-      }
-      
-      .dx-button-text {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--dx-color-primary, #337ab7);
-        overflow: visible !important;
-        text-overflow: clip !important;
-        white-space: nowrap !important;
-        max-width: none !important;
-        width: auto !important;
-      }
-    }
-  }
+
 }
 
 .breadcrumb-current {
@@ -126,48 +77,7 @@
   opacity: 0.7;
   flex-shrink: 0;
 }
-::ng-deep {
-  .dx-theme-material {
-    .breadcrumb-container {
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .breadcrumb-current {
-      background-color: var(--dx-color-primary, #1976d2);
-    }
-  }
-  
-  .dx-theme-bootstrap4 {
-    .breadcrumb-container {
-      border-color: var(--dx-color-border, #dee2e6);
-    }
-    
-    .breadcrumb-current {
-      background-color: var(--dx-color-primary, #007bff);
-    }
-  }
-  
-  .dx-theme-fluent {
-    .breadcrumb-container {
- 
-      border-color: var(--dx-color-border, #edebe9);
-    }
-    
-    .breadcrumb-current {
-      background-color: var(--dx-color-primary, #0078d4);
-    }
-  }
 
-  .dx-button-content {
-    overflow: visible !important;
-  }
-  
-  .dx-button-text {
-    overflow: visible !important;
-    text-overflow: clip !important;
-    white-space: nowrap !important;
-  }
-}
 
 @media (max-width: 768px) {
   .breadcrumb-container {

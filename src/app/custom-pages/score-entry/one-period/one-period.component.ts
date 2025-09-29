@@ -8,8 +8,6 @@ import {
   CellClickedEvent,
   CellEditingStoppedEvent,
   SelectionChangedEvent,
-  ICellEditorParams,
-  ICellRendererParams
 } from 'ag-grid-community';
 
 export interface Student {
@@ -30,75 +28,6 @@ export interface PresetComment {
   text: string;
   category: string;
 }
-
-class CommentCellEditor {
-  eInput: HTMLInputElement;
-  eButton: HTMLButtonElement;
-  value: string;
-  params: ICellEditorParams;
-
-  init(params: ICellEditorParams) {
-    this.params = params;
-    this.value = params.value || '';
-    
-    const wrapper = document.createElement('div');
-    wrapper.className = 'comment-input-wrapper';
-
-    this.eInput = document.createElement('input');
-    this.eInput.className = 'comment-input';
-    this.eInput.value = this.value;
-    this.eInput.placeholder = this.getPlaceholder(params.column?.getColId());
-    this.eButton = document.createElement('button');
-    this.eButton.className = 'comment-select-btn';
-    this.eButton.innerHTML = '📝';
-    this.eButton.type = 'button';
-    this.eInput.addEventListener('keydown', (e) => this.onKeyDown(e));
-    this.eButton.addEventListener('click', () => this.openCommentModal());
-    wrapper.appendChild(this.eInput);
-    wrapper.appendChild(this.eButton);
-    this.eInput = wrapper as any;
-  }
-
-  getGui() {
-    return this.eInput;
-  }
-
-  getValue() {
-    return (this.eInput.querySelector('.comment-input') as HTMLInputElement).value;
-  }
-
-  afterGuiAttached() {
-    const input = this.eInput.querySelector('.comment-input') as HTMLInputElement;
-    input.focus();
-    input.select();
-  }
-
-  private onKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      this.params.stopEditing();
-    }
-  }
-
-  private openCommentModal() {
-    const angularComponent = this.params.context.componentParent;
-    if (angularComponent && angularComponent.openCommentModal) {
-      const rowIndex = this.params.node?.rowIndex ?? 0;
-      const fieldType = this.params.column?.getColId();
-      angularComponent.openCommentModal(rowIndex, fieldType);
-    }
-  }
-
-  private getPlaceholder(fieldType: string): string {
-    const placeholders = {
-      'subjectComment': 'Nhập nhận xét môn học...',
-      'regularComment': 'Nhận xét năng lực...',
-      'abilityComment': 'Năng lực đặc thù...',
-      'qualityComment': 'Nhận xét phẩm chất...'
-    };
-    return placeholders[fieldType] || '';
-  }
-}
-
 @Component({
   selector: 'app-one-period',
   templateUrl: './one-period.component.html',
@@ -107,13 +36,10 @@ class CommentCellEditor {
 export class OnePeriodComponent implements OnInit {
   selectedClass: string = '5B';
   selectedMonth: string = '7/2025';
-
   studentList: Student[] = [];
   gridApi!: GridApi;
   gridContext: any;
-
   loading: boolean = false;
-  
   userData: any;
   showImportDropdown: boolean = false;
   showCommentModal: boolean = false;
@@ -123,80 +49,129 @@ export class OnePeriodComponent implements OnInit {
   filteredComments: PresetComment[] = [];
   searchText: string = '';
 
-  columnDefs: ColDef[] = [
-    {
-      headerCheckboxSelection: true,
-      checkboxSelection: true,
-      width: 50,
-      pinned: 'left',
-      headerName: '',
-      suppressHeaderMenuButton: true,
-      sortable: false,
-      filter: false,
-      resizable: false
+// Thay thế columnDefs hiện tại
+columnDefs: ColDef[] = [
+  {
+    headerCheckboxSelection: true,
+    checkboxSelection: true,
+    width: 50,
+    pinned: 'left',
+    headerName: '',
+    suppressHeaderMenuButton: true,
+    sortable: false,
+    filter: false,
+    resizable: false
+  },
+  {
+    field: 'stt',
+    headerName: 'STT',
+    width: 60,
+    cellStyle: { textAlign: 'center', fontWeight: 'bold', color: '#495057' },
+    editable: false,
+    suppressHeaderMenuButton: true,
+    sortable: false,
+    filter: false,
+    resizable: false
+  },
+  {
+    field: 'name',
+    headerName: 'Tên học sinh',
+    width: 190,
+    cellStyle: { fontWeight: 'bold', color: '#333', paddingLeft: '12px' },
+    editable: false,
+    suppressHeaderMenuButton: true,
+    sortable: true,
+    filter: 'agTextColumnFilter'
+  },
+  {
+    field: 'subjectComment',
+    headerName: 'Môn học và hoạt động giáo dục',
+    width: 350,
+    cellRenderer: (params: any) => {
+      const value = params.value || '';
+      const rowIndex = params.node.rowIndex;
+      return `
+        <div class="comment-cell-wrapper">
+          <input class="comment-cell-input" value="${value}" 
+                 onchange="window.updateComment(${rowIndex}, 'subjectComment', this.value)"
+                 placeholder="Nhập nhận xét môn học...">
+          <button class="comment-modal-btn" 
+                  onclick="window.openCommentModal(${rowIndex}, 'subjectComment')"
+                  title="Chọn nhận xét có sẵn">📝</button>
+        </div>
+      `;
     },
-    {
-      field: 'stt',
-      headerName: 'STT',
-      width: 60,
-      cellStyle: { textAlign: 'center', fontWeight: 'bold', color: '#495057' },
-      editable: false,
-      suppressHeaderMenuButton: true,
-      sortable: false,
-      filter: false,
-      resizable: false
+    suppressHeaderMenuButton: true,
+    sortable: false,
+    filter: false
+  },
+  {
+    field: 'regularComment',
+    headerName: 'Nhận xét năng lực chung',
+    width: 300,
+    cellRenderer: (params: any) => {
+      const value = params.value || '';
+      const rowIndex = params.node.rowIndex;
+      return `
+        <div class="comment-cell-wrapper">
+          <input class="comment-cell-input" value="${value}" 
+                 onchange="window.updateComment(${rowIndex}, 'regularComment', this.value)"
+                 placeholder="Nhận xét năng lực...">
+          <button class="comment-modal-btn" 
+                  onclick="window.openCommentModal(${rowIndex}, 'regularComment')"
+                  title="Chọn nhận xét có sẵn">📝</button>
+        </div>
+      `;
     },
-    {
-      field: 'name',
-      headerName: 'Tên học sinh',
-      width: 180,
-      cellStyle: { fontWeight: 'bold', color: '#333', paddingLeft: '12px' },
-      editable: false,
-      suppressHeaderMenuButton: true,
-      sortable: true,
-      filter: 'agTextColumnFilter'
+    suppressHeaderMenuButton: true,
+    sortable: false,
+    filter: false
+  },
+  {
+    field: 'abilityComment',
+    headerName: 'Năng lực đặc thù',
+    width: 300,
+    cellRenderer: (params: any) => {
+      const value = params.value || '';
+      const rowIndex = params.node.rowIndex;
+      return `
+        <div class="comment-cell-wrapper">
+          <input class="comment-cell-input" value="${value}" 
+                 onchange="window.updateComment(${rowIndex}, 'abilityComment', this.value)"
+                 placeholder="Năng lực đặc thù...">
+          <button class="comment-modal-btn" 
+                  onclick="window.openCommentModal(${rowIndex}, 'abilityComment')"
+                  title="Chọn nhận xét có sẵn">📝</button>
+        </div>
+      `;
     },
-    {
-      field: 'subjectComment',
-      headerName: 'Môn học và hoạt động giáo dục',
-      width: 300,
-      editable: true,
-      cellEditor: CommentCellEditor,
-      suppressHeaderMenuButton: true,
-      sortable: false,
-      filter: false
+    suppressHeaderMenuButton: true,
+    sortable: false,
+    filter: false
+  },
+  {
+    field: 'qualityComment',
+    headerName: 'Nhận xét phẩm chất chủ yếu',
+    width: 300,
+    cellRenderer: (params: any) => {
+      const value = params.value || '';
+      const rowIndex = params.node.rowIndex;
+      return `
+        <div class="comment-cell-wrapper">
+          <input class="comment-cell-input" value="${value}" 
+                 onchange="window.updateComment(${rowIndex}, 'qualityComment', this.value)"
+                 placeholder="Nhận xét phẩm chất...">
+          <button class="comment-modal-btn" 
+                  onclick="window.openCommentModal(${rowIndex}, 'qualityComment')"
+                  title="Chọn nhận xét có sẵn">📝</button>
+        </div>
+      `;
     },
-    {
-      field: 'regularComment',
-      headerName: 'Nhận xét năng lực chung',
-      width: 300,
-      editable: true,
-      cellEditor: CommentCellEditor,
-      suppressHeaderMenuButton: true,
-      sortable: false,
-      filter: false
-    },
-    {
-      field: 'abilityComment',
-      headerName: 'Năng lực đặc thù',
-      width: 300,
-      editable: true,
-      cellEditor: CommentCellEditor,
-      suppressHeaderMenuButton: true,
-      sortable: false,
-      filter: false
-    },
-    {
-      field: 'qualityComment',
-      headerName: 'Nhận xét phẩm chất chủ yếu',
-      width: 300,
-      editable: true,
-      cellEditor: CommentCellEditor,
-      suppressHeaderMenuButton: true,
-      sortable: false,
-      filter: false
-    }
-  ];
+    suppressHeaderMenuButton: true,
+    sortable: false,
+    filter: false
+  }
+];
 
   defaultColDef: ColDef = {
     resizable: true,
@@ -208,6 +183,53 @@ export class OnePeriodComponent implements OnInit {
 
   rowSelection: 'single' | 'multiple' = 'multiple';
 
+  getContextMenuItems = (params: any) => {
+    const fieldName = params.column?.getColId();
+    
+    if (fieldName && fieldName.includes('Comment')) {
+      return [
+        {
+          name: 'Chọn nhận xét có sẵn',
+          icon: '<span style="color: #007bff;">📝</span>',
+          action: () => {
+            this.openCommentModal(params.node.rowIndex, fieldName);
+          }
+        },
+        {
+          name: 'Xóa nhận xét',
+          icon: '<span style="color: #dc3545;">🗑️</span>',
+          action: () => {
+            params.node.setDataValue(fieldName, '');
+          }
+        },
+        'separator',
+        {
+          name: 'Sao chép',
+          icon: '<span>📋</span>',
+          action: () => {
+            navigator.clipboard.writeText(params.value || '');
+          }
+        },
+        {
+          name: 'Dán',
+          icon: '<span>📄</span>',
+          action: () => {
+            navigator.clipboard.readText().then(text => {
+              params.node.setDataValue(fieldName, text);
+            });
+          }
+        }
+      ];
+    }
+    
+    return [
+      'copy',
+      'paste',
+      'separator',
+      'export'
+    ];
+  };
+
   constructor(
     private authService: AuthService,
     private generalService: GeneralService
@@ -217,16 +239,27 @@ export class OnePeriodComponent implements OnInit {
     };
   }
 
-  async ngOnInit() {
-    this.userData = await this.authService.getUser();
-    await this.loadStudentData();
-    this.loadPresetComments();
-  }
+async ngOnInit() {
+  this.userData = await this.authService.getUser();
+  await this.loadStudentData();
+  this.loadPresetComments();
+  
+  // Expose functions to window
+  (window as any).openCommentModal = (rowIndex: number, fieldType: string) => {
+    this.openCommentModal(rowIndex, fieldType);
+  };
+  
+  (window as any).updateComment = (rowIndex: number, fieldType: string, value: string) => {
+    const student = this.studentList[rowIndex];
+    if (student) {
+      student[fieldType] = value;
+    }
+  };
+}
 
   async loadStudentData() {
     try {
       this.loading = true;
-
       this.studentList = [
         {
           id: 1,
@@ -273,7 +306,6 @@ export class OnePeriodComponent implements OnInit {
           status: 'sent'
         }
       ];
-      
     } catch (error) {
       console.error('Error loading student data:', error);
     } finally {
@@ -288,23 +320,19 @@ export class OnePeriodComponent implements OnInit {
       { id: 3, type: 'subject', text: 'Em tham gia tích cực các hoạt động học tập', category: 'Tích cực' },
       { id: 4, type: 'subject', text: 'Cần cố gắng hơn trong các môn học', category: 'Cần cải thiện' },
       { id: 5, type: 'subject', text: 'Em cần chú ý hơn trong giờ học', category: 'Cần cải thiện' },
-
       { id: 6, type: 'regular', text: 'Năng lực chung ở mức tốt', category: 'Tích cực' },
       { id: 7, type: 'regular', text: 'Năng lực chung ở mức khá', category: 'Tích cực' },
       { id: 8, type: 'regular', text: 'Năng lực chung trung bình', category: 'Trung bình' },
       { id: 9, type: 'regular', text: 'Năng lực chung cần được nâng cao', category: 'Cần cải thiện' },
-
       { id: 10, type: 'ability', text: 'Đặc biệt giỏi môn Toán', category: 'Điểm mạnh' },
       { id: 11, type: 'ability', text: 'Giỏi môn Văn và Sử', category: 'Điểm mạnh' },
       { id: 12, type: 'ability', text: 'Yêu thích môn Thể dục', category: 'Sở thích' },
       { id: 13, type: 'ability', text: 'Có năng khiếu nghệ thuật', category: 'Điểm mạnh' },
-      
       { id: 14, type: 'quality', text: 'Em có ý thức học tập tốt', category: 'Tích cực' },
       { id: 15, type: 'quality', text: 'Em có phẩm chất tốt, thân thiện với bạn bè', category: 'Tích cực' },
       { id: 16, type: 'quality', text: 'Em cần rèn luyện thêm tính kiên trì', category: 'Cần cải thiện' },
       { id: 17, type: 'quality', text: 'Em có tinh thần trách nhiệm cao', category: 'Tích cực' }
     ];
-    
     this.filteredComments = this.presetComments;
   }
 
@@ -333,6 +361,7 @@ export class OnePeriodComponent implements OnInit {
       student.selected = selectedIds.includes(student.id);
     });
   }
+
   onClassChanged() {
     this.loadStudentData();
   }
@@ -391,6 +420,7 @@ export class OnePeriodComponent implements OnInit {
   closeCommentModal() {
     this.showCommentModal = false;
   }
+
   sendNotification() {
     const selectedStudents = this.studentList.filter(s => s.selected);
     if (selectedStudents.length === 0) {
@@ -454,5 +484,9 @@ export class OnePeriodComponent implements OnInit {
 
   getCommentsByCategory(comments: PresetComment[], category: string): PresetComment[] {
     return comments.filter(comment => comment.category === category);
+  }
+  ngOnDestroy() {
+    delete (window as any).openCommentModal;
+    delete (window as any).updateComment;
   }
 }

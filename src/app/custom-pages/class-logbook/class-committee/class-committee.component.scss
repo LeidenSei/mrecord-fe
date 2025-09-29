@@ -1,0 +1,84 @@
+@use "../../../../variables.scss" as *;
+
+:host {
+  --side-panel-toolbar-height: 76px;
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+
+  .grid {
+    ::ng-deep & {
+      .dx-datagrid-header-panel {
+        padding: 0 var(--content-padding);
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: var(--toolbar-margin-bottom) 0;
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+      }
+    }
+
+    .grid-header {
+      @include header();
+    }
+  }
+}
+
+// Position styling
+.position-monitor {
+  color: #d32f2f;
+  font-weight: bold;
+  
+  &::before {
+    content: "★ ";
+  }
+}
+
+.position-vice-monitor {
+  color: #f57c00;
+  font-weight: 600;
+  
+  &::before {
+    content: "☆ ";
+  }
+}
+
+.position-team-leader {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.position-team-vice {
+  color: #388e3c;
+}
+
+.position-member {
+  color: #616161;
+}
+
+.team-badge {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.text-muted {
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
+}

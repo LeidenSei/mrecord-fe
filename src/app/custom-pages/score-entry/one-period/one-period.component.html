@@ -56,7 +56,6 @@
       </div>
     </div>
 
-    <!-- ag-Grid thay thế cho table -->
     <div class="grid-container">
       <ag-grid-angular
         class="ag-theme-quartz student-grid"
@@ -73,6 +72,8 @@
         [enterNavigatesVertically]="true"
         [enterNavigatesVerticallyAfterEdit]="true"
         [suppressHorizontalScroll]="false"
+        [getContextMenuItems]="getContextMenuItems.bind(this)"
+        [allowContextMenuWithControlKey]="true"
         [context]="gridContext"
         (gridReady)="onGridReady($event)"
         (cellClicked)="onCellClicked($event)"
@@ -97,7 +98,6 @@
     </div>
   </div>
 
-  <!-- Modal chọn comment -->
   <dx-popup
     [(visible)]="showCommentModal"
     [showTitle]="true"

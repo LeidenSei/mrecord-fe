@@ -1,0 +1,145 @@
+@use "../../../../variables.scss" as *;
+
+:host {
+  --side-panel-toolbar-height: 76px;
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+
+  .grid {
+    ::ng-deep & {
+      .dx-datagrid-header-panel {
+        padding: 0 var(--content-padding);
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: var(--toolbar-margin-bottom) 0;
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+
+        &:hover {
+          background-color: #f8f9fa;
+        }
+      }
+    }
+
+    .grid-header {
+      @include header();
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      i {
+        font-size: 18px;
+        color: var(--accent-color);
+      }
+
+      .count-badge {
+        background: var(--accent-color);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-left: 8px;
+      }
+    }
+  }
+}
+
+// Category styling - clean and professional
+.category-learning {
+  color: #1976d2;
+  background-color: #e3f2fd;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.category-discipline {
+  color: #f57c00;
+  background-color: #fff3e0;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.category-environment {
+  color: #388e3c;
+  background-color: #e8f5e8;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.category-helping {
+  color: #7b1fa2;
+  background-color: #f3e5f5;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.category-community {
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.category-talent {
+  color: #e91e63;
+  background-color: #fce4ec;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+// Level styling - simplified
+.level-class {
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.level-school {
+  color: #1976d2;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.level-district {
+  color: #f57c00;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.level-city {
+  color: #d32f2f;
+  font-weight: bold;
+  font-size: 12px;
+}

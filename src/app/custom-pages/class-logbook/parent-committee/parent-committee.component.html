@@ -1,0 +1,189 @@
+<div class="view-wrapper list-page parent-committee">
+  <dx-data-grid
+    class="grid theme-dependent"
+    [rowAlternationEnabled]="true"
+    noDataText=""
+    columnResizingMode="widget"
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    (onExporting)="onExporting($event)"
+    (onRowUpdating)="onRowUpdating($event)"
+    (onRowInserting)="onRowInserting($event)"
+    (onRowRemoving)="onRowRemoving($event)"
+  >
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    <dxo-editing
+      mode="popup"
+      [allowUpdating]="true"
+      [allowAdding]="true"
+      [allowDeleting]="true"
+      [useIcons]="true"
+    >
+      <dxo-popup
+        title="Thông tin ban đại diện cha mẹ học sinh"
+        [showTitle]="true"
+        [width]="650"
+        [height]="450"
+      ></dxo-popup>
+      <dxo-form>
+        <dxi-item itemType="group" [colCount]="2">
+          <dxi-item dataField="parentName" [isRequired]="true"></dxi-item>
+          <dxi-item dataField="position" [isRequired]="true"></dxi-item>
+          <dxi-item dataField="studentName" [isRequired]="true"></dxi-item>
+          <dxi-item dataField="relationship" [isRequired]="true"></dxi-item>
+          <dxi-item dataField="phoneNumber" [isRequired]="true"></dxi-item>
+          <dxi-item dataField="email"></dxi-item>
+          <dxi-item dataField="workplace" [colSpan]="2"></dxi-item>
+          <dxi-item dataField="address" [colSpan]="2"></dxi-item>
+        </dxi-item>
+      </dxo-form>
+    </dxo-editing>
+    
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    >
+    </dxo-export>
+    
+    <dxo-toolbar>
+      <dxi-item name="addRowButton"></dxi-item>
+      <dxi-item name="exportButton"></dxi-item>
+      <dxi-item location="before">
+        <div class="grid-header">
+          <i class="dx-icon-group"></i>
+          Danh sách ban đại diện cha mẹ học sinh
+          <span *ngIf="committeeCount > 0" class="count-badge">{{committeeCount}}</span>
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Khối học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="gradeSource"
+          (onItemClick)="gradeChange($event)"
+          [selectedItemKey]="gradeSource[0]"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Lớp học</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="filterClassSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="classChange($event)"
+          [selectedItemKey]="filterClassId"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <label>Chức vụ</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="positionFilterSource"
+          keyExpr="value"
+          displayExpr="name"
+          (onItemClick)="positionFilterChange($event)"
+          [selectedItemKey]="selectedPositionFilter"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <dxi-column
+      fixedPosition="left" 
+      dataField="stt" 
+      alignment="center" 
+      [allowFiltering]="false" 
+      [width]="70" 
+      caption="STT"
+      [allowEditing]="false"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="position" 
+      [width]="140" 
+      caption="Chức vụ"
+      cellTemplate="cellPosition"
+      [lookup]="{
+        dataSource: positionSource,
+        displayExpr: 'name',
+        valueExpr: 'value'
+      }"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="parentName" 
+      [width]="200" 
+      caption="Họ và tên"
+    ></dxi-column>
+
+    <dxi-column 
+      dataField="workplace" 
+      [width]="250" 
+      caption="Nơi công tác"
+    ></dxi-column>
+
+    <dxi-column 
+      dataField="phoneNumber" 
+      [width]="240" 
+      caption="Số điện thoại"
+      alignment="center"
+      cellTemplate="cellPhone"
+    ></dxi-column>
+
+    <dxi-column 
+      dataField="studentName" 
+      [width]="200" 
+      caption="Cha/mẹ của học sinh"
+      [lookup]="{
+        dataSource: studentSource,
+        displayExpr: 'fullName',
+        valueExpr: 'fullName'
+      }"
+    ></dxi-column>
+
+    <dxi-column type="buttons" [width]="100" fixedPosition="right">
+      <dxi-button name="edit"></dxi-button>
+      <dxi-button name="delete"></dxi-button>
+    </dxi-column>
+
+    <div *dxTemplate="let cellInfo of 'cellPosition'">
+      <span [ngClass]="getPositionClass(cellInfo.value)">
+        {{getPositionText(cellInfo.value)}}
+      </span>
+    </div>
+
+    <div *dxTemplate="let cellInfo of 'cellPhone'">
+      <a href="tel:{{cellInfo.value}}" class="phone-link">
+        <i class="dx-icon-tel"></i>
+        {{formatPhoneNumber(cellInfo.value)}}
+      </a>
+    </div>
+
+  </dx-data-grid>
+</div>

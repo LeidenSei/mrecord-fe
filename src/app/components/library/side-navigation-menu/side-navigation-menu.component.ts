@@ -95,16 +95,28 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         if (item.path && !(/^\//.test(item.path))) {
           item.path = `/${item.path}`;
         }
+        
+        let isSelected = false;
+        let hasSelectedChild = false;
+        
         if (this.path.includes(item.path) && item.path !== '') {
           item.selected = true;
+          isSelected = true;
         }
+        
         if (item.items?.length > 0){
           let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
+            hasSelectedChild = true;
           }
         }
-        return {...item, expanded: !this._compactMode};
+        
+        // Chỉ expand nếu item được chọn hoặc có child được chọn
+        return {
+          ...item, 
+          expanded: !this._compactMode && (isSelected || hasSelectedChild)
+        };
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
       
@@ -113,16 +125,27 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         if (item.path && !(/^\//.test(item.path))) {
           item.path = `/${item.path}`;
         }
+        
+        let isSelected = false;
+        let hasSelectedChild = false;
+        
         if (this.path.includes(item.path) && item.path !== '') {
           item.selected = true;
+          isSelected = true;
         }
+        
         if (item.items?.length > 0){
           let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
+            hasSelectedChild = true;
           }
         }
-        return {...item, expanded: !this._compactMode};
+        
+        return {
+          ...item, 
+          expanded: !this._compactMode && (isSelected || hasSelectedChild)
+        };
       });
 
       if (this.userData.data.role !== 3) {
@@ -134,19 +157,31 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         if (item.path && !(/^\//.test(item.path))) {
           item.path = `/${item.path}`;
         }
+        
+        let isSelected = false;
+        let hasSelectedChild = false;
+        
         if (this.path.includes(item.path) && item.path !== '') {
           item.selected = true;
+          isSelected = true;
         }
+        
         if (item.items?.length > 0){
           let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
+            hasSelectedChild = true;
           }
         }
+        
         if (item.text === 'Học bạ số' && this.isElementary) {
           item.items = item.items?.filter((en: any) => en.type !== 'gvbm_thcs');
         }
-        return {...item, expanded: !this._compactMode};
+        
+        return {
+          ...item, 
+          expanded: !this._compactMode && (isSelected || hasSelectedChild)
+        };
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
       
@@ -155,16 +190,27 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         if (item.path && !(/^\//.test(item.path))) {
           item.path = `/${item.path}`;
         }
+        
+        let isSelected = false;
+        let hasSelectedChild = false;
+        
         if (this.path.includes(item.path) && item.path !== '') {
           item.selected = true;
+          isSelected = true;
         }
+        
         if (item.items?.length > 0){
           let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
+            hasSelectedChild = true;
           }
         }
-        return {...item, expanded: !this._compactMode};
+        
+        return {
+          ...item, 
+          expanded: !this._compactMode && (isSelected || hasSelectedChild)
+        };
       });
       this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
       
@@ -173,55 +219,56 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy, On
         if (item.path && !(/^\//.test(item.path))) {
           item.path = `/${item.path}`;
         }
+        
+        let isSelected = false;
+        let hasSelectedChild = false;
+        
         if (this.path.includes(item.path) && item.path !== '') {
           item.selected = true;
+          isSelected = true;
         }
+        
         if (item.items?.length > 0){
           let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
+            hasSelectedChild = true;
           }
         }
-        return {...item, expanded: !this._compactMode};
+        
+        return {
+          ...item, 
+          expanded: !this._compactMode && (isSelected || hasSelectedChild)
+        };
       });
     } else if (this.userData.data.role === 8) {
       this.items = navigationPGD.map((item: any) => {
         if (item.path && !(/^\//.test(item.path))) {
           item.path = `/${item.path}`;
         }
+        
+        let isSelected = false;
+        let hasSelectedChild = false;
+        
         if (this.path.includes(item.path) && item.path !== '') {
           item.selected = true;
+          isSelected = true;
         }
+        
         if (item.items?.length > 0){
           let childItem = item.items.find((en: any) => this.path.includes(en.path));
           if (childItem) {
             childItem.selected = true;
+            hasSelectedChild = true;
           }
         }
-        return {...item, expanded: !this._compactMode};
+        
+        return {
+          ...item, 
+          expanded: !this._compactMode && (isSelected || hasSelectedChild)
+        };
       });
     }
-
-    // Filter items based on school LMS approve level
-    if (this.userData.data.role === 2) {
-      if (school.lmsApproveLevel === 0 || this.userData.data.role === 2) {
-        this.items = this.items.filter(en => en.icon !== 'taskcomplete');
-        this.items = this.items.filter(en => en.icon !== 'exportselected');
-      }
-    } else if (this.userData.data.isBGH) {
-      if (school.lmsApproveLevel === 0 || this.userData.data.role === 2) {
-        this.items = this.items.filter(en => en.icon !== 'taskcomplete');
-        this.items = this.items.filter(en => en.icon !== 'exportselected');
-      }
-    } else if (this.userData.data.role === 3) {
-      if (school.lmsApproveLevel === 0) {
-        this.items = this.items.filter(en => en.icon !== 'taskcomplete');
-        this.items = this.items.filter(en => en.icon !== 'exportselected');
-      }
-    }
-    
-    // Final filter by grade
-    this.items = this.items.filter(en => !en.grade || en.grade === this.grade);
   }
 
   setSelectedItem() {

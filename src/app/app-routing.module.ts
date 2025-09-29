@@ -173,6 +173,18 @@ const routes: Routes = [
             (m) => m.ScoreEntryModule,
           ),
       },
+       {
+        path: 'class-logbook',
+        data: { 
+          breadcrumb: 'Sổ đầu bài',
+          breadcrumbIcon: 'textdocument'
+        },
+        canActivate: [AuthGuardService],
+        loadChildren: () =>
+          import('./custom-pages/class-logbook/class-logbook.module').then(
+            (m) => m.ClassLogbookModule,
+          ),
+      },
       {
         path: 'admin',
         data: { breadcrumb: '' },

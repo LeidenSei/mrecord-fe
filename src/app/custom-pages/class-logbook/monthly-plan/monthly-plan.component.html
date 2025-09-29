@@ -1,0 +1,297 @@
+<div class="view-wrapper monthly-plan-page">
+
+  <div class="month-info-header">
+    <div class="month-title">
+      <h3>KẾ HOẠCH THÁNG THỨ {{selectedMonth}}</h3>
+      <span class="date-range">(Từ ngày ___/___/{{selectedYear}} đến ___/___/{{selectedYear}})</span>
+    </div>
+    <div class="topic-focus-section">
+      <div class="input-group">
+        <label>Chủ đề:</label>
+        <input type="text" [(ngModel)]="monthlyTopic" class="topic-input" placeholder="Nhập chủ đề tháng..." />
+      </div>
+      <div class="input-group">
+        <label>Trọng tâm:</label>
+        <input type="text" [(ngModel)]="monthlyFocus" class="focus-input" placeholder="Nhập trọng tâm tháng..." />
+      </div>
+    </div>
+    
+    <!-- Toolbar chung cho tháng/năm -->
+    <div class="month-year-toolbar">
+      <div class="toolbar-group">
+        <label>Tháng:</label>
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="monthSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="monthChange($event)"
+          [selectedItemKey]="selectedMonth"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </div>
+      <div class="toolbar-group">
+        <label>Năm:</label>
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="yearSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="yearChange($event)"
+          [selectedItemKey]="selectedYear"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </div>
+    </div>
+  </div>
+
+  <dx-splitter 
+    class="main-splitter"
+    orientation="horizontal"
+    [allowKeyboardNavigation]="true"
+    [height]="'100%'"
+  >
+
+    <dxi-item [size]="'50%'" [collapsible]="false">
+      <div *dxTemplate="let data" class="section-container plan-section">
+        <div class="section-header">
+          <div class="header-content">
+            <div class="section-icon">
+              <i class="dx-icon-event"></i>
+            </div>
+            <div class="header-text">
+              <h3>KẾ HOẠCH THÁNG</h3>
+              <div class="subtitle">Lập kế hoạch và theo dõi tiến độ hàng tháng</div>
+            </div>
+          </div>
+          <div class="stats-badge" *ngIf="planCount > 0">
+            <i class="dx-icon-chart"></i>
+            {{planCount}} kế hoạch
+          </div>
+        </div>
+
+        <!-- Grid Content -->
+        <div class="grid-content">
+          <dx-data-grid
+            class="grid theme-dependent"
+            [rowAlternationEnabled]="true"
+            noDataText=""
+            columnResizingMode="widget"
+            [dataSource]="monthlyPlanData"
+            [allowColumnReordering]="true"
+            [showBorders]="true"
+            [showColumnLines]="true"
+            [showRowLines]="true"
+            [columnMinWidth]="50"
+            [columnAutoWidth]="true"
+            [columnResizingMode]="'nextColumn'"
+            [allowColumnResizing]="true"
+            (onExporting)="onPlanExporting($event)"
+            (onRowUpdating)="onPlanRowUpdating($event)"
+            (onRowInserting)="onPlanRowInserting($event)"
+            (onRowRemoving)="onPlanRowRemoving($event)"
+          >
+            <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+            <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+            <dxo-sorting mode="multiple"></dxo-sorting>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+            <dxo-editing
+              mode="popup"
+              [allowUpdating]="true"
+              [allowAdding]="true"
+              [allowDeleting]="true"
+              [useIcons]="true"
+            >
+              <dxo-popup
+                title="Thông tin kế hoạch tháng"
+                [showTitle]="true"
+                [width]="700"
+                [height]="500"
+              ></dxo-popup>
+              <dxo-form>
+                <dxi-item itemType="group" [colCount]="2">
+                  <dxi-item dataField="timeFrom" [isRequired]="true"></dxi-item>
+                  <dxi-item dataField="timeTo" [isRequired]="true"></dxi-item>
+                  <dxi-item dataField="content" [isRequired]="true" [colSpan]="2"></dxi-item>
+                  <dxi-item dataField="evaluation" [colSpan]="2"></dxi-item>
+                </dxi-item>
+              </dxo-form>
+            </dxo-editing>
+            
+            <dxo-export
+              [enabled]="true"
+              [texts]="exportTexts"
+              showText="always"
+              [allowExportSelectedData]="false"
+              [formats]="['xlsx']"
+            ></dxo-export>
+            
+            <dxo-toolbar>
+              <dxi-item name="addRowButton"></dxi-item>
+              <dxi-item name="exportButton"></dxi-item>
+            </dxo-toolbar>
+
+            <dxi-column
+              fixedPosition="left" 
+              dataField="stt" 
+              alignment="center" 
+              [allowFiltering]="false" 
+              [width]="50" 
+              caption="STT"
+              [allowEditing]="false"
+            ></dxi-column>
+            
+            <dxi-column 
+              dataField="timeFrom" 
+              [width]="100" 
+              caption="Từ"
+              alignment="center"
+            ></dxi-column>
+            
+            <dxi-column 
+              dataField="timeTo" 
+              [width]="100" 
+              caption="Đến"
+              alignment="center"
+            ></dxi-column>
+            
+            <dxi-column 
+              dataField="content" 
+              caption="Nội dung"
+            ></dxi-column>
+            
+            <dxi-column 
+              dataField="evaluation" 
+              [width]="150" 
+              caption="Đánh giá kết quả"
+            ></dxi-column>
+
+            <dxi-column type="buttons" [width]="100" fixedPosition="right">
+              <dxi-button name="edit"></dxi-button>
+              <dxi-button name="delete"></dxi-button>
+            </dxi-column>
+
+          </dx-data-grid>
+        </div>
+      </div>
+    </dxi-item>
+
+    <!-- Pane 2: Nhật ký chủ nhiệm -->
+    <dxi-item size="50%" [collapsible]="true">
+      <div class="section-container journal-section">
+        <!-- Section Header -->
+        <div class="section-header">
+          <div class="header-content">
+            <div class="section-icon">
+              <i class="dx-icon-doc"></i>
+            </div>
+            <div class="header-text">
+              <h3>NHẬT KÍ CHỦ NHIỆM</h3>
+              <div class="subtitle">Ghi chép và theo dõi hoạt động giảng dạy</div>
+            </div>
+          </div>
+          <div class="stats-badge" *ngIf="journalCount > 0">
+            <i class="dx-icon-bookmark"></i>
+            {{journalCount}} ghi chép
+          </div>
+        </div>
+
+        <!-- Grid Content -->
+        <div class="grid-content">
+          <dx-data-grid
+            class="grid theme-dependent"
+            [rowAlternationEnabled]="true"
+            noDataText=""
+            columnResizingMode="widget"
+            [dataSource]="teacherJournalData"
+            [allowColumnReordering]="true"
+            [showBorders]="true"
+            [showColumnLines]="true"
+            [showRowLines]="true"
+            [columnMinWidth]="50"
+            [columnAutoWidth]="true"
+            [columnResizingMode]="'nextColumn'"
+            [allowColumnResizing]="true"
+            (onExporting)="onJournalExporting($event)"
+            (onRowUpdating)="onJournalRowUpdating($event)"
+            (onRowInserting)="onJournalRowInserting($event)"
+            (onRowRemoving)="onJournalRowRemoving($event)"
+          >
+            <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+            <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+            <dxo-sorting mode="multiple"></dxo-sorting>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+            <dxo-editing
+              mode="popup"
+              [allowUpdating]="true"
+              [allowAdding]="true"
+              [allowDeleting]="true"
+              [useIcons]="true"
+            >
+              <dxo-popup
+                title="Nhật ký chủ nhiệm"
+                [showTitle]="true"
+                [width]="600"
+                [height]="400"
+              ></dxo-popup>
+              <dxo-form>
+                <dxi-item itemType="group" [colCount]="1">
+                  <dxi-item dataField="date" [isRequired]="true"></dxi-item>
+                  <dxi-item dataField="content" [isRequired]="true"></dxi-item>
+                </dxi-item>
+              </dxo-form>
+            </dxo-editing>
+            
+            <dxo-export
+              [enabled]="true"
+              [texts]="exportTexts"
+              showText="always"
+              [allowExportSelectedData]="false"
+              [formats]="['xlsx']"
+            ></dxo-export>
+            
+            <dxo-toolbar>
+              <dxi-item name="addRowButton"></dxi-item>
+              <dxi-item name="exportButton"></dxi-item>
+            </dxo-toolbar>
+
+            <dxi-column
+              fixedPosition="left" 
+              dataField="stt" 
+              alignment="center" 
+              [allowFiltering]="false" 
+              [width]="50" 
+              caption="STT"
+              [allowEditing]="false"
+            ></dxi-column>
+            
+            <dxi-column 
+              dataField="date" 
+              dataType="date"
+              [width]="120" 
+              caption="Thời gian"
+              format="dd/MM"
+            ></dxi-column>
+            
+            <dxi-column 
+              dataField="content" 
+              caption="Nội dung nhật kí của người thầy"
+            ></dxi-column>
+
+            <dxi-column type="buttons" [width]="100" fixedPosition="right">
+              <dxi-button name="edit"></dxi-button>
+              <dxi-button name="delete"></dxi-button>
+            </dxi-column>
+
+          </dx-data-grid>
+        </div>
+      </div>
+    </dxi-item>
+
+  </dx-splitter>
+
+</div>
