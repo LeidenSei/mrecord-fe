@@ -1,6 +1,5 @@
-
-// homeroom-plan.component.ts
 import { Component, OnInit } from '@angular/core';
+import notify from 'devextreme/ui/notify';
 
 interface HomeroomPlan {
   id?: number;
@@ -11,30 +10,24 @@ interface HomeroomPlan {
   teacherName: string;
   planDate: Date;
   
-  // A. Tình hình chung
   advantages: string;
   difficulties: string;
   
-  // B. Kế hoạch giáo dục
-  // 1. Truyền thống - đạo đức - lối sống
   tradition_objectives: string;
   tradition_content: string;
   tradition_solutions: string;
   tradition_expected_results: string;
   
-  // 2. Học tập
   academic_objectives: string;
   academic_content: string;
   academic_solutions: string;
   academic_expected_results: string;
   
-  // 3. Các mặt giáo dục ngoại khóa
   extracurricular_objectives: string;
   extracurricular_content: string;
   extracurricular_solutions: string;
   extracurricular_expected_results: string;
   
-  // Thông tin bổ sung
   status: string;
   approvedBy?: string;
   notes?: string;
@@ -47,10 +40,18 @@ interface HomeroomPlan {
 })
 export class HomeroomPlanComponent implements OnInit {
   datas: HomeroomPlan[] = [];
+  filteredDatas: HomeroomPlan[] = [];
   plansCount = 0;
   
-  // Filter data
+  // Popup
+  popupVisible = false;
+  isEditMode = false;
+  currentPlan: HomeroomPlan = this.getEmptyPlan();
+  
+  // Filters
   schoolYearSource = ['Tất cả', '2024-2025', '2023-2024', '2022-2023'];
+  selectedSchoolYear = 'Tất cả';
+  
   semesterSource = [
     { value: '', name: 'Tất cả' },
     { value: '1', name: 'Học kỳ I' },
@@ -61,6 +62,9 @@ export class HomeroomPlanComponent implements OnInit {
   filterClassSource: any[] = [];
   filterClassId: any = null;
   
+  filterStatusSource: any[] = [];
+  selectedStatus = '';
+  
   // Lookup data
   classSource: any[] = [];
   statusSource = [
@@ -70,17 +74,19 @@ export class HomeroomPlanComponent implements OnInit {
     { value: 'rejected', name: 'Cần sửa' }
   ];
 
-  exportTexts = {
-    exportAll: 'Xuất toàn bộ',
-    exportSelectedRows: 'Xuất dòng được chọn',
-    exportTo: 'Xuất ra'
-  };
-
   constructor() { }
 
   ngOnInit(): void {
     this.loadClassData();
     this.loadPlanData();
+    this.setupFilters();
+  }
+
+  setupFilters(): void {
+    this.filterStatusSource = [
+      { value: '', name: 'Tất cả' },
+      ...this.statusSource
+    ];
   }
 
   loadClassData(): void {
@@ -169,39 +175,109 @@ export class HomeroomPlanComponent implements OnInit {
     ];
     
     this.plansCount = this.datas.length;
+    this.applyFilters();
   }
 
-  schoolYearChange(event: any): void {
-    console.log('School year changed:', event);
+  onFilterChange(): void {
+    this.applyFilters();
   }
 
-  semesterChange(event: any): void {
-    this.selectedSemester = event.itemData.value;
-    console.log('Semester changed:', event.itemData);
+  applyFilters(): void {
+    this.filteredDatas = this.datas.filter(plan => {
+      const yearMatch = this.selectedSchoolYear === 'Tất cả' || plan.schoolYear === this.selectedSchoolYear;
+      const semesterMatch = !this.selectedSemester || plan.semester === this.selectedSemester;
+      const classMatch = !this.filterClassId || plan.className === this.filterClassSource.find(c => c.id === this.filterClassId)?.name;
+      const statusMatch = !this.selectedStatus || plan.status === this.selectedStatus;
+      
+      return yearMatch && semesterMatch && classMatch && statusMatch;
+    });
+    
+    this.plansCount = this.filteredDatas.length;
   }
 
-  classChange(event: any): void {
-    this.filterClassId = event.itemData.id;
-    console.log('Class changed:', event.itemData);
+  clearFilters(): void {
+    this.selectedSchoolYear = 'Tất cả';
+    this.selectedSemester = '';
+    this.filterClassId = null;
+    this.selectedStatus = '';
+    this.applyFilters();
   }
 
-  onExporting(event: any): void {
-    console.log('Exporting data');
+  addNewPlan(): void {
+    this.isEditMode = false;
+    this.currentPlan = this.getEmptyPlan();
+    this.popupVisible = true;
   }
 
-  onRowUpdating(event: any): void {
-    console.log('Updating row:', event);
+  editPlan(plan: HomeroomPlan): void {
+    this.isEditMode = true;
+    this.currentPlan = { ...plan };
+    this.popupVisible = true;
   }
 
-  onRowInserting(event: any): void {
-    console.log('Inserting row:', event);
-    event.data.stt = this.datas.length + 1;
-    event.data.status = event.data.status || 'draft';
-    event.data.planDate = event.data.planDate || new Date();
+  deletePlan(plan: HomeroomPlan): void {
+    const confirmed = confirm(`Bạn có chắc chắn muốn xóa kế hoạch ${plan.className} - ${plan.schoolYear}?`);
+    if (confirmed) {
+      this.datas = this.datas.filter(p => p.id !== plan.id);
+      this.applyFilters();
+      notify('Đã xóa kế hoạch thành công', 'success', 2000);
+    }
   }
 
-  onRowRemoving(event: any): void {
-    console.log('Removing row:', event);
+  savePlan(): void {
+    if (this.isEditMode) {
+      const index = this.datas.findIndex(p => p.id === this.currentPlan.id);
+      if (index !== -1) {
+        this.datas[index] = { ...this.currentPlan };
+      }
+      notify('Đã cập nhật kế hoạch thành công', 'success', 2000);
+    } else {
+      this.currentPlan.id = Math.max(...this.datas.map(p => p.id || 0)) + 1;
+      this.currentPlan.stt = this.datas.length + 1;
+      this.currentPlan.status = this.currentPlan.status || 'draft';
+      this.currentPlan.planDate = this.currentPlan.planDate || new Date();
+      this.datas.push({ ...this.currentPlan });
+      notify('Đã thêm kế hoạch thành công', 'success', 2000);
+    }
+    
+    this.applyFilters();
+    this.closePopup();
+  }
+
+  closePopup(): void {
+    this.popupVisible = false;
+  }
+
+  exportData(): void {
+    notify('Chức năng xuất Excel đang được phát triển', 'info', 2000);
+  }
+
+  getEmptyPlan(): HomeroomPlan {
+    return {
+      stt: 0,
+      schoolYear: '2024-2025',
+      semester: '1',
+      className: '',
+      teacherName: '',
+      planDate: new Date(),
+      advantages: '',
+      difficulties: '',
+      tradition_objectives: '',
+      tradition_content: '',
+      tradition_solutions: '',
+      tradition_expected_results: '',
+      academic_objectives: '',
+      academic_content: '',
+      academic_solutions: '',
+      academic_expected_results: '',
+      extracurricular_objectives: '',
+      extracurricular_content: '',
+      extracurricular_solutions: '',
+      extracurricular_expected_results: '',
+      status: 'draft',
+      approvedBy: '',
+      notes: ''
+    };
   }
 
   getSemesterText(semester: string): string {

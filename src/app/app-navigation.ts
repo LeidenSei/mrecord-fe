@@ -226,7 +226,7 @@ export const navigationTeacher = [
       selected: false,
     },
     {
-      text: 'Sổ đầu bài',
+      text: 'Sổ chủ nhiệm',
       icon: 'textdocument',
       path: '/class-logbook',
       selected: false,

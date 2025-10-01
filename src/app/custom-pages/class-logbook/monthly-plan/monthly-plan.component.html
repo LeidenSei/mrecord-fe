@@ -16,7 +16,6 @@
       </div>
     </div>
     
-    <!-- Toolbar chung cho tháng/năm -->
     <div class="month-year-toolbar">
       <div class="toolbar-group">
         <label>Tháng:</label>
@@ -47,15 +46,18 @@
     </div>
   </div>
 
-  <dx-splitter 
+  <!-- Angular Split thay thế dx-splitter -->
+  <as-split 
+    direction="horizontal" 
     class="main-splitter"
-    orientation="horizontal"
-    [allowKeyboardNavigation]="true"
-    [height]="'100%'"
+    [gutterSize]="8"
+    [restrictMove]="true"
+    unit="percent"
   >
-
-    <dxi-item [size]="'50%'" [collapsible]="false">
-      <div *dxTemplate="let data" class="section-container plan-section">
+    
+    <!-- Pane 1: Kế hoạch tháng -->
+    <as-split-area [size]="50" [minSize]="30" [maxSize]="70">
+      <div class="section-container plan-section">
         <div class="section-header">
           <div class="header-content">
             <div class="section-icon">
@@ -72,7 +74,6 @@
           </div>
         </div>
 
-        <!-- Grid Content -->
         <div class="grid-content">
           <dx-data-grid
             class="grid theme-dependent"
@@ -177,12 +178,11 @@
           </dx-data-grid>
         </div>
       </div>
-    </dxi-item>
+    </as-split-area>
 
     <!-- Pane 2: Nhật ký chủ nhiệm -->
-    <dxi-item size="50%" [collapsible]="true">
+    <as-split-area [size]="50" [minSize]="30" [maxSize]="70">
       <div class="section-container journal-section">
-        <!-- Section Header -->
         <div class="section-header">
           <div class="header-content">
             <div class="section-icon">
@@ -199,7 +199,6 @@
           </div>
         </div>
 
-        <!-- Grid Content -->
         <div class="grid-content">
           <dx-data-grid
             class="grid theme-dependent"
@@ -290,8 +289,8 @@
           </dx-data-grid>
         </div>
       </div>
-    </dxi-item>
+    </as-split-area>
 
-  </dx-splitter>
+  </as-split>
 
 </div>

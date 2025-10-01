@@ -24,6 +24,8 @@
     "@lumieducation/h5p-webcomponents": "^9.3.2",
     "@wiris/mathtype-ckeditor4": "^8.11.1",
     "@xmldom/xmldom": "^0.9.8",
+    "ag-grid-angular": "^34.2.0",
+    "angular-split": "^16.0.0",
     "angular-star-rating": "^7.0.0",
     "angularx-qrcode": "^18.0.2",
     "bootstrap": "^5.3.3",

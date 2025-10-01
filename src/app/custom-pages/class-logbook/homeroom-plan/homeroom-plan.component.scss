@@ -1,9 +1,6 @@
-
-// homeroom-plan.component.scss
 @use "../../../../variables.scss" as *;
 
 :host {
-  --side-panel-toolbar-height: 76px;
   width: 100%;
   display: contents;
 }
@@ -14,111 +11,567 @@
   bottom: 0;
   left: 0;
   right: 0;
-  flex-direction: row;
+  padding: 24px;
+  background: #f5f7fa;
+  overflow-y: auto;
 
-  .grid {
-    ::ng-deep & {
-      .dx-datagrid-header-panel {
-        padding: 0 var(--content-padding);
+  // Page Header
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    background: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      i {
+        font-size: 24px;
+        color: #667eea;
       }
 
-      .dx-toolbar {
-        margin-bottom: 0;
-        padding: var(--toolbar-margin-bottom) 0;
+      h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+        color: #2d3748;
       }
 
-      .dx-datagrid-content .dx-row {
+      .count-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
         cursor: pointer;
+        transition: all 0.3s ease;
+
+        i {
+          font-size: 16px;
+        }
+
+        &.btn-add {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          }
+        }
+
+        &.btn-export {
+          background: white;
+          color: #667eea;
+          border: 2px solid #667eea;
+
+          &:hover {
+            background: #667eea;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  // Filters
+  .filters-container {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    margin-bottom: 24px;
+    background: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    flex-wrap: wrap;
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #4a5568;
+      }
+    }
+
+    .btn-clear-filter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      color: #718096;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #edf2f7;
+        color: #4a5568;
       }
 
-      // Custom form styling
-      .dx-popup-content {
-        .dx-form {
-          .dx-field-item-label {
-            font-weight: 500;
+      i {
+        font-size: 14px;
+      }
+    }
+  }
+
+  // Plans Container
+  .plans-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  // Plan Card
+  .plan-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+
+    // Card Header
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+
+      .card-header-left {
+        flex: 1;
+
+        .plan-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin: 0 0 12px 0;
+          font-size: 18px;
+          font-weight: 600;
+
+          .year-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 14px;
           }
-          
-          .dx-group-header {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #495057;
-            border-left: 4px solid #007bff;
-            padding-left: 12px;
+
+          .semester-1, .semester-2 {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+          }
+
+          .semester-1 {
+            background: rgba(25, 118, 210, 0.2);
+          }
+
+          .semester-2 {
+            background: rgba(56, 142, 60, 0.2);
+          }
+
+          .class-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+          }
+        }
+
+        .plan-meta {
+          display: flex;
+          gap: 20px;
+          font-size: 13px;
+          opacity: 0.95;
+
+          span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            i {
+              font-size: 14px;
+            }
+          }
+        }
+      }
+
+      .card-header-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+
+        .card-actions {
+          display: flex;
+          gap: 8px;
+
+          .btn-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            i {
+              font-size: 16px;
+            }
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.3);
+              transform: scale(1.1);
+            }
+
+            &.btn-delete:hover {
+              background: #e53e3e;
+            }
           }
         }
       }
     }
 
-    .grid-header {
-      @include header();
+    // Card Content
+    .card-content {
+      padding: 24px;
+
+      // Section
+      .section {
+        margin-bottom: 24px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .section-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2d3748;
+          margin: 0 0 16px 0;
+          padding-bottom: 8px;
+          border-bottom: 3px solid;
+        }
+
+        // Section A
+        &.section-a {
+          .section-title {
+            border-color: #f5576c;
+          }
+
+          .content-item {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #fff5f7;
+            border-radius: 8px;
+            border-left: 4px solid #f5576c;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+
+            .item-label {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-bottom: 8px;
+              color: #c53030;
+
+              i {
+                font-size: 16px;
+              }
+
+              strong {
+                font-size: 14px;
+              }
+            }
+
+            .item-text {
+              font-size: 14px;
+              line-height: 1.6;
+              color: #4a5568;
+            }
+          }
+        }
+
+        // Section B
+        &.section-b {
+          .section-title {
+            border-color: #4facfe;
+          }
+
+          .subsection {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+
+            .subsection-title {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin: 0 0 16px 0;
+              font-size: 15px;
+              font-weight: 600;
+              color: #2c5282;
+
+              .number {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 28px;
+                height: 28px;
+                background: #4facfe;
+                color: white;
+                border-radius: 50%;
+                font-size: 14px;
+              }
+            }
+
+            .subsection-content {
+              .content-row {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 12px;
+                font-size: 13px;
+
+                &:last-child {
+                  margin-bottom: 0;
+                }
+
+                .content-label {
+                  flex-shrink: 0;
+                  font-weight: 600;
+                  color: #2d3748;
+                  min-width: 140px;
+                }
+
+                .content-text {
+                  flex: 1;
+                  line-height: 1.6;
+                  color: #4a5568;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Additional Info
+      .additional-info {
+        margin-top: 20px;
+        padding: 16px;
+        background: #fef5e7;
+        border-radius: 8px;
+        border-left: 4px solid #f39c12;
+
+        .info-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          margin-bottom: 8px;
+          font-size: 13px;
+          color: #4a5568;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          i {
+            margin-top: 2px;
+            color: #d68910;
+            font-size: 14px;
+          }
+
+          strong {
+            color: #2d3748;
+          }
+        }
+      }
     }
   }
-}
 
-// Semester styling
-.semester-1 {
-  color: #1976d2;
-  background-color: #e3f2fd;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
+  // Empty State
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-.semester-2 {
-  color: #388e3c;
-  background-color: #e8f5e8;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
+    i {
+      font-size: 64px;
+      color: #cbd5e0;
+      margin-bottom: 20px;
+    }
 
-// Status styling
-.status-draft {
-  color: #666;
-  background-color: #f5f5f5;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
+    h3 {
+      margin: 0 0 12px 0;
+      font-size: 20px;
+      color: #2d3748;
+    }
 
-.status-submitted {
-  color: #f57c00;
-  background-color: #fff3e0;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #718096;
+    }
+  }
 
-.status-approved {
-  color: #388e3c;
-  background-color: #e8f5e8;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
+  // Status Classes
+  .status-draft {
+    background: #f7fafc;
+    color: #718096;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
 
-.status-rejected {
-  color: #d32f2f;
-  background-color: #ffebee;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
+  .status-submitted {
+    background: #fff3e0;
+    color: #f57c00;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
 
-// Content styling
-.plan-text {
-  font-size: 13px;
-  color: #666;
-  line-height: 1.4;
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  .status-approved {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .status-rejected {
+    background: #ffebee;
+    color: #d32f2f;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  // Popup Form Styling
+  ::ng-deep .dx-popup-content {
+    .dx-scrollview-content {
+      padding: 20px;
+    }
+
+    .dx-form {
+      .dx-field-item-label-text {
+        font-weight: 500;
+        color: #333;
+        font-size: 13px;
+      }
+
+      .basic-info-group .dx-group-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 16px;
+      }
+
+      .section-a > .dx-group-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin: 20px 0 16px 0;
+      }
+
+      .section-b > .dx-group-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin: 20px 0 16px 0;
+      }
+
+      .subsection {
+        margin-left: 16px;
+        padding: 16px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 16px;
+        border-left: 4px solid #4facfe;
+
+        .dx-group-header {
+          background-color: #e3f2fd;
+          color: #1976d2;
+          font-weight: 600;
+          font-size: 13px;
+          padding: 10px 14px;
+          border-radius: 4px;
+          margin-bottom: 12px;
+        }
+      }
+
+      .additional-info .dx-group-header {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin: 20px 0 16px 0;
+      }
+    }
+  }
 }

@@ -34,7 +34,7 @@
   }
 }
 
-// Header thông tin tháng (ở trên cùng)
+// Header thông tin tháng
 .month-info-header {
   background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
   border: 1px solid #e9ecef;
@@ -122,53 +122,52 @@
   }
 }
 
-// DevExtreme Splitter
+// Angular Split Splitter
 .main-splitter {
   flex: 1;
-  min-height: 0; // CRITICAL: Cho phép flex shrink
+  min-height: 0;
   border-radius: var(--border-radius);
   overflow: hidden;
   box-shadow: var(--shadow-medium);
 
   ::ng-deep {
-    .dx-splitter {
-      height: 100% !important;
+    // Container của angular-split
+    as-split {
+      height: 100%;
+      display: flex;
       border: none;
       background: transparent;
     }
 
-    .dx-splitter-wrapper {
-      height: 100% !important;
-      display: flex !important;
-    }
-
-    .dx-splitter-item {
-      border: none;
-      overflow: hidden;
-      min-height: 0; // CRITICAL
-      min-width: 0; // CRITICAL
-      display: flex !important;
-      flex-direction: column !important;
-    }
-
-    .dx-splitter-item-content {
-      height: 100% !important;
+    // Mỗi area (panel)
+    as-split-area {
       overflow: hidden;
       display: flex !important;
       flex-direction: column !important;
+      min-height: 0;
+      min-width: 0;
+      
+      > .as-split-area-content {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
     }
 
-    .dx-splitter-resize-handle {
+    // Gutter (thanh resize)
+    .as-split-gutter {
       background: linear-gradient(90deg, #e9ecef, #dee2e6, #e9ecef);
-      border: none;
-      width: 8px !important;
       position: relative;
-      z-index: 10;
+      cursor: col-resize;
+      transition: var(--transition-smooth);
 
       &:hover {
         background: linear-gradient(90deg, var(--primary-blue), #42a5f5, var(--primary-blue));
       }
 
+      // Icon chấm chấm ở giữa gutter
       &::before {
         content: '';
         position: absolute;
@@ -186,14 +185,35 @@
         );
         border-radius: 2px;
       }
+
+      // Active state khi đang drag
+      &.as-dragged {
+        background: linear-gradient(90deg, #1565c0, var(--primary-blue), #1565c0);
+        
+        &::before {
+          background: repeating-linear-gradient(
+            to bottom,
+            #fff 0px,
+            #fff 4px,
+            transparent 4px,
+            transparent 8px
+          );
+        }
+      }
+    }
+
+    // Gutter icon (nếu dùng)
+    .as-split-gutter-icon {
+      background: none;
     }
   }
 }
 
+// Section containers
 .section-container {
   background: white;
   height: 100%;
-  min-height: 0; // CRITICAL
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -318,7 +338,7 @@
 .grid-content {
   padding: 16px;
   flex: 1;
-  min-height: 0; // CRITICAL: Cho phép grid scroll
+  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -326,7 +346,7 @@
   .grid {
     height: 100%;
     flex: 1;
-    min-height: 0; // CRITICAL
+    min-height: 0;
     
     ::ng-deep {
       .dx-datagrid {
@@ -369,7 +389,6 @@
         border-bottom: 2px solid #dee2e6;
       }
 
-      // Custom button styling
       .dx-button {
         border-radius: 6px;
         transition: var(--transition-smooth);
@@ -387,7 +406,6 @@
         }
       }
 
-      // DevExtreme DropDownButton styling
       .dx-dropdownbutton {
         .dx-button {
           background: transparent;
@@ -418,8 +436,26 @@
   }
 
   .main-splitter {
-    ::ng-deep .dx-splitter {
-      flex-direction: column !important;
+    ::ng-deep {
+      as-split {
+        flex-direction: column !important;
+      }
+
+      .as-split-gutter {
+        cursor: row-resize;
+        
+        &::before {
+          width: 40px;
+          height: 4px;
+          background: repeating-linear-gradient(
+            to right,
+            #999 0px,
+            #999 4px,
+            transparent 4px,
+            transparent 8px
+          );
+        }
+      }
     }
   }
 }

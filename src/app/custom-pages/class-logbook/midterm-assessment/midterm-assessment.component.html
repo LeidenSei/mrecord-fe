@@ -1,1 +1,269 @@
-<p>midterm-assessment works!</p>
+<div class="view-wrapper assessment-page">
+  <div class="assessment-toolbar">
+    <div class="toolbar-header">
+      <i class="icon-assessment"></i>
+      <span class="header-title">Đánh giá giữa kỳ</span>
+      <span class="count-badge">{{studentCount || 48}}</span>
+    </div>
+    
+    <div class="toolbar-filters">
+      <div class="filter-group">
+        <label>Khối học</label>
+        <select class="filter-select" (change)="gradeChange($event)">
+          <option *ngFor="let grade of gradeSource" [value]="grade">{{grade}}</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Lớp học</label>
+        <select class="filter-select" [(ngModel)]="filterClassId" (change)="classChange($event)">
+          <option *ngFor="let cls of filterClassSource" [value]="cls.id">{{cls.name}}</option>
+        </select>
+      </div>
+      
+      <button class="btn-export" (click)="onExporting($event)">
+        <i class="icon-export"></i>
+        Xuất Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Bảng 1: Môn học và hoạt động giáo dục -->
+  <div class="grid-container">
+    <div class="section-header subjects-header">
+      <span class="section-number">1</span>
+      <span class="section-title">Môn học và hoạt động giáo dục</span>
+    </div>
+    
+    <ag-grid-angular
+      class="ag-theme-alpine assessment-grid"
+      [gridOptions]="subjectsGridOptions"
+      [rowData]="subjectsData"
+      [columnDefs]="subjectsGridOptions.columnDefs"
+      style="width: 100%; height: 500px;"
+      [animateRows]="true"
+      [enableRangeSelection]="true"
+      [suppressMovableColumns]="true"
+    ></ag-grid-angular>
+  </div>
+
+  <!-- Bảng 2: Phẩm chất chủ yếu -->
+  <div class="grid-container">
+    <div class="section-header qualities-header">
+      <span class="section-number">2</span>
+      <span class="section-title">Phẩm chất chủ yếu</span>
+    </div>
+    
+    <ag-grid-angular
+      class="ag-theme-alpine assessment-grid"
+      [gridOptions]="qualitiesGridOptions"
+      [rowData]="qualitiesData"
+      [columnDefs]="qualitiesGridOptions.columnDefs"
+      style="width: 100%; height: 300px;"
+      [animateRows]="true"
+      [enableRangeSelection]="true"
+      [suppressMovableColumns]="true"
+    ></ag-grid-angular>
+  </div>
+
+  <!-- Bảng 3: Năng lực cốt lõi -->
+  <div class="grid-container">
+    <div class="section-header competencies-header">
+      <span class="section-number">3</span>
+      <span class="section-title">Năng lực cốt lõi</span>
+    </div>
+    
+    <ag-grid-angular
+      class="ag-theme-alpine assessment-grid"
+      [gridOptions]="competenciesGridOptions"
+      [rowData]="competenciesData"
+      [columnDefs]="competenciesGridOptions.columnDefs"
+      style="width: 100%; height: 450px;"
+      [animateRows]="true"
+      [enableRangeSelection]="true"
+      [suppressMovableColumns]="true"
+    ></ag-grid-angular>
+  </div>
+  <!-- Phần 4: Đánh giá kết quả giáo dục -->
+<div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px;">
+  <div style="padding: 16px 24px; display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 8px 8px 0 0;">
+    <span style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: linear-gradient(135deg, #ff9a56 0%, #ff6a3d 100%); font-weight: 700;">4</span>
+    <span style="font-size: 18px; font-weight: 600; color: #8b4513;">Đánh giá kết quả giáo dục</span>
+  </div>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 24px;">
+    <!-- Hoàn thành xuất sắc -->
+    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2px solid #10b981; border-radius: 12px; padding: 20px; display: flex; gap: 16px; align-items: center;">
+      <div style="font-size: 36px; width: 60px; text-align: center;">🌟</div>
+      <div style="flex: 1;">
+        <h3 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #065f46;">Hoàn thành xuất sắc</h3>
+        <div style="display: flex; gap: 20px;">
+          <div>
+            <div style="font-size: 24px; font-weight: 700; color: #10b981;">31</div>
+            <div style="font-size: 12px; color: #64748b;">Số lượng</div>
+          </div>
+          <div>
+            <div style="font-size: 24px; font-weight: 700; color: #10b981;">70.8%</div>
+            <div style="font-size: 12px; color: #64748b;">Tỉ lệ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hoàn thành tốt -->
+    <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #3b82f6; border-radius: 12px; padding: 20px; display: flex; gap: 16px; align-items: center;">
+      <div style="font-size: 36px; width: 60px; text-align: center;">⭐</div>
+      <div style="flex: 1;">
+        <h3 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #1e40af;">Hoàn thành tốt</h3>
+        <div style="display: flex; gap: 20px;">
+          <div>
+            <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">0</div>
+            <div style="font-size: 12px; color: #64748b;">Số lượng</div>
+          </div>
+          <div>
+            <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">0%</div>
+            <div style="font-size: 12px; color: #64748b;">Tỉ lệ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hoàn thành -->
+    <div style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 2px solid #8b5cf6; border-radius: 12px; padding: 20px; display: flex; gap: 16px; align-items: center;">
+      <div style="font-size: 36px; width: 60px; text-align: center;">✓</div>
+      <div style="flex: 1;">
+        <h3 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #5b21b6;">Hoàn thành</h3>
+        <div style="display: flex; gap: 20px;">
+          <div>
+            <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;">0</div>
+            <div style="font-size: 12px; color: #64748b;">Số lượng</div>
+          </div>
+          <div>
+            <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;">0%</div>
+            <div style="font-size: 12px; color: #64748b;">Tỉ lệ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chưa hoàn thành -->
+    <div style="background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); border: 2px solid #fb923c; border-radius: 12px; padding: 20px; display: flex; gap: 16px; align-items: center;">
+      <div style="font-size: 36px; width: 60px; text-align: center;">⚠</div>
+      <div style="flex: 1;">
+        <h3 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #9a3412;">Chưa hoàn thành</h3>
+        <div style="display: flex; gap: 20px;">
+          <div>
+            <div style="font-size: 24px; font-weight: 700; color: #fb923c;">0</div>
+            <div style="font-size: 12px; color: #64748b;">Số lượng</div>
+          </div>
+          <div>
+            <div style="font-size: 24px; font-weight: 700; color: #fb923c;">0%</div>
+            <div style="font-size: 12px; color: #64748b;">Tỉ lệ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Phần 5: Khen thưởng -->
+<div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px;">
+  <div style="padding: 16px 24px; display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 8px 8px 0 0;">
+    <span style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); font-weight: 700;">5</span>
+    <span style="font-size: 18px; font-weight: 600; color: #7c2d12;">Khen thưởng</span>
+  </div>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 24px;">
+    <!-- Học sinh xuất sắc -->
+    <div style="background: white; border: 2px solid #fbbf24; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="font-size: 48px;">🏆</div>
+        <div style="flex: 1;">
+          <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #1e293b;">Học sinh xuất sắc</h3>
+          <div style="display: flex; gap: 24px;">
+            <div>
+              <div style="font-size: 28px; font-weight: 700; color: #f59e0b;">31</div>
+              <div style="font-size: 12px; color: #64748b;">Số lượng</div>
+            </div>
+            <div>
+              <div style="font-size: 28px; font-weight: 700; color: #f59e0b;">70.8%</div>
+              <div style="font-size: 12px; color: #64748b;">Tỉ lệ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Học sinh tiêu biểu -->
+    <div style="background: white; border: 2px solid #ec4899; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="font-size: 48px;">🎖️</div>
+        <div style="flex: 1;">
+          <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #1e293b;">Học sinh tiêu biểu</h3>
+          <div style="display: flex; gap: 24px;">
+            <div>
+              <div style="font-size: 28px; font-weight: 700; color: #ec4899;">0</div>
+              <div style="font-size: 12px; color: #64748b;">Số lượng</div>
+            </div>
+            <div>
+              <div style="font-size: 28px; font-weight: 700; color: #ec4899;">0%</div>
+              <div style="font-size: 12px; color: #64748b;">Tỉ lệ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thành tích đột xuất -->
+    <div style="background: white; border: 2px solid #8b5cf6; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="font-size: 48px;">🎯</div>
+        <div style="flex: 1;">
+          <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #1e293b;">Học sinh có thành tích đột xuất</h3>
+          <div style="display: flex; gap: 24px;">
+            <div>
+              <div style="font-size: 28px; font-weight: 700; color: #8b5cf6;">0</div>
+              <div style="font-size: 12px; color: #64748b;">Số lượng</div>
+            </div>
+            <div>
+              <div style="font-size: 28px; font-weight: 700; color: #8b5cf6;">0%</div>
+              <div style="font-size: 12px; color: #64748b;">Tỉ lệ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Phần 6: Hoàn thành chương trình -->
+<div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px;">
+  <div style="padding: 16px 24px; display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0; color: white;">
+    <span style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); font-weight: 700;">6</span>
+    <span style="font-size: 18px; font-weight: 600;">Hoàn thành chương trình lớp học / Tiểu học</span>
+  </div>
+  
+  <div style="padding: 40px 24px; display: flex; justify-content: center;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 40px; display: flex; align-items: center; gap: 40px; max-width: 600px; box-shadow: 0 8px 24px rgba(102,126,234,0.3);">
+      <div style="position: relative; width: 120px; height: 120px; flex-shrink: 0;">
+        <svg width="120" height="120" style="transform: rotate(-90deg);">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="white" stroke-width="10" 
+                  stroke-dasharray="314" stroke-dashoffset="0" stroke-linecap="round"/>
+        </svg>
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: 700; color: white;">100%</div>
+      </div>
+      <div style="flex: 1; color: white;">
+        <div style="margin-bottom: 24px;">
+          <div style="font-size: 48px; font-weight: 700; line-height: 1; margin-bottom: 8px;">48</div>
+          <div style="font-size: 16px; opacity: 0.95;">Số lượng học sinh</div>
+        </div>
+        <div>
+          <div style="font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 8px;">100%</div>
+          <div style="font-size: 16px; opacity: 0.95;">Tỉ lệ hoàn thành</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

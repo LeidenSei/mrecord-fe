@@ -20,8 +20,10 @@ import { DxTextBoxModule } from 'devextreme-angular/ui/text-box';
 import { DxTextAreaModule } from 'devextreme-angular/ui/text-area';
 import { DxDateBoxModule } from 'devextreme-angular/ui/date-box';
 import { DxSelectBoxModule } from 'devextreme-angular/ui/select-box';
-import { DxCheckBoxModule, DxDropDownButtonModule, DxLookupModule, DxSplitterModule } from 'devextreme-angular';
+import { DxCheckBoxModule, DxDropDownButtonModule, DxLookupModule, DxPopupModule, DxScrollViewModule, DxSplitterModule } from 'devextreme-angular';
 import { FormsModule } from '@angular/forms';
+import { AngularSplitModule } from 'angular-split';
+import { AgGridAngular } from 'ag-grid-angular';
 
 @NgModule({
   declarations: [
@@ -51,6 +53,10 @@ import { FormsModule } from '@angular/forms';
     DxLookupModule,
     FormsModule,
     DxSplitterModule,
+    AngularSplitModule,
+    DxPopupModule,
+    DxScrollViewModule,
+    AgGridAngular
   ]
 })
 export class ClassLogbookModule { }

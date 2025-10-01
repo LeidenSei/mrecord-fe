@@ -176,7 +176,7 @@ const routes: Routes = [
        {
         path: 'class-logbook',
         data: { 
-          breadcrumb: 'Sổ đầu bài',
+          breadcrumb: 'Sổ chủ nhiệm',
           breadcrumbIcon: 'textdocument'
         },
         canActivate: [AuthGuardService],

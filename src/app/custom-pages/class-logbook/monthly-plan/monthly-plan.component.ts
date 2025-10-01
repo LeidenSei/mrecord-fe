@@ -1,11 +1,11 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-monthly-plan',
   templateUrl: './monthly-plan.component.html',
   styleUrls: ['./monthly-plan.component.scss']
 })
-export class MonthlyPlanComponent implements OnInit, AfterViewInit {
+export class MonthlyPlanComponent implements OnInit {
   monthlyPlanData: any[] = [];
   teacherJournalData: any[] = [];
   
@@ -16,18 +16,7 @@ export class MonthlyPlanComponent implements OnInit, AfterViewInit {
   monthlyFocus = '';
   selectedMonth = 9;
   selectedYear = 2024;
-   splitterItems = [
-    {
-      size: '50%',
-      collapsible: false,
-      template: 'planTemplate'
-    },
-    {
-      size: '50%',
-      collapsible: false,
-      template: 'journalTemplate'
-    }
-  ];
+
   monthSource = [
     { id: 1, name: 'Tháng 1', value: 1 },
     { id: 2, name: 'Tháng 2', value: 2 },
@@ -57,20 +46,6 @@ export class MonthlyPlanComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadData();
-  }
-
-  ngAfterViewInit(): void {
-    // Debug để kiểm tra splitter render
-    setTimeout(() => {
-      const splitter = document.querySelector('.dx-splitter');
-      const items = document.querySelectorAll('.dx-splitter-item');
-      console.log('✅ Splitter rendered:', splitter);
-      console.log('✅ Splitter height:', splitter?.clientHeight);
-      console.log('✅ Number of items:', items.length);
-      items.forEach((item, index) => {
-        console.log(`✅ Item ${index} height:`, item.clientHeight);
-      });
-    }, 500);
   }
 
   loadData(): void {
