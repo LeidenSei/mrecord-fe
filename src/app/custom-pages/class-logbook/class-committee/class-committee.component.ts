@@ -6,7 +6,6 @@ interface CommitteeMember {
   studentName: string;
   position: string;
   teamNumber?: number;
-  description?: string;
 }
 
 @Component({
@@ -87,7 +86,6 @@ export class ClassCommitteeComponent implements OnInit {
         studentName: 'Nguyễn Văn An',
         position: 'class_monitor',
         teamNumber: undefined,
-        description: 'Học sinh có uy tín cao'
       },
       {
         id: 2,
@@ -95,7 +93,6 @@ export class ClassCommitteeComponent implements OnInit {
         studentName: 'Trần Thị Bình',
         position: 'vice_monitor_1',
         teamNumber: undefined,
-        description: 'Phụ trách học tập'
       },
       {
         id: 3,
@@ -103,7 +100,6 @@ export class ClassCommitteeComponent implements OnInit {
         studentName: 'Lê Văn Cường',
         position: 'vice_monitor_2',
         teamNumber: undefined,
-        description: 'Phụ trách kỷ luật'
       },
       {
         id: 4,
@@ -111,7 +107,6 @@ export class ClassCommitteeComponent implements OnInit {
         studentName: 'Phạm Thị Dung',
         position: 'team_leader',
         teamNumber: 1,
-        description: 'Tổ trưởng tổ 1'
       },
       {
         id: 5,
@@ -119,7 +114,6 @@ export class ClassCommitteeComponent implements OnInit {
         studentName: 'Hoàng Văn Em',
         position: 'team_leader',
         teamNumber: 2,
-        description: 'Tổ trưởng tổ 2'
       }
     ];
     

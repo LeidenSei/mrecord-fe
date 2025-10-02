@@ -5,9 +5,7 @@ interface GoodDeed {
   stt: number;
   date: Date;
   studentName: string;
-  category: string;
   title: string;
-  level: string;
   recognizedBy: string;
 }
 
@@ -25,28 +23,7 @@ export class GoodDeedsComponent implements OnInit {
   filterClassSource: any[] = [];
   filterClassId: any = null;
   
-  categoryFilterSource = [
-    { value: '', name: 'Tất cả loại' },
-    { value: 'learning', name: 'Học tập' },
-    { value: 'discipline', name: 'Kỷ luật' },
-    { value: 'environment', name: 'Môi trường' },
-    { value: 'helping', name: 'Giúp đỡ' },
-    { value: 'community', name: 'Cộng đồng' },
-    { value: 'talent', name: 'Tài năng' }
-  ];
-  selectedCategoryFilter = '';
-  
-  // Lookup data - removed emoji icons
   studentSource: any[] = [];
-  categorySource = [
-    { value: 'learning', name: 'Học tập' },
-    { value: 'discipline', name: 'Kỷ luật' },
-    { value: 'environment', name: 'Môi trường' },
-    { value: 'helping', name: 'Giúp đỡ bạn bè' },
-    { value: 'community', name: 'Hoạt động cộng đồng' },
-    { value: 'talent', name: 'Tài năng đặc biệt' }
-  ];
-  
   levelSource = [
     { value: 'class', name: 'Cấp lớp' },
     { value: 'school', name: 'Cấp trường' },
@@ -96,9 +73,7 @@ export class GoodDeedsComponent implements OnInit {
         stt: 1,
         date: new Date('2024-09-15'),
         studentName: 'Nguyễn Văn An',
-        category: 'learning',
         title: 'Đạt điểm 10 môn Toán liên tiếp 3 bài kiểm tra',
-        level: 'class',
         recognizedBy: 'Cô Nguyễn Thị Lan'
       },
       {
@@ -106,9 +81,7 @@ export class GoodDeedsComponent implements OnInit {
         stt: 2,
         date: new Date('2024-09-18'),
         studentName: 'Trần Thị Bình',
-        category: 'helping',
         title: 'Giúp đỡ bạn học yếu môn Tiếng Anh',
-        level: 'class',
         recognizedBy: 'Thầy Trần Văn Nam'
       },
       {
@@ -116,9 +89,7 @@ export class GoodDeedsComponent implements OnInit {
         stt: 3,
         date: new Date('2024-09-20'),
         studentName: 'Lê Văn Cường',
-        category: 'environment',
         title: 'Dọn vệ sinh sân trường không được phân công',
-        level: 'school',
         recognizedBy: 'Thầy Phạm Văn Đức'
       },
       {
@@ -126,9 +97,7 @@ export class GoodDeedsComponent implements OnInit {
         stt: 4,
         date: new Date('2024-09-22'),
         studentName: 'Phạm Thị Dung',
-        category: 'community',
         title: 'Tham gia hoạt động từ thiện cho trẻ em vùng cao',
-        level: 'district',
         recognizedBy: 'Cô Lê Thị Mai'
       },
       {
@@ -136,9 +105,7 @@ export class GoodDeedsComponent implements OnInit {
         stt: 5,
         date: new Date('2024-09-25'),
         studentName: 'Hoàng Văn Em',
-        category: 'talent',
         title: 'Đạt giải nhất cuộc thi vẽ tranh cấp trường',
-        level: 'school',
         recognizedBy: 'Thầy Đỗ Văn Nam'
       }
     ];
@@ -154,12 +121,6 @@ export class GoodDeedsComponent implements OnInit {
     this.filterClassId = event.itemData.id;
     console.log('Class changed:', event.itemData);
   }
-
-  categoryFilterChange(event: any): void {
-    this.selectedCategoryFilter = event.itemData.value;
-    console.log('Category filter changed:', event.itemData);
-  }
-
   onExporting(event: any): void {
     console.log('Exporting data');
   }
@@ -178,35 +139,9 @@ export class GoodDeedsComponent implements OnInit {
     console.log('Removing row:', event);
   }
 
-  getCategoryText(category: string): string {
-    const cat = this.categorySource.find(c => c.value === category);
-    return cat ? cat.name : category;
-  }
-
-  getCategoryClass(category: string): string {
-    const classes = {
-      'learning': 'category-learning',
-      'discipline': 'category-discipline', 
-      'environment': 'category-environment',
-      'helping': 'category-helping',
-      'community': 'category-community',
-      'talent': 'category-talent'
-    };
-    return classes[category as keyof typeof classes] || '';
-  }
-
   getLevelText(level: string): string {
     const lvl = this.levelSource.find(l => l.value === level);
     return lvl ? lvl.name : level;
   }
 
-  getLevelClass(level: string): string {
-    const classes = {
-      'class': 'level-class',
-      'school': 'level-school',
-      'district': 'level-district',
-      'city': 'level-city'
-    };
-    return classes[level as keyof typeof classes] || '';
-  }
 }

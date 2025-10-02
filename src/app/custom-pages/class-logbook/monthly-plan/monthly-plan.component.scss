@@ -19,13 +19,12 @@
 
 .view-wrapper {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 10px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  background: #f5f7fa;
+  height: 92vh; 
+  max-width: 100%;
+  overflow-y: auto; 
+  overflow-x: hidden;
 
   &.monthly-plan-page {
     display: flex;
@@ -33,8 +32,6 @@
     gap: var(--section-gap);
   }
 }
-
-// Header thông tin tháng
 .month-info-header {
   background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
   border: 1px solid #e9ecef;
@@ -422,45 +419,6 @@
   }
 }
 
-// Responsive
-@media (max-width: 768px) {
-  .month-info-header {
-    .topic-focus-section {
-      grid-template-columns: 1fr;
-    }
-
-    .month-year-toolbar {
-      flex-direction: column;
-      gap: 15px;
-    }
-  }
-
-  .main-splitter {
-    ::ng-deep {
-      as-split {
-        flex-direction: column !important;
-      }
-
-      .as-split-gutter {
-        cursor: row-resize;
-        
-        &::before {
-          width: 40px;
-          height: 4px;
-          background: repeating-linear-gradient(
-            to right,
-            #999 0px,
-            #999 4px,
-            transparent 4px,
-            transparent 8px
-          );
-        }
-      }
-    }
-  }
-}
-
-// Animation keyframes
 @keyframes fadeInUp {
   from {
     opacity: 0;

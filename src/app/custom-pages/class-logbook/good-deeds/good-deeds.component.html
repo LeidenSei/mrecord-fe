@@ -40,8 +40,6 @@
         <dxi-item itemType="group" [colCount]="2">
           <dxi-item dataField="studentName" [isRequired]="true"></dxi-item>
           <dxi-item dataField="date" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="category" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="level"></dxi-item>
           <dxi-item dataField="title" [isRequired]="true" [colSpan]="2"></dxi-item>
           <dxi-item dataField="recognizedBy" [colSpan]="2"></dxi-item>
         </dxi-item>
@@ -95,21 +93,7 @@
           [dropDownOptions]="{ width: 'auto' }"
         ></dx-drop-down-button>
       </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
-        <label>Loại việc tốt</label>
-      </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="categoryFilterSource"
-          keyExpr="value"
-          displayExpr="name"
-          (onItemClick)="categoryFilterChange($event)"
-          [selectedItemKey]="selectedCategoryFilter"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
-      </dxi-item>
+
     </dxo-toolbar>
 
     <dxi-column
@@ -143,34 +127,11 @@
     ></dxi-column>
     
     <dxi-column 
-      dataField="category" 
-      [width]="120" 
-      caption="Loại"
-      cellTemplate="cellCategory"
-      [lookup]="{
-        dataSource: categorySource,
-        displayExpr: 'name',
-        valueExpr: 'value'
-      }"
-    ></dxi-column>
-    
-    <dxi-column 
       dataField="title" 
       [width]="300" 
       caption="Nội dung việc tốt"
     ></dxi-column>
     
-    <dxi-column 
-      dataField="level" 
-      [width]="100" 
-      caption="Cấp độ"
-      cellTemplate="cellLevel"
-      [lookup]="{
-        dataSource: levelSource,
-        displayExpr: 'name',
-        valueExpr: 'value'
-      }"
-    ></dxi-column>
     
     <dxi-column 
       dataField="recognizedBy" 
@@ -182,18 +143,7 @@
       <dxi-button name="edit"></dxi-button>
       <dxi-button name="delete"></dxi-button>
     </dxi-column>
-
-    <div *dxTemplate="let cellInfo of 'cellCategory'">
-      <span [ngClass]="getCategoryClass(cellInfo.value)">
-        {{getCategoryText(cellInfo.value)}}
-      </span>
-    </div>
-    
-    <div *dxTemplate="let cellInfo of 'cellLevel'">
-      <span [ngClass]="getLevelClass(cellInfo.value)">
-        {{getLevelText(cellInfo.value)}}
-      </span>
-    </div>
+  
 
   </dx-data-grid>
 </div>

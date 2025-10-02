@@ -78,8 +78,6 @@ export class MonthlyPlanComponent implements OnInit {
       }
     ];
     this.planCount = this.monthlyPlanData.length;
-
-    // Dữ liệu nhật ký
     this.teacherJournalData = [
       {
         stt: 1,
