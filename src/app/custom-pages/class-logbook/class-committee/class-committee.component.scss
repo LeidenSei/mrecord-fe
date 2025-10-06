@@ -13,32 +13,175 @@
   left: 0;
   right: 0;
   flex-direction: row;
-
+  
   .grid {
     ::ng-deep & {
       .dx-datagrid-header-panel {
         padding: 0 var(--content-padding);
       }
-
+      
       .dx-toolbar {
         margin-bottom: 0;
         padding: var(--toolbar-margin-bottom) 0;
       }
-
+      
       .dx-datagrid-content .dx-row {
         cursor: pointer;
       }
     }
-
+    
     .grid-header {
       @include header();
     }
   }
 }
 
-// Position styling
+// ========== MULTI-SELECT MODAL ==========
+.multi-select-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  height: calc(100% - 100px);
+}
+
+.selection-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fafafa;
+  
+  &.full-width {
+    flex: 1;
+  }
+  
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #2196F3;
+  }
+  
+  ::ng-deep .dx-list {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: white;
+  }
+}
+
+.selected-students-list {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: white;
+  padding: 8px;
+  
+  .student-item.selected {
+    background-color: #e3f2fd;
+    border: 1px solid #2196F3;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.student-item {
+  padding: 8px 0;
+  
+  .student-name {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  .student-info {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    
+    .student-code {
+      color: #666;
+      font-weight: 500;
+    }
+    
+    .student-class {
+      color: #2196F3;
+      font-weight: 500;
+    }
+    
+    .student-team {
+      background-color: #e3f2fd;
+      color: #1976d2;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+  }
+}
+
+.position-item {
+  padding: 4px 0;
+}
+
+.selection-count {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  color: #1976d2;
+  font-size: 13px;
+  text-align: center;
+  
+  strong {
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.modal-summary {
+  padding: 16px 20px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  margin: 0 20px 20px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #856404;
+  font-size: 14px;
+  
+  i {
+    font-size: 18px;
+  }
+  
+  strong {
+    color: #d32f2f;
+    font-size: 16px;
+  }
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
+}
+
+// ========== POSITION STYLING ==========
 .position-monitor {
-  color: #d32f2f;
+  background-color: #ff6b6b;
+  color: white;
   font-weight: bold;
   
   &::before {
@@ -47,7 +190,8 @@
 }
 
 .position-vice-monitor {
-  color: #f57c00;
+  background-color: #4ecdc4;
+  color: white;
   font-weight: 600;
   
   &::before {
@@ -56,29 +200,84 @@
 }
 
 .position-team-leader {
-  color: #1976d2;
+  background-color: #45b7d1;
+  color: white;
   font-weight: 500;
 }
 
 .position-team-vice {
-  color: #388e3c;
+  background-color: #96ceb4;
+  color: white;
 }
 
 .position-member {
-  color: #616161;
+  background-color: #dfe6e9;
+  color: #2d3436;
 }
 
-.team-badge {
-  background-color: #e3f2fd;
-  color: #1976d2;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
+// ========== BADGE STYLING ==========
+.badge-success {
+  background-color: #00b894;
+  color: white;
+}
+
+.badge-secondary {
+  background-color: #636e72;
+  color: white;
+}
+
+.badge-info {
+  background-color: #74b9ff;
+  color: white;
+}
+
+.badge-primary {
+  background-color: #6c5ce7;
+  color: white;
 }
 
 .text-muted {
-  color: #999;
+  color: #b2bec3;
   font-style: italic;
-  font-size: 12px;
+}
+
+// ========== CLASS COMMITTEE SPECIFIC ==========
+.class-committee {
+  .grid-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  // Form styling
+  ::ng-deep {
+    .dx-popup-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .dx-field-item-label-text {
+      font-weight: 500;
+    }
+    
+    .dx-fieldset-header {
+      font-weight: 600;
+      color: #2d3436;
+      border-bottom: 2px solid #dfe6e9;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+    
+    // List item hover effect
+    .dx-list-item:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .dx-list-item.dx-state-focused {
+      background-color: #e3f2fd;
+    }
+  }
 }

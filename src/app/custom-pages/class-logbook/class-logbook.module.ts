@@ -20,7 +20,7 @@ import { DxTextBoxModule } from 'devextreme-angular/ui/text-box';
 import { DxTextAreaModule } from 'devextreme-angular/ui/text-area';
 import { DxDateBoxModule } from 'devextreme-angular/ui/date-box';
 import { DxSelectBoxModule } from 'devextreme-angular/ui/select-box';
-import { DxCheckBoxModule, DxDropDownButtonModule, DxLookupModule, DxPopupModule, DxScrollViewModule, DxSplitterModule } from 'devextreme-angular';
+import { DxCheckBoxModule, DxDropDownButtonModule, DxListModule, DxLookupModule, DxPopupModule, DxScrollViewModule, DxSplitterModule, DxToolbarModule } from 'devextreme-angular';
 import { FormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -56,7 +56,9 @@ import { AgGridAngular } from 'ag-grid-angular';
     AngularSplitModule,
     DxPopupModule,
     DxScrollViewModule,
-    AgGridAngular
+    AgGridAngular,
+    DxListModule,
+    DxToolbarModule
   ]
 })
 export class ClassLogbookModule { }

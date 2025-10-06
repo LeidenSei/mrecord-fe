@@ -1,4 +1,113 @@
 <div class="view-wrapper list-page class-committee">
+  <!-- ========== CUSTOM ADD MODAL ========== -->
+  <dx-popup
+    [(visible)]="showAddModal"
+    [showTitle]="true"
+    [title]="isEditMode ? 'Sửa chức vụ hàng loạt' : 'Thêm ban cán sự lớp'"
+    [width]="900"
+    [height]="600"
+    [showCloseButton]="true"
+    [dragEnabled]="false"
+  >
+    <div class="multi-select-container">
+      <div class="selection-panel" *ngIf="!isEditMode">
+        <h3>Chọn học sinh</h3>
+        <dx-list
+          [dataSource]="studentSource"
+          [height]="400"
+          [searchEnabled]="true"
+          searchExpr="fullName"
+          [showSelectionControls]="true"
+          selectionMode="multiple"
+          [(selectedItems)]="selectedStudents"
+          itemTemplate="studentItem"
+        >
+          <div *dxTemplate="let student of 'studentItem'">
+            <div class="student-item">
+              <div class="student-name">{{student.fullName}}</div>
+              <div class="student-info">
+                <span class="student-code">{{student.code}}</span>
+                <span class="student-class">{{student.className}}</span>
+                <span *ngIf="student.teamNumber" class="student-team">Tổ {{student.teamNumber}}</span>
+              </div>
+            </div>
+          </div>
+        </dx-list>
+        <div class="selection-count">
+          Đã chọn: <strong>{{selectedStudents.length}}</strong> học sinh
+        </div>
+      </div>
+
+      <div class="selection-panel" *ngIf="isEditMode" [ngClass]="{'full-width': isEditMode}">
+        <h3>Học sinh được chọn ({{selectedStudents.length}})</h3>
+        <div class="selected-students-list">
+          <div *ngFor="let student of selectedStudents" class="student-item selected">
+            <div class="student-name">{{student.fullName}}</div>
+            <div class="student-info">
+              <span class="student-code">{{student.code}}</span>
+              <span class="student-class">{{student.className}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="selection-panel" [ngClass]="{'full-width': isEditMode}">
+        <h3>Chọn chức vụ mới</h3>
+        <dx-list
+          [dataSource]="positionSource"
+          [height]="400"
+          displayExpr="name"
+          [showSelectionControls]="true"
+          selectionMode="multiple"
+          [(selectedItems)]="selectedPositions"
+          itemTemplate="positionItem"
+        >
+          <div *dxTemplate="let position of 'positionItem'">
+            <div class="position-item">
+              <span 
+                class="badge" 
+                [ngClass]="getPositionClass(position.value)"
+                style="padding: 6px 12px; border-radius: 4px; font-size: 13px;">
+                {{position.name}}
+              </span>
+            </div>
+          </div>
+        </dx-list>
+        <div class="selection-count">
+          Đã chọn: <strong>{{selectedPositions.length}}</strong> chức vụ
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-summary">
+      <i class="dx-icon-info"></i>
+      <span *ngIf="!isEditMode">
+        Sẽ tạo <strong>{{selectedStudents.length * selectedPositions.length}}</strong> phân công
+        ({{selectedStudents.length}} học sinh × {{selectedPositions.length}} chức vụ)
+      </span>
+      <span *ngIf="isEditMode">
+        Sẽ cập nhật <strong>{{selectedStudents.length}}</strong> học sinh sang 
+        <strong>{{selectedPositions.length}}</strong> chức vụ mới
+        (Tạo {{selectedStudents.length * selectedPositions.length}} bản ghi, xóa {{selectedRows.length}} bản ghi cũ)
+      </span>
+    </div>
+
+    <div class="modal-footer">
+      <dx-button
+        text="Hủy"
+        stylingMode="outlined"
+        (onClick)="closeAddModal()"
+      ></dx-button>
+      <dx-button
+        text="Lưu"
+        type="success"
+        stylingMode="contained"
+        (onClick)="saveMultipleAssignments()"
+      ></dx-button>
+    </div>
+  </dx-popup>
+
+  <!-- ========== DATA GRID ========== -->
   <dx-data-grid
     class="grid theme-dependent"
     [rowAlternationEnabled]="true"
@@ -17,55 +126,160 @@
     (onRowUpdating)="onRowUpdating($event)"
     (onRowInserting)="onRowInserting($event)"
     (onRowRemoving)="onRowRemoving($event)"
+    (onSelectionChanged)="onSelectionChanged($event)"
+    keyExpr="id"
   >
+    <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
     <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
     <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
     <dxo-sorting mode="multiple"></dxo-sorting>
     <dxo-header-filter [visible]="true"></dxo-header-filter>
     <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    
+    <!-- ========== EDITING (Only Update/Delete) ========== -->
     <dxo-editing
       mode="popup"
       [allowUpdating]="true"
-      [allowAdding]="true"
+      [allowAdding]="false"
       [allowDeleting]="true"
       [useIcons]="true"
     >
       <dxo-popup
-        title="Thông tin ban cán sự"
+        title="Chỉnh sửa thông tin ban cán sự"
         [showTitle]="true"
         [width]="500"
         [height]="400"
       ></dxo-popup>
-      <dxo-form>
-        <dxi-item itemType="group" [colCount]="1">
-          <dxi-item dataField="studentName" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="position" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="teamNumber"></dxi-item>
-          <dxi-item dataField="description"></dxi-item>
-        </dxi-item>
+      
+      <dxo-form [colCount]="2">
+        <dxi-item 
+          dataField="position" 
+          caption="Chức vụ"
+          [isRequired]="true"
+          [colSpan]="2"
+          editorType="dxSelectBox"
+          [editorOptions]="{
+            dataSource: positionSource,
+            displayExpr: 'name',
+            valueExpr: 'value',
+            placeholder: 'Chọn chức vụ...'
+          }"
+        ></dxi-item>
+        
+        <dxi-item 
+          dataField="teamNumber" 
+          caption="Tổ"
+          editorType="dxSelectBox"
+          [editorOptions]="{
+            dataSource: teamSource,
+            displayExpr: 'name',
+            valueExpr: 'value',
+            placeholder: 'Chọn tổ...',
+            showClearButton: true
+          }"
+        ></dxi-item>
+        
+        <dxi-item 
+          dataField="electionRound" 
+          caption="Lần bầu cử"
+          editorType="dxNumberBox"
+          [editorOptions]="{
+            min: 1,
+            showSpinButtons: true
+          }"
+        ></dxi-item>
+        
+        <dxi-item 
+          dataField="responsibilities" 
+          caption="Nhiệm vụ"
+          [colSpan]="2"
+          editorType="dxTextArea"
+          [editorOptions]="{
+            height: 80,
+            placeholder: 'Nhập nhiệm vụ...'
+          }"
+        ></dxi-item>
+        
+        <dxi-item 
+          dataField="notes" 
+          caption="Ghi chú"
+          [colSpan]="2"
+          editorType="dxTextArea"
+          [editorOptions]="{
+            height: 80,
+            placeholder: 'Nhập ghi chú...'
+          }"
+        ></dxi-item>
       </dxo-form>
     </dxo-editing>
     
+    <!-- ========== EXPORT ========== -->
     <dxo-export
       [enabled]="true"
       [texts]="exportTexts"
-      showText="always"
       [allowExportSelectedData]="false"
       [formats]="['xlsx']"
-    >
-    </dxo-export>
+    ></dxo-export>
     
+    <!-- ========== TOOLBAR ========== -->
     <dxo-toolbar>
-      <dxi-item name="addRowButton"></dxi-item>
+      <!-- Custom Add Button -->
+      <dxi-item location="after">
+        <dx-button
+          icon="plus"
+          text="Thêm"
+          type="default"
+          stylingMode="contained"
+          (onClick)="openAddModal()"
+        ></dx-button>
+      </dxi-item>
+      
       <dxi-item name="exportButton"></dxi-item>
+      
+      <!-- Header title -->
       <dxi-item location="before">
         <div class="grid-header">
           <i class="dx-icon-user" style="font-size: 16px"></i>
-          Ban cán sự lớp <span *ngIf="committeeCount > 0">&nbsp;({{committeeCount}})</span>
+          Ban cán sự lớp 
+          <span *ngIf="committeeCount > 0">&nbsp;({{committeeCount}})</span>
         </div>
       </dxi-item>
+      
+      <!-- Filter: Năm học -->
       <dxi-item location="before" locateInMenu="auto">
-        <label>Khối học</label>
+        <label style="margin-right: 8px;">Năm học:</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="schoolYearSource"
+          (onItemClick)="schoolYearChange($event)"
+          [selectedItemKey]="selectedSchoolYear"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      
+      <!-- Filter: Lần bầu cử -->
+      <dxi-item location="before" locateInMenu="auto">
+        <label style="margin-right: 8px;">Lần BC:</label>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="electionRoundSource"
+          keyExpr="value"
+          displayExpr="name"
+          (onItemClick)="electionRoundChange($event)"
+          [selectedItemKey]="selectedElectionRound"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
+      </dxi-item>
+      
+      <!-- Filter: Khối học -->
+      <dxi-item location="before" locateInMenu="auto">
+        <label style="margin-right: 8px;">Khối:</label>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
         <dx-drop-down-button
@@ -73,12 +287,14 @@
           [useSelectMode]="true"
           [items]="gradeSource"
           (onItemClick)="gradeChange($event)"
-          [selectedItemKey]="gradeSource[0]"
+          [selectedItemKey]="selectedGrade"
           [dropDownOptions]="{ width: 'auto' }"
         ></dx-drop-down-button>
       </dxi-item>
+      
+      <!-- Filter: Lớp học -->
       <dxi-item location="before" locateInMenu="auto">
-        <label>Lớp học</label>
+        <label style="margin-right: 8px;">Lớp:</label>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
         <dx-drop-down-button
@@ -94,70 +310,146 @@
       </dxi-item>
     </dxo-toolbar>
 
-    <dxi-column
-      fixedPosition="left" 
-      dataField="stt" 
-      alignment="center" 
-      [allowFiltering]="false" 
-      [width]="50" 
-      caption="STT"
+    <!-- ========== COLUMNS ========== -->
+    
+    <!-- Học sinh -->
+    <dxi-column 
+      dataField="studentName" 
+      caption="Họ và tên" 
+      [width]="180"
       [allowEditing]="false"
     ></dxi-column>
     
     <dxi-column 
-      dataField="studentName" 
-      [width]="200" 
-      caption="Họ và tên học sinh"
-      [lookup]="{
-        dataSource: studentSource,
-        displayExpr: 'fullName',
-        valueExpr: 'fullName'
-      }"
+      dataField="studentCode" 
+      caption="Mã HS" 
+      [width]="100"
+      alignment="center"
+      [allowEditing]="false"
     ></dxi-column>
     
     <dxi-column 
+      dataField="className" 
+      caption="Lớp" 
+      [width]="80"
+      alignment="center"
+      [allowEditing]="false"
+    ></dxi-column>
+    
+    <!-- Chức vụ -->
+    <dxi-column 
       dataField="position" 
-      [width]="150" 
-      caption="Chức vụ"
+      caption="Chức vụ" 
+      [width]="150"
       cellTemplate="cellPosition"
-      [lookup]="{
-        dataSource: positionSource,
-        displayExpr: 'name',
-        valueExpr: 'value'
-      }"
     ></dxi-column>
     
     <dxi-column 
       dataField="teamNumber" 
-      [width]="100" 
-      caption="Tổ"
+      caption="Tổ" 
+      [width]="70"
       alignment="center"
       cellTemplate="cellTeam"
-      [lookup]="{
-        dataSource: teamSource,
-        displayExpr: 'name',
-        valueExpr: 'value'
-      }"
+    ></dxi-column>
+    
+    <!-- Thông tin bầu cử -->
+    <dxi-column 
+      dataField="electionRound" 
+      caption="Lần BC" 
+      [width]="80"
+      alignment="center"
+      cellTemplate="cellElectionRound"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="electionDate" 
+      caption="Ngày bầu cử" 
+      [width]="110"
+      dataType="date"
+      format="dd/MM/yyyy"
+      alignment="center"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="startDate" 
+      caption="Ngày nhận nhiệm" 
+      [width]="120"
+      dataType="date"
+      format="dd/MM/yyyy"
+      alignment="center"
+    ></dxi-column>
+    
+    <!-- Trạng thái -->
+    <dxi-column 
+      dataField="isActive" 
+      caption="Trạng thái" 
+      [width]="120"
+      alignment="center"
+      cellTemplate="cellStatus"
+    ></dxi-column>
+    
+    <!-- Ghi chú -->
+    <dxi-column 
+      dataField="notes" 
+      caption="Ghi chú" 
+      [width]="200"
+      [visible]="false"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="responsibilities" 
+      caption="Nhiệm vụ" 
+      [width]="200"
+      [visible]="false"
     ></dxi-column>
 
-    <dxi-column type="buttons" [width]="100" fixedPosition="right">
-      <dxi-button name="edit"></dxi-button>
-      <dxi-button name="delete"></dxi-button>
+    <!-- Actions -->
+    <dxi-column 
+      type="buttons" 
+      [width]="100" 
+      fixedPosition="right"
+      caption="Thao tác"
+    >
+      <dxi-button name="edit" icon="edit" hint="Sửa"></dxi-button>
+      <dxi-button name="delete" icon="trash" hint="Xóa"></dxi-button>
     </dxi-column>
 
-    <!-- Templates -->
+    <!-- ========== TEMPLATES ========== -->
+    
+    <!-- Position Template -->
     <div *dxTemplate="let cellInfo of 'cellPosition'">
-      <span [ngClass]="getPositionClass(cellInfo.value)">
+      <span 
+        class="badge" 
+        [ngClass]="getPositionClass(cellInfo.value)"
+        style="padding: 4px 8px; border-radius: 4px; font-size: 12px;">
         {{getPositionText(cellInfo.value)}}
       </span>
     </div>
     
+    <!-- Team Template -->
     <div *dxTemplate="let cellInfo of 'cellTeam'">
-      <span *ngIf="cellInfo.value" class="team-badge">
+      <span *ngIf="cellInfo.value" class="badge badge-info">
         Tổ {{cellInfo.value}}
       </span>
       <span *ngIf="!cellInfo.value && needsTeam(cellInfo.data.position)" class="text-muted">
-        Chưa phân tổ
+        <i>Chưa phân tổ</i>
+      </span>
+      <span *ngIf="!cellInfo.value && !needsTeam(cellInfo.data.position)">
+        -
+      </span>
+    </div>
+    <div *dxTemplate="let cellInfo of 'cellElectionRound'">
+      <span class="badge badge-primary" style="padding: 4px 8px; border-radius: 4px;">
+        Lần {{cellInfo.value}}
+      </span>
+    </div>
+
+    <div *dxTemplate="let cellInfo of 'cellStatus'">
+      <span 
+        class="badge" 
+        [ngClass]="getStatusClass(cellInfo.value)"
+        style="padding: 4px 8px; border-radius: 4px;">
+        {{getStatusText(cellInfo.value)}}
       </span>
     </div>
 
