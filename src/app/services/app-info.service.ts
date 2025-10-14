@@ -5,7 +5,7 @@ export class AppInfoService {
   constructor() {}
 
   public get title() {
-    return 'mProfile - Cơ sở dữ liệu học bạ số';
+    return 'mRecord - Sổ và tài liệu giảng dạy';
   }
 
   public get currentYear() {
