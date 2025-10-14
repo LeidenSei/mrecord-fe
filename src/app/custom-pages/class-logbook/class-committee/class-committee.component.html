@@ -223,17 +223,18 @@
     
     <!-- ========== TOOLBAR ========== -->
     <dxo-toolbar>
-      <!-- Custom Add Button -->
-      <dxi-item location="after">
-        <dx-button
-          icon="plus"
-          text="Thêm"
-          type="default"
-          stylingMode="contained"
-          (onClick)="openAddModal()"
-        ></dx-button>
-      </dxi-item>
-      
+  <dxi-item location="after" locateInMenu="never">
+    <div *dxTemplate="let data of 'content'">
+      <dx-button
+        icon="plus"
+        text="Thêm"
+        type="default"
+        stylingMode="contained"
+        (onClick)="openAddModal()"
+      ></dx-button>
+    </div>
+  </dxi-item>
+        
       <dxi-item name="exportButton"></dxi-item>
       
       <!-- Header title -->
