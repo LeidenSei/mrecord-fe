@@ -3,20 +3,38 @@
   <div class="month-info-header">
     <div class="month-title">
       <h3>KẾ HOẠCH THÁNG THỨ {{selectedMonth}}</h3>
-      <span class="date-range">(Từ ngày ___/___/{{selectedYear}} đến ___/___/{{selectedYear}})</span>
+      <span class="date-range">
+        (Từ ngày {{startDate}}/{{monthPadded}}/{{selectedYear}} đến {{endDate}}/{{monthPadded}}/{{selectedYear}})
+      </span>
     </div>
-    <div class="topic-focus-section">
-      <div class="input-group">
-        <label>Chủ đề:</label>
-        <input type="text" [(ngModel)]="monthlyTopic" class="topic-input" placeholder="Nhập chủ đề tháng..." />
+
+    <div class="filter-toolbar">
+      <div class="toolbar-group">
+        <label>Khối học:</label>
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="gradeSource"
+          (onItemClick)="gradeChange($event)"
+          [selectedItemKey]="gradeSource[0]"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
       </div>
-      <div class="input-group">
-        <label>Trọng tâm:</label>
-        <input type="text" [(ngModel)]="monthlyFocus" class="focus-input" placeholder="Nhập trọng tâm tháng..." />
+      
+      <div class="toolbar-group">
+        <label>Lớp học:</label>
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="filterClassSource"
+          keyExpr="id"
+          displayExpr="name"
+          (onItemClick)="classChange($event)"
+          [selectedItemKey]="filterClassId"
+          [dropDownOptions]="{ width: 'auto' }"
+        ></dx-drop-down-button>
       </div>
-    </div>
-    
-    <div class="month-year-toolbar">
+
       <div class="toolbar-group">
         <label>Tháng:</label>
         <dx-drop-down-button
@@ -30,6 +48,7 @@
           [dropDownOptions]="{ width: 'auto' }"
         ></dx-drop-down-button>
       </div>
+
       <div class="toolbar-group">
         <label>Năm:</label>
         <dx-drop-down-button
@@ -44,19 +63,41 @@
         ></dx-drop-down-button>
       </div>
     </div>
+
+    <div class="topic-focus-section">
+      <div class="input-group">
+        <label>Chủ đề:</label>
+        <input 
+          type="text" 
+          [(ngModel)]="monthlyTopic" 
+          (ngModelChange)="onTopicChange()"
+          class="topic-input" 
+          placeholder="Nhập chủ đề tháng..." 
+        />
+      </div>
+      <div class="input-group">
+        <label>Trọng tâm:</label>
+        <input 
+          type="text" 
+          [(ngModel)]="monthlyFocus" 
+          (ngModelChange)="onFocusChange()"
+          class="focus-input" 
+          placeholder="Nhập trọng tâm tháng..." 
+        />
+      </div>
+    </div>
   </div>
 
-  <!-- Angular Split thay thế dx-splitter -->
   <as-split 
     direction="horizontal" 
     class="main-splitter"
     [gutterSize]="8"
     [restrictMove]="true"
     unit="percent"
+    (dragEnd)="onSplitDragEnd($event)"
   >
     
-    <!-- Pane 1: Kế hoạch tháng -->
-    <as-split-area [size]="50" [minSize]="1" [maxSize]="99">
+    <as-split-area [size]="50" [minSize]="30" [maxSize]="70">
       <div class="section-container plan-section">
         <div class="section-header">
           <div class="header-content">
@@ -76,6 +117,7 @@
 
         <div class="grid-content">
           <dx-data-grid
+            #planGrid
             class="grid theme-dependent"
             [rowAlternationEnabled]="true"
             noDataText=""
@@ -106,18 +148,34 @@
               [allowDeleting]="true"
               [useIcons]="true"
             >
+              <dxo-texts
+                saveRowChanges="💾 Lưu"
+                cancelRowChanges="❌ Hủy"
+                confirmDeleteMessage="Bạn có chắc muốn xóa?"
+              ></dxo-texts>
               <dxo-popup
-                title="Thông tin kế hoạch tháng"
+                title="📋 Thông tin kế hoạch tháng"
                 [showTitle]="true"
-                [width]="700"
-                [height]="500"
+                [width]="750"
+                [height]="600"
+                [wrapperAttr]="{ class: 'plan-popup-wrapper' }"
               ></dxo-popup>
-              <dxo-form>
-                <dxi-item itemType="group" [colCount]="2">
-                  <dxi-item dataField="timeFrom" [isRequired]="true"></dxi-item>
-                  <dxi-item dataField="timeTo" [isRequired]="true"></dxi-item>
-                  <dxi-item dataField="content" [isRequired]="true" [colSpan]="2"></dxi-item>
-                  <dxi-item dataField="evaluation" [colSpan]="2"></dxi-item>
+              <dxo-form [labelLocation]="'top'">
+                <dxi-item itemType="group" [colCount]="2" [colSpan]="2" caption="Thời gian thực hiện">
+                  <dxi-item dataField="timeFrom" [isRequired]="true">
+                    <dxo-label text="📅 Từ ngày"></dxo-label>
+                  </dxi-item>
+                  <dxi-item dataField="timeTo" [isRequired]="true">
+                    <dxo-label text="📅 Đến ngày"></dxo-label>
+                  </dxi-item>
+                </dxi-item>
+                <dxi-item itemType="group" [colCount]="1" [colSpan]="2" caption="Nội dung chi tiết">
+                  <dxi-item dataField="content" [isRequired]="true">
+                    <dxo-label text="📝 Nội dung kế hoạch"></dxo-label>
+                  </dxi-item>
+                  <dxi-item dataField="evaluation">
+                    <dxo-label text="⭐ Đánh giá kết quả"></dxo-label>
+                  </dxi-item>
                 </dxi-item>
               </dxo-form>
             </dxo-editing>
@@ -150,25 +208,57 @@
               [width]="100" 
               caption="Từ"
               alignment="center"
-            ></dxi-column>
+              dataType="date"
+              format="dd/MM/yyyy"
+              editorType="dxDateBox"
+            >
+              <dxo-form-item [editorOptions]="{ 
+                displayFormat: 'dd/MM/yyyy',
+                type: 'date',
+                showClearButton: true,
+                useMaskBehavior: true
+              }"></dxo-form-item>
+            </dxi-column>
             
             <dxi-column 
               dataField="timeTo" 
               [width]="100" 
               caption="Đến"
               alignment="center"
-            ></dxi-column>
+              dataType="date"
+              format="dd/MM/yyyy"
+              editorType="dxDateBox"
+            >
+              <dxo-form-item [editorOptions]="{ 
+                displayFormat: 'dd/MM/yyyy',
+                type: 'date',
+                showClearButton: true,
+                useMaskBehavior: true
+              }"></dxo-form-item>
+            </dxi-column>
             
             <dxi-column 
               dataField="content" 
               caption="Nội dung"
-            ></dxi-column>
+              editorType="dxTextArea"
+            >
+              <dxo-form-item [editorOptions]="{ 
+                height: 120,
+                maxLength: 500
+              }"></dxo-form-item>
+            </dxi-column>
             
             <dxi-column 
               dataField="evaluation" 
               [width]="150" 
               caption="Đánh giá kết quả"
-            ></dxi-column>
+              editorType="dxTextArea"
+            >
+              <dxo-form-item [editorOptions]="{ 
+                height: 100,
+                maxLength: 300
+              }"></dxo-form-item>
+            </dxi-column>
 
             <dxi-column type="buttons" [width]="100" fixedPosition="right">
               <dxi-button name="edit"></dxi-button>
@@ -180,8 +270,7 @@
       </div>
     </as-split-area>
 
-    <!-- Pane 2: Nhật ký chủ nhiệm -->
-    <as-split-area [size]="50" [minSize]="1" [maxSize]="99">
+    <as-split-area [size]="50" [minSize]="30" [maxSize]="70">
       <div class="section-container journal-section">
         <div class="section-header">
           <div class="header-content">
@@ -201,6 +290,7 @@
 
         <div class="grid-content">
           <dx-data-grid
+            #journalGrid
             class="grid theme-dependent"
             [rowAlternationEnabled]="true"
             noDataText=""
@@ -231,20 +321,30 @@
               [allowDeleting]="true"
               [useIcons]="true"
             >
+              <dxo-texts
+              saveRowChanges="💾 Lưu"
+              cancelRowChanges="❌ Hủy"
+              confirmDeleteMessage="Bạn có chắc muốn xóa?"
+            ></dxo-texts>
               <dxo-popup
-                title="Nhật ký chủ nhiệm"
+                title="📖 Nhật ký chủ nhiệm"
                 [showTitle]="true"
-                [width]="600"
-                [height]="400"
+                [width]="700"
+                [height]="500"
+                [wrapperAttr]="{ class: 'journal-popup-wrapper' }"
               ></dxo-popup>
-              <dxo-form>
-                <dxi-item itemType="group" [colCount]="1">
-                  <dxi-item dataField="date" [isRequired]="true"></dxi-item>
-                  <dxi-item dataField="content" [isRequired]="true"></dxi-item>
+              <dxo-form [labelLocation]="'top'">
+                <dxi-item itemType="group" [colCount]="1" [colSpan]="2">
+                  <dxi-item dataField="date" [isRequired]="true">
+                    <dxo-label text="📅 Ngày ghi chép"></dxo-label>
+                  </dxi-item>
+                  <dxi-item dataField="content" [isRequired]="true">
+                    <dxo-label text="✍️ Nội dung nhật ký"></dxo-label>
+                  </dxi-item>
                 </dxi-item>
               </dxo-form>
             </dxo-editing>
-            
+                        
             <dxo-export
               [enabled]="true"
               [texts]="exportTexts"
@@ -273,13 +373,27 @@
               dataType="date"
               [width]="120" 
               caption="Thời gian"
-              format="dd/MM"
-            ></dxi-column>
+              format="dd/MM/yyyy"
+              editorType="dxDateBox"
+            >
+              <dxo-form-item [editorOptions]="{ 
+                displayFormat: 'dd/MM/yyyy',
+                type: 'date',
+                showClearButton: true,
+                useMaskBehavior: true
+              }"></dxo-form-item>
+            </dxi-column>
             
             <dxi-column 
               dataField="content" 
               caption="Nội dung nhật kí của người thầy"
-            ></dxi-column>
+              editorType="dxTextArea"
+            >
+              <dxo-form-item [editorOptions]="{ 
+                height: 150,
+                maxLength: 500
+              }"></dxo-form-item>
+            </dxi-column>
 
             <dxi-column type="buttons" [width]="100" fixedPosition="right">
               <dxi-button name="edit"></dxi-button>

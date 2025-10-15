@@ -176,10 +176,46 @@
 
       .card-header-left {
         flex: 1;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+
+        .btn-toggle {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          color: white;
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+          flex-shrink: 0;
+
+          i {
+            font-size: 20px;
+          }
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(1.05);
+          }
+
+          &:active {
+            transform: scale(0.95);
+          }
+        }
+
+        .title-wrapper {
+          flex: 1;
+        }
 
         .plan-title {
           display: flex;
           align-items: center;
+          flex-wrap: wrap;
           gap: 12px;
           margin: 0 0 12px 0;
           font-size: 18px;
@@ -276,6 +312,18 @@
     // Card Content
     .card-content {
       padding: 24px;
+      animation: slideDown 0.3s ease-out;
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
       // Section
       .section {

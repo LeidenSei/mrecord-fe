@@ -11,7 +11,6 @@
   --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
   --border-radius: 12px;
   --section-gap: 16px;
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   width: 100%;
   display: contents;
@@ -32,6 +31,7 @@
     gap: var(--section-gap);
   }
 }
+
 .month-info-header {
   background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
   border: 1px solid #e9ecef;
@@ -39,7 +39,6 @@
   padding: 5px;
   box-shadow: var(--shadow-medium);
   flex-shrink: 0;
-  animation: fadeInDown 0.6s ease-out;
 
   .month-title {
     text-align: center;
@@ -82,7 +81,6 @@
         border: 2px solid #e9ecef;
         border-radius: 8px;
         font-size: 14px;
-        transition: var(--transition-smooth);
 
         &:focus {
           outline: none;
@@ -97,7 +95,7 @@
     }
   }
 
-  .month-year-toolbar {
+  .filter-toolbar {
     display: flex;
     justify-content: center;
     gap: 30px;
@@ -118,7 +116,6 @@
   }
 }
 
-// Angular Split Splitter
 .main-splitter {
   flex: 1;
   min-height: 0;
@@ -127,7 +124,6 @@
   box-shadow: var(--shadow-medium);
 
   ::ng-deep {
-    // Container của angular-split
     as-split {
       height: 100%;
       display: flex;
@@ -135,7 +131,6 @@
       background: transparent;
     }
 
-    // Mỗi area (panel)
     as-split-area {
       overflow: hidden;
       display: flex !important;
@@ -152,18 +147,16 @@
       }
     }
 
-    // Gutter (thanh resize)
     .as-split-gutter {
       background: linear-gradient(90deg, #e9ecef, #dee2e6, #e9ecef);
       position: relative;
       cursor: col-resize;
-      transition: var(--transition-smooth);
+      z-index: 10;
 
       &:hover {
         background: linear-gradient(90deg, var(--primary-blue), #42a5f5, var(--primary-blue));
       }
 
-      // Icon chấm chấm ở giữa gutter
       &::before {
         content: '';
         position: absolute;
@@ -182,7 +175,6 @@
         border-radius: 2px;
       }
 
-      // Active state khi đang drag
       &.as-dragged {
         background: linear-gradient(90deg, #1565c0, var(--primary-blue), #1565c0);
         
@@ -198,23 +190,19 @@
       }
     }
 
-    // Gutter icon (nếu dùng)
     .as-split-gutter-icon {
       background: none;
     }
   }
 }
 
-// Section containers
 .section-container {
-  background: white;
   height: 100%;
+  width: 100%;
   min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: var(--transition-smooth);
-  animation: fadeInUp 0.6s ease-out;
 }
 
 .plan-section {
@@ -227,7 +215,6 @@
 
   .section-icon {
     background: linear-gradient(45deg, var(--primary-blue), #42a5f5);
-    color: white;
   }
 }
 
@@ -241,7 +228,6 @@
 
   .section-icon {
     background: linear-gradient(45deg, var(--primary-pink), #e91e63);
-    color: white;
   }
 }
 
@@ -280,11 +266,6 @@
     justify-content: center;
     font-size: 20px;
     box-shadow: var(--shadow-light);
-    transition: var(--transition-smooth);
-
-    &:hover {
-      transform: scale(1.05);
-    }
 
     i {
       font-size: 20px;
@@ -330,7 +311,6 @@
   }
 }
 
-// Grid Content
 .grid-content {
   padding: 16px;
   flex: 1;
@@ -338,11 +318,14 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
 
   .grid {
     height: 100%;
+    width: 100%;
     flex: 1;
     min-height: 0;
+    position: relative;
     
     ::ng-deep {
       .dx-datagrid {
@@ -350,9 +333,22 @@
         border-radius: 8px;
         overflow: hidden;
         height: 100% !important;
+        width: 100% !important;
       }
 
       .dx-datagrid-rowsview {
+        height: 100% !important;
+      }
+      
+      .dx-datagrid-content {
+        height: 100% !important;
+      }
+      
+      .dx-scrollable {
+        height: 100% !important;
+      }
+      
+      .dx-scrollable-content {
         height: 100% !important;
       }
 
@@ -369,7 +365,6 @@
 
       .dx-datagrid-content .dx-row {
         cursor: pointer;
-        transition: var(--transition-smooth);
 
         &:hover {
           background-color: rgba(25, 118, 210, 0.05);
@@ -387,7 +382,6 @@
 
       .dx-button {
         border-radius: 6px;
-        transition: var(--transition-smooth);
 
         &.dx-button-mode-contained {
           &.dx-button-default {
@@ -396,7 +390,6 @@
 
             &:hover {
               background: #1565c0;
-              transform: translateY(-1px);
             }
           }
         }
@@ -414,6 +407,229 @@
           }
         }
       }
+    }
+  }
+}
+
+::ng-deep {
+  .dx-overlay-wrapper.dx-popup-wrapper {
+    .dx-overlay-content {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .dx-popup-normal {
+    border: none;
+    
+    .dx-popup-title {
+      padding: 20px 24px;
+      font-size: 18px;
+      font-weight: 600;
+      border-bottom: none;
+      
+      .dx-closebutton {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .dx-icon {
+          font-size: 16px;
+        }
+      }
+    }
+    
+    .dx-form {
+      .dx-field-item {
+        padding: 16px 0;
+        
+        .dx-field-item-label {
+          padding: 0 0 10px 0;
+          
+          .dx-field-item-label-text {
+            color: #212529;
+            font-weight: 600;
+            font-size: 15px;
+            
+            &::after {
+              color: #e74c3c;
+              margin-left: 4px;
+            }
+          }
+        }
+        
+        .dx-field-item-content {
+          .dx-texteditor, .dx-textbox, .dx-textarea, .dx-datebox {
+            border-radius: 8px;
+            
+            &.dx-state-focused {
+              border-color: var(--primary-blue);
+              box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+            }
+            
+            &:hover:not(.dx-state-focused) {
+              border-color: #adb5bd;
+            }
+            
+            input, textarea {
+              font-size: 14px;
+              padding: 12px 14px;
+              color: #212529;
+            }
+            
+            .dx-texteditor-input {
+              padding: 12px 14px;
+            }
+          }
+          
+          .dx-textarea {
+            textarea {
+              resize: vertical;
+              min-height: 100px;
+              line-height: 1.6;
+            }
+          }
+          
+          .dx-datebox {
+            .dx-dropdowneditor-icon {
+              color: var(--primary-blue);
+              font-size: 18px;
+            }
+            
+            .dx-texteditor-buttons-container {
+              .dx-button {
+                &:hover {
+                  background: rgba(25, 118, 210, 0.08);
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      .dx-field-item-required-mark {
+        color: #e74c3c;
+        font-size: 16px;
+      }
+      
+      .dx-field-item-help-text {
+        color: #6c757d;
+        font-size: 13px;
+        margin-top: 6px;
+      }
+    }
+    
+    .dx-popup-bottom {
+      padding: 18px 32px;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      
+      .dx-button {
+        border-radius: 8px;
+        font-weight: 600;
+        min-width: 110px;
+        font-size: 14px;
+        
+        &.dx-button-mode-contained {
+          &.dx-button-default {
+            border: none;
+            
+            &:hover {
+              background: linear-gradient(135deg, #1565c0, #1976d2);
+              box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+            }
+          }
+        }
+        
+        &.dx-button-mode-outlined {
+          border: 2px solid #dee2e6;
+          color: #495057;
+          
+          &:hover {
+            border-color: #adb5bd;
+            background: #f8f9fa;
+          }
+        }
+      }
+    }
+  }
+  
+  .journal-popup {
+    .dx-popup-normal {
+      .dx-popup-title {
+        background: linear-gradient(135deg, var(--primary-pink), #e91e63);
+      }
+      
+      .dx-texteditor, .dx-textbox, .dx-textarea, .dx-datebox {
+        &.dx-state-focused {
+          border-color: var(--primary-pink);
+          box-shadow: 0 0 0 4px rgba(194, 24, 91, 0.1);
+        }
+      }
+      
+      .dx-datebox {
+        .dx-dropdowneditor-icon {
+          color: var(--primary-pink);
+        }
+      }
+      
+      .dx-button-mode-contained.dx-button-default {
+        background: linear-gradient(135deg, var(--primary-pink), #e91e63);
+        
+        &:hover {
+          background: linear-gradient(135deg, #ad1457, #c2185b);
+          box-shadow: 0 4px 12px rgba(194, 24, 91, 0.3);
+        }
+      }
+    }
+  }
+  
+  .dx-calendar {
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    
+    .dx-calendar-cell.dx-calendar-selected-date {
+      background-color: var(--primary-blue);
+      font-weight: 600;
+      
+      &:hover {
+        background-color: #1565c0;
+      }
+    }
+    
+    .dx-calendar-cell.dx-calendar-today {
+      font-weight: 700;
+      color: var(--primary-blue);
+    }
+    
+    .dx-calendar-cell:not(.dx-calendar-selected-date):hover {
+      background-color: rgba(25, 118, 210, 0.1);
+    }
+  }
+  
+  .journal-popup .dx-calendar {
+    .dx-calendar-cell.dx-calendar-selected-date {
+      background-color: var(--primary-pink);
+      
+      &:hover {
+        background-color: #ad1457;
+      }
+    }
+    
+    .dx-calendar-cell.dx-calendar-today {
+      color: var(--primary-pink);
+    }
+    
+    .dx-calendar-cell:not(.dx-calendar-selected-date):hover {
+      background-color: rgba(194, 24, 91, 0.1);
     }
   }
 }
@@ -437,5 +653,16 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }

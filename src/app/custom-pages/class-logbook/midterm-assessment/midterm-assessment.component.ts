@@ -124,6 +124,7 @@ export class MidtermAssessmentComponent implements OnInit {
         },
         {
           headerName: 'Điểm KTĐK',
+           width: 270, 
           headerClass: 'header-group-main',
           children: [
             {
@@ -154,7 +155,13 @@ export class MidtermAssessmentComponent implements OnInit {
       },
       suppressMovableColumns: true,
       enableRangeSelection: true,
-      animateRows: true
+      animateRows: true,
+      onGridReady: (params) => {
+        params.api.sizeColumnsToFit();
+      },
+      onGridSizeChanged: (params) => {
+        params.api.sizeColumnsToFit();
+      }
     };
   }
 
@@ -215,7 +222,13 @@ export class MidtermAssessmentComponent implements OnInit {
       },
       suppressMovableColumns: true,
       enableRangeSelection: true,
-      animateRows: true
+      animateRows: true,
+      onGridReady: (params) => {
+        params.api.sizeColumnsToFit();
+      },
+      onGridSizeChanged: (params) => {
+        params.api.sizeColumnsToFit();
+      }
     };
   }
 
@@ -268,7 +281,14 @@ export class MidtermAssessmentComponent implements OnInit {
       },
       suppressMovableColumns: true,
       enableRangeSelection: true,
-      animateRows: true
+      animateRows: true,
+
+      onGridReady: (params) => {
+        params.api.sizeColumnsToFit();
+      },
+      onGridSizeChanged: (params) => {
+        params.api.sizeColumnsToFit();
+      }
     };
   }
 

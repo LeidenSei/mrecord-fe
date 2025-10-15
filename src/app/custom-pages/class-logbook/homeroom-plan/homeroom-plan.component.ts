@@ -1,72 +1,49 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import notify from 'devextreme/ui/notify';
-
-interface HomeroomPlan {
-  id?: number;
-  stt: number;
-  schoolYear: string;
-  semester: string;
-  className: string;
-  teacherName: string;
-  planDate: Date;
-  
-  advantages: string;
-  difficulties: string;
-  
-  tradition_objectives: string;
-  tradition_content: string;
-  tradition_solutions: string;
-  tradition_expected_results: string;
-  
-  academic_objectives: string;
-  academic_content: string;
-  academic_solutions: string;
-  academic_expected_results: string;
-  
-  extracurricular_objectives: string;
-  extracurricular_content: string;
-  extracurricular_solutions: string;
-  extracurricular_expected_results: string;
-  
-  status: string;
-  approvedBy?: string;
-  notes?: string;
-}
+import { ClassService } from 'src/app/services/class.service';
+import { GeneralService } from 'src/app/services/general.service';
+import { AuthService } from 'src/app/services';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { KeHoachChuNhiem, KeHoachChuNhiemService } from 'src/app/services/homeroom-plan.service';
 
 @Component({
   selector: 'app-homeroom-plan',
   templateUrl: './homeroom-plan.component.html',
   styleUrls: ['./homeroom-plan.component.scss']
 })
-export class HomeroomPlanComponent implements OnInit {
-  datas: HomeroomPlan[] = [];
-  filteredDatas: HomeroomPlan[] = [];
+export class HomeroomPlanComponent implements OnInit, OnDestroy {
+  datas: KeHoachChuNhiem[] = [];
+  filteredDatas: KeHoachChuNhiem[] = [];
   plansCount = 0;
-  
-  // Popup
+  currentStep = 1;
   popupVisible = false;
   isEditMode = false;
-  currentPlan: HomeroomPlan = this.getEmptyPlan();
+  currentPlan: KeHoachChuNhiem = this.getEmptyPlan();
   
-  // Filters
-  schoolYearSource = ['Tất cả', '2024-2025', '2023-2024', '2022-2023'];
-  selectedSchoolYear = 'Tất cả';
+  // Track trạng thái đóng/mở của từng card - MẶC ĐỊNH TẤT CẢ ĐÓNG
+  collapsedCards: { [key: string]: boolean } = {};
+  
+  tempFormData: any = {};
+  
+  schoolYearSource: number[] = [];
+  selectedSchoolYear = 0;
   
   semesterSource = [
-    { value: '', name: 'Tất cả' },
-    { value: '1', name: 'Học kỳ I' },
-    { value: '2', name: 'Học kỳ II' }
+    { value: 0, name: 'Tất cả' },
+    { value: 1, name: 'Học kỳ I' },
+    { value: 2, name: 'Học kỳ II' }
   ];
-  selectedSemester = '';
+  selectedSemester = 0;
   
-  filterClassSource: any[] = [];
+  gradeSource = [];
+  classSource = [];
+  filterClassSource = [];
   filterClassId: any = null;
   
   filterStatusSource: any[] = [];
   selectedStatus = '';
   
-  // Lookup data
-  classSource: any[] = [];
   statusSource = [
     { value: 'draft', name: 'Bản nháp' },
     { value: 'submitted', name: 'Đã nộp' },
@@ -74,219 +51,394 @@ export class HomeroomPlanComponent implements OnInit {
     { value: 'rejected', name: 'Cần sửa' }
   ];
 
-  constructor() { }
+  currentSchoolId: string = '';
+  currentSchoolYear: number = new Date().getFullYear();
+  currentUser: any;
+  isLoading = false;
+  
+  private destroy$ = new Subject<void>();
 
-  ngOnInit(): void {
-    this.loadClassData();
-    this.loadPlanData();
-    this.setupFilters();
+  constructor(
+    private keHoachService: KeHoachChuNhiemService,
+    private classService: ClassService,
+    private generalService: GeneralService,
+    private authService: AuthService
+  ) { }
+
+  async ngOnInit() {
+    await this.initializeData();
   }
 
-  setupFilters(): void {
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private async initializeData() {
+    try {
+      const user = await this.authService.getUser();
+      this.currentUser = user.data;
+      this.currentSchoolId = user.data.schoolId;
+      this.currentSchoolYear = user.data.schoolYear || new Date().getFullYear();
+      this.selectedSchoolYear = this.currentSchoolYear;
+
+      this.setupSchoolYears();
+      
+      forkJoin([
+        this.generalService.getListGradeOfSchool(user.data.schoolId),
+        this.generalService.getListClassByTeacher(user.data.schoolId, user.data.personId),
+        this.generalService.getListClassBySchool(user.data.schoolId),
+      ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ([gradeSource, classSource, schoolClassSource]) => {
+          this.setupFilters(gradeSource, classSource, schoolClassSource);
+          this.loadPlanData();
+        },
+        error: (error) => {
+          console.error('Error loading initial data:', error);
+          notify('Có lỗi khi tải dữ liệu ban đầu', 'error', 3000);
+        }
+      });
+    } catch (error) {
+      console.error('Error in initialization:', error);
+      notify('Có lỗi khi khởi tạo', 'error', 3000);
+    }
+  }
+
+  private setupSchoolYears() {
+    const currentYear = new Date().getFullYear();
+    this.schoolYearSource = [
+      currentYear + 1,
+      currentYear,
+      currentYear - 1,
+      currentYear - 2
+    ];
+  }
+
+  private setupFilters(gradeSource: any[], classSource: any[], schoolClassSource: any[]) {
+    this.classSource = (this.currentUser.role === 2 || this.currentUser.isBGH) 
+      ? schoolClassSource 
+      : classSource;
+    
+    const filterGradeIds = classSource.map(en => en.grade);
+
+    if (this.currentUser.role === 2 || this.currentUser.isBGH) {
+      this.gradeSource = [...gradeSource];
+    } else {
+      this.gradeSource = gradeSource.filter(en => filterGradeIds.includes(en));
+    }
+    
+    this.gradeSource.unshift('Tất cả');
+    this.filterClassSource = [...this.classSource];
+    
+    if (this.filterClassSource.length > 0) {
+      this.filterClassId = this.filterClassSource[0].id;
+    }
+
     this.filterStatusSource = [
       { value: '', name: 'Tất cả' },
       ...this.statusSource
     ];
   }
 
-  loadClassData(): void {
-    this.filterClassSource = [
-      { id: null, name: 'Tất cả lớp' },
-      { id: 1, name: '6A1' },
-      { id: 2, name: '6A2' },
-      { id: 3, name: '7A1' },
-      { id: 4, name: '7A2' }
-    ];
-    
-    this.classSource = [
-      { name: '6A1' },
-      { name: '6A2' },
-      { name: '7A1' },
-      { name: '7A2' }
-    ];
-    
-    this.filterClassId = null;
+  loadPlanData(): void {
+    if (!this.currentSchoolId) {
+      notify('Không tìm thấy thông tin trường', 'warning', 2000);
+      return;
+    }
+
+    const schoolYear = this.selectedSchoolYear || this.currentSchoolYear;
+    this.isLoading = true;
+
+    this.keHoachService.getListBySchool(
+      this.currentSchoolId,
+      schoolYear,
+      1,
+      1000,
+      this.filterClassId ? this.filterClassSource.find(c => c.id === this.filterClassId)?.name : undefined,
+      this.selectedSemester > 0 ? this.selectedSemester : undefined,
+      undefined,
+      this.selectedStatus || undefined
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (result) => {
+        this.datas = result.items.map(item => this.mapFromApi(item));
+        // MẶC ĐỊNH TẤT CẢ CARD ĐÓNG
+        this.datas.forEach(plan => {
+          if (plan.id) {
+            this.collapsedCards[plan.id] = true;
+          }
+        });
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading plans:', error);
+        notify('Có lỗi khi tải danh sách kế hoạch', 'error', 2000);
+        this.isLoading = false;
+      }
+    });
   }
 
-  loadPlanData(): void {
-    this.datas = [
-      {
-        id: 1,
-        stt: 1,
-        schoolYear: '2024-2025',
-        semester: '1',
-        className: '6A1',
-        teacherName: 'Cô Nguyễn Thị Lan',
-        planDate: new Date('2024-08-15'),
-        
-        advantages: 'Học sinh có ý thức học tập tốt, tham gia tích cực các hoạt động lớp. Phụ huynh quan tâm, hỗ trợ công tác giáo dục. Cơ sở vật chất lớp học đầy đủ.',
-        difficulties: 'Một số học sinh còn chưa có ý thức tự giác trong học tập. Tình hình gia đình một số em còn khó khăn ảnh hưởng đến việc học.',
-        
-        tradition_objectives: 'Giáo dục học sinh có lòng yêu nước, tôn trọng truyền thống dân tộc, có đạo đức tốt, lối sống lành mạnh.',
-        tradition_content: 'Giáo dục truyền thống văn hóa dân tộc, lịch sử anh hùng, đạo đức "Tôn sư trọng đạo", lối sống "Uống nước nhớ nguồn".',
-        tradition_solutions: 'Tổ chức các buổi sinh hoạt lớp về truyền thống, mời cựu học sinh về chia sẻ, tham quan bảo tàng lịch sử.',
-        tradition_expected_results: 'Học sinh hiểu và tự hào về truyền thống dân tộc, có hành vi ứng xử văn minh, lịch sự.',
-        
-        academic_objectives: 'Nâng cao chất lượng học tập, đạt tỷ lệ học sinh khá giỏi trên 80%, không có học sinh yếu kém.',
-        academic_content: 'Hướng dẫn phương pháp học tập hiệu quả, tổ chức học nhóm, ôn thi cuối kỳ.',
-        academic_solutions: 'Thành lập tổ học tập, học sinh giỏi hỗ trợ học sinh yếu, tăng cường liên hệ với giáo viên bộ môn.',
-        academic_expected_results: 'Tỷ lệ học sinh khá giỏi đạt 85%, không có học sinh xếp loại yếu kém.',
-        
-        extracurricular_objectives: 'Phát triển toàn diện nhân cách học sinh qua các hoạt động ngoại khóa phong phú.',
-        extracurricular_content: 'Tổ chức các câu lạc bộ thể thao, văn nghệ, tham gia các cuộc thi học sinh giỏi.',
-        extracurricular_solutions: 'Phối hợp với đoàn thanh niên, ban phụ huynh tổ chức các hoạt động ngoại khóa hấp dẫn.',
-        extracurricular_expected_results: 'Học sinh tích cực tham gia hoạt động, phát triển tài năng cá nhân, có tinh thần đoàn kết.',
-        
-        status: 'approved',
-        approvedBy: 'Hiệu trưởng Nguyễn Văn Hùng',
-        notes: 'Kế hoạch phù hợp với thực tế lớp học'
-      },
-      {
-        id: 2,
-        stt: 2,
-        schoolYear: '2024-2025',
-        semester: '2',
-        className: '6A1',
-        teacherName: 'Cô Nguyễn Thị Lan',
-        planDate: new Date('2024-12-20'),
-        
-        advantages: 'Học sinh đã quen với môi trường học tập, có tiến bộ rõ rệt về ý thức kỷ luật.',
-        difficulties: 'Học kỳ 2 có nhiều hoạt động nên học sinh dễ phân tán. Thời tiết nóng ảnh hưởng đến sức khỏe.',
-        
-        tradition_objectives: 'Củng cố và phát triển các giá trị đạo đức đã hình thành ở học kỳ 1.',
-        tradition_content: 'Giáo dục lòng biết ơn, tinh thần trách nhiệm với gia đình và xã hội.',
-        tradition_solutions: 'Tổ chức ngày "Tri ân thầy cô", hoạt động từ thiện, thăm các gia đình có hoàn cảnh khó khăn.',
-        tradition_expected_results: 'Học sinh có lòng biết ơn, tinh thần trách nhiệm cao hơn.',
-        
-        academic_objectives: 'Duy trì và nâng cao chất lượng học tập, chuẩn bị tốt cho kỳ thi cuối năm.',
-        academic_content: 'Ôn tập hệ thống kiến thức, rèn luyện kỹ năng làm bài thi.',
-        academic_solutions: 'Tăng cường ôn tập, tổ chức thi thử, phân loại học sinh để có phương pháp hỗ trợ phù hợp.',
-        academic_expected_results: 'Kết quả thi cuối năm đạt 90% học sinh khá giỏi.',
-        
-        extracurricular_objectives: 'Tạo sân chơi lành mạnh cho học sinh trong thời gian nghỉ hè.',
-        extracurricular_content: 'Tổ chức hoạt động hè, tham gia các cuộc thi sáng tạo khoa học kỹ thuật.',
-        extracurricular_solutions: 'Phối hợp với gia đình lập kế hoạch hoạt động hè bổ ích.',
-        extracurricular_expected_results: 'Học sinh có kỳ nghỉ hè bổ ích, an toàn.',
-        
-        status: 'submitted',
-        approvedBy: '',
-        notes: 'Chờ duyệt từ ban giám hiệu'
-      }
-    ];
-    
-    this.plansCount = this.datas.length;
-    this.applyFilters();
+  private mapFromApi(apiData: any): KeHoachChuNhiem {
+    return {
+      id: apiData.id,
+      schoolId: apiData.schoolId,
+      classId: apiData.classId,
+      className: apiData.className,
+      grade: apiData.grade,
+      homeRoomTeacherId: apiData.homeRoomTeacherId,
+      homeRoomTeacherName: apiData.homeRoomTeacherName,
+      schoolYear: apiData.schoolYear,
+      semester: apiData.semester,
+      planDate: apiData.planDate ? new Date(apiData.planDate) : new Date(),
+      dateCreated: apiData.dateCreated ? new Date(apiData.dateCreated) : undefined,
+      dateModified: apiData.dateModified ? new Date(apiData.dateModified) : undefined,
+      advantages: apiData.advantages || '',
+      difficulties: apiData.difficulties || '',
+      traditionEducation: apiData.traditionEducation || { objectives: '', content: '', solutions: '', expectedResults: '' },
+      academicEducation: apiData.academicEducation || { objectives: '', content: '', solutions: '', expectedResults: '' },
+      extracurricularEducation: apiData.extracurricularEducation || { objectives: '', content: '', solutions: '', expectedResults: '' },
+      status: apiData.status || 'draft',
+      notes: apiData.notes || '',
+      isActive: apiData.isActive !== false
+    };
+  }
+
+  private mapToApi(planData: KeHoachChuNhiem): any {
+    return {
+      id: planData.id,
+      classId: planData.classId,
+      schoolYear: planData.schoolYear,
+      semester: planData.semester,
+      planDate: planData.planDate,
+      advantages: planData.advantages,
+      difficulties: planData.difficulties,
+      traditionEducation: planData.traditionEducation,
+      academicEducation: planData.academicEducation,
+      extracurricularEducation: planData.extracurricularEducation,
+      status: planData.status,
+      notes: planData.notes
+    };
   }
 
   onFilterChange(): void {
-    this.applyFilters();
+    this.loadPlanData();
   }
 
   applyFilters(): void {
-    this.filteredDatas = this.datas.filter(plan => {
-      const yearMatch = this.selectedSchoolYear === 'Tất cả' || plan.schoolYear === this.selectedSchoolYear;
-      const semesterMatch = !this.selectedSemester || plan.semester === this.selectedSemester;
-      const classMatch = !this.filterClassId || plan.className === this.filterClassSource.find(c => c.id === this.filterClassId)?.name;
-      const statusMatch = !this.selectedStatus || plan.status === this.selectedStatus;
-      
-      return yearMatch && semesterMatch && classMatch && statusMatch;
-    });
-    
+    this.filteredDatas = [...this.datas];
     this.plansCount = this.filteredDatas.length;
   }
 
   clearFilters(): void {
-    this.selectedSchoolYear = 'Tất cả';
-    this.selectedSemester = '';
+    this.selectedSchoolYear = this.currentSchoolYear;
+    this.selectedSemester = 0;
     this.filterClassId = null;
     this.selectedStatus = '';
-    this.applyFilters();
+    this.loadPlanData();
+  }
+
+  gradeChange($event: any) {
+    if (!Number.isNaN($event.itemData)) {
+      this.filterClassSource = this.classSource.filter(en => en.grade === +$event.itemData);
+    } else {
+      this.filterClassSource = [...this.classSource];
+    }
+    
+    if (this.filterClassSource.length > 0) {
+      this.filterClassId = this.filterClassSource[0].id;
+    } else {
+      this.filterClassId = null;
+      notify('Không có lớp nào trong khối này', 'info', 2000);
+    }
+    this.loadPlanData();
   }
 
   addNewPlan(): void {
     this.isEditMode = false;
     this.currentPlan = this.getEmptyPlan();
+    this.flattenPlanToTemp();
+    this.currentStep = 1;
     this.popupVisible = true;
   }
 
-  editPlan(plan: HomeroomPlan): void {
+  editPlan(plan: KeHoachChuNhiem): void {
     this.isEditMode = true;
-    this.currentPlan = { ...plan };
+    this.currentPlan = JSON.parse(JSON.stringify(plan));
+    this.flattenPlanToTemp();
+    this.currentStep = 1;
     this.popupVisible = true;
   }
 
-  deletePlan(plan: HomeroomPlan): void {
-    const confirmed = confirm(`Bạn có chắc chắn muốn xóa kế hoạch ${plan.className} - ${plan.schoolYear}?`);
+  flattenPlanToTemp(): void {
+    this.tempFormData = {
+      schoolYear: this.currentPlan.schoolYear,
+      semester: this.currentPlan.semester,
+      classId: this.currentPlan.classId,
+      advantages: this.currentPlan.advantages || '',
+      difficulties: this.currentPlan.difficulties || '',
+      trad_obj: this.currentPlan.traditionEducation?.objectives || '',
+      trad_con: this.currentPlan.traditionEducation?.content || '',
+      trad_sol: this.currentPlan.traditionEducation?.solutions || '',
+      trad_res: this.currentPlan.traditionEducation?.expectedResults || '',
+      acad_obj: this.currentPlan.academicEducation?.objectives || '',
+      acad_con: this.currentPlan.academicEducation?.content || '',
+      acad_sol: this.currentPlan.academicEducation?.solutions || '',
+      acad_res: this.currentPlan.academicEducation?.expectedResults || '',
+      extra_obj: this.currentPlan.extracurricularEducation?.objectives || '',
+      extra_con: this.currentPlan.extracurricularEducation?.content || '',
+      extra_sol: this.currentPlan.extracurricularEducation?.solutions || '',
+      extra_res: this.currentPlan.extracurricularEducation?.expectedResults || '',
+      status: this.currentPlan.status || 'draft',
+      notes: this.currentPlan.notes || ''
+    };
+  }
+
+  unflattenTempToPlan(): void {
+    this.currentPlan.schoolYear = this.tempFormData.schoolYear;
+    this.currentPlan.semester = this.tempFormData.semester;
+    this.currentPlan.classId = this.tempFormData.classId;
+    this.currentPlan.advantages = this.tempFormData.advantages;
+    this.currentPlan.difficulties = this.tempFormData.difficulties;
+    
+    this.currentPlan.traditionEducation = {
+      objectives: this.tempFormData.trad_obj,
+      content: this.tempFormData.trad_con,
+      solutions: this.tempFormData.trad_sol,
+      expectedResults: this.tempFormData.trad_res
+    };
+    
+    this.currentPlan.academicEducation = {
+      objectives: this.tempFormData.acad_obj,
+      content: this.tempFormData.acad_con,
+      solutions: this.tempFormData.acad_sol,
+      expectedResults: this.tempFormData.acad_res
+    };
+    
+    this.currentPlan.extracurricularEducation = {
+      objectives: this.tempFormData.extra_obj,
+      content: this.tempFormData.extra_con,
+      solutions: this.tempFormData.extra_sol,
+      expectedResults: this.tempFormData.extra_res
+    };
+    
+    this.currentPlan.status = this.tempFormData.status;
+    this.currentPlan.notes = this.tempFormData.notes;
+  }
+
+  deletePlan(plan: KeHoachChuNhiem): void {
+    const confirmed = confirm(`Bạn có chắc chắn muốn xóa kế hoạch ${plan.className} - Học kỳ ${plan.semester}?`);
     if (confirmed) {
-      this.datas = this.datas.filter(p => p.id !== plan.id);
-      this.applyFilters();
-      notify('Đã xóa kế hoạch thành công', 'success', 2000);
+      this.keHoachService.delete(plan.id!, { id: plan.id! })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            notify('Đã xóa kế hoạch thành công', 'success', 2000);
+            this.loadPlanData();
+          },
+          error: (error) => {
+            console.error('Error deleting plan:', error);
+            notify('Có lỗi khi xóa kế hoạch', 'error', 2000);
+          }
+        });
     }
   }
 
   savePlan(): void {
-    if (this.isEditMode) {
-      const index = this.datas.findIndex(p => p.id === this.currentPlan.id);
-      if (index !== -1) {
-        this.datas[index] = { ...this.currentPlan };
-      }
-      notify('Đã cập nhật kế hoạch thành công', 'success', 2000);
-    } else {
-      this.currentPlan.id = Math.max(...this.datas.map(p => p.id || 0)) + 1;
-      this.currentPlan.stt = this.datas.length + 1;
-      this.currentPlan.status = this.currentPlan.status || 'draft';
-      this.currentPlan.planDate = this.currentPlan.planDate || new Date();
-      this.datas.push({ ...this.currentPlan });
-      notify('Đã thêm kế hoạch thành công', 'success', 2000);
-    }
+    this.unflattenTempToPlan();
     
-    this.applyFilters();
-    this.closePopup();
+    if (!this.currentPlan.classId) {
+      notify('Vui lòng chọn lớp', 'warning', 2000);
+      return;
+    }
+
+    if (this.currentPlan.semester === 1) {
+      if (!this.currentPlan.advantages || !this.currentPlan.advantages.trim()) {
+        notify('Học kỳ 1 phải có mục Thuận lợi', 'warning', 2000);
+        return;
+      }
+      if (!this.currentPlan.difficulties || !this.currentPlan.difficulties.trim()) {
+        notify('Học kỳ 1 phải có mục Khó khăn', 'warning', 2000);
+        return;
+      }
+    }
+
+    const dataToSave = this.mapToApi(this.currentPlan);
+
+    this.keHoachService.save(dataToSave)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          notify(this.isEditMode ? 'Đã cập nhật kế hoạch thành công' : 'Đã thêm kế hoạch thành công', 'success', 2000);
+          this.popupVisible = false;
+          this.loadPlanData();
+        },
+        error: (error) => {
+          console.error('Error saving plan:', error);
+          const errorMsg = error.error?.message || 'Có lỗi khi lưu kế hoạch';
+          notify(errorMsg, 'error', 3000);
+        }
+      });
   }
 
   closePopup(): void {
     this.popupVisible = false;
+    this.tempFormData = {};
+  }
+
+  onSaveClick(): void {
+    this.savePlan();
+  }
+
+  onCancelClick(): void {
+    this.closePopup();
   }
 
   exportData(): void {
     notify('Chức năng xuất Excel đang được phát triển', 'info', 2000);
   }
 
-  getEmptyPlan(): HomeroomPlan {
+  getEmptyPlan(): KeHoachChuNhiem {
     return {
-      stt: 0,
-      schoolYear: '2024-2025',
-      semester: '1',
-      className: '',
-      teacherName: '',
+      classId: '',
+      schoolYear: this.currentSchoolYear,
+      semester: 1,
       planDate: new Date(),
       advantages: '',
       difficulties: '',
-      tradition_objectives: '',
-      tradition_content: '',
-      tradition_solutions: '',
-      tradition_expected_results: '',
-      academic_objectives: '',
-      academic_content: '',
-      academic_solutions: '',
-      academic_expected_results: '',
-      extracurricular_objectives: '',
-      extracurricular_content: '',
-      extracurricular_solutions: '',
-      extracurricular_expected_results: '',
+      traditionEducation: {
+        objectives: '',
+        content: '',
+        solutions: '',
+        expectedResults: ''
+      },
+      academicEducation: {
+        objectives: '',
+        content: '',
+        solutions: '',
+        expectedResults: ''
+      },
+      extracurricularEducation: {
+        objectives: '',
+        content: '',
+        solutions: '',
+        expectedResults: ''
+      },
       status: 'draft',
-      approvedBy: '',
       notes: ''
     };
   }
 
-  getSemesterText(semester: string): string {
+  getSemesterText(semester: number): string {
     const sem = this.semesterSource.find(s => s.value === semester);
-    return sem ? sem.name : semester;
+    return sem ? sem.name : `Học kỳ ${semester}`;
   }
 
-  getSemesterClass(semester: string): string {
-    return semester === '1' ? 'semester-1' : 'semester-2';
+  getSemesterClass(semester: number): string {
+    return semester === 1 ? 'semester-1' : 'semester-2';
   }
 
   getStatusText(status: string): string {
@@ -295,12 +447,42 @@ export class HomeroomPlanComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    const classes = {
+    const classes: any = {
       'draft': 'status-draft',
       'submitted': 'status-submitted',
       'approved': 'status-approved',
       'rejected': 'status-rejected'
     };
-    return classes[status as keyof typeof classes] || '';
+    return classes[status] || '';
+  }
+
+  nextStep(): void {
+    if (this.currentStep < 6) {
+      this.currentStep++;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  getStepName(step: number): string {
+    const names = {
+      1: 'Cơ bản',
+      2: 'Tình hình', 
+      3: 'Truyền thống',
+      4: 'Học tập',
+      5: 'Ngoại khóa',
+      6: 'Hoàn tất'
+    };
+    return names[step] || '';
+  }
+  toggleCard(planId: string): void {
+    this.collapsedCards[planId] = !this.collapsedCards[planId];
+  }
+  isCardCollapsed(planId: string): boolean {
+    return this.collapsedCards[planId] !== false;
   }
 }

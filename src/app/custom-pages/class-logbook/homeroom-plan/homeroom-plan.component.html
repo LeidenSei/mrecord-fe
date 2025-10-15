@@ -18,8 +18,29 @@
     </div>
   </div>
 
-  <!-- Filters -->
   <div class="filters-container">
+    <div class="filter-item">
+      <label>Khối học</label>
+      <dx-select-box
+        [dataSource]="gradeSource"
+        [(value)]="gradeSource[0]"
+        (onValueChanged)="gradeChange($event)"
+        [width]="150"
+      ></dx-select-box>
+    </div>
+
+    <div class="filter-item">
+      <label>Lớp học</label>
+      <dx-select-box
+        [dataSource]="filterClassSource"
+        [(value)]="filterClassId"
+        displayExpr="name"
+        valueExpr="id"
+        (onValueChanged)="onFilterChange()"
+        [width]="150"
+      ></dx-select-box>
+    </div>
+
     <div class="filter-item">
       <label>Năm học</label>
       <dx-select-box
@@ -43,18 +64,6 @@
     </div>
 
     <div class="filter-item">
-      <label>Lớp học</label>
-      <dx-select-box
-        [dataSource]="filterClassSource"
-        [(value)]="filterClassId"
-        displayExpr="name"
-        valueExpr="id"
-        (onValueChanged)="onFilterChange()"
-        [width]="150"
-      ></dx-select-box>
-    </div>
-
-    <div class="filter-item">
       <label>Trạng thái</label>
       <dx-select-box
         [dataSource]="filterStatusSource"
@@ -72,28 +81,31 @@
     </button>
   </div>
 
-  <!-- Plans List -->
   <div class="plans-container" *ngIf="filteredDatas.length > 0">
     <div class="plan-card" *ngFor="let plan of filteredDatas">
-      <!-- Card Header -->
       <div class="card-header">
         <div class="card-header-left">
-          <h3 class="plan-title">
-            <span class="year-badge">{{plan.schoolYear}}</span>
-            <span [ngClass]="getSemesterClass(plan.semester)">
-              {{getSemesterText(plan.semester)}}
-            </span>
-            <span class="class-badge">{{plan.className}}</span>
-          </h3>
-          <div class="plan-meta">
-            <span class="teacher-name">
-              <i class="dx-icon-user"></i>
-              {{plan.teacherName}}
-            </span>
-            <span class="plan-date">
-              <i class="dx-icon-event"></i>
-              {{plan.planDate | date:'dd/MM/yyyy'}}
-            </span>
+          <button class="btn-toggle" (click)="toggleCard(plan.id!)" [title]="isCardCollapsed(plan.id!) ? 'Mở chi tiết' : 'Đóng chi tiết'">
+            <i [class]="isCardCollapsed(plan.id!) ? 'dx-icon-chevrondown' : 'dx-icon-chevronup'"></i>
+          </button>
+          <div class="title-wrapper">
+            <h3 class="plan-title">
+              <span class="year-badge">{{plan.schoolYear}}-{{plan.schoolYear + 1}}</span>
+              <span [ngClass]="getSemesterClass(plan.semester)">
+                {{getSemesterText(plan.semester)}}
+              </span>
+              <span class="class-badge">{{plan.className}}</span>
+            </h3>
+            <div class="plan-meta">
+              <span class="teacher-name">
+                <i class="dx-icon-user"></i>
+                {{plan.homeRoomTeacherName}}
+              </span>
+              <span class="plan-date">
+                <i class="dx-icon-event"></i>
+                {{plan.planDate | date:'dd/MM/yyyy'}}
+              </span>
+            </div>
           </div>
         </div>
         <div class="card-header-right">
@@ -111,10 +123,8 @@
         </div>
       </div>
 
-      <!-- Card Content -->
-      <div class="card-content">
-        <!-- Section A -->
-        <div class="section section-a">
+      <div class="card-content" *ngIf="!isCardCollapsed(plan.id!)">
+        <div class="section section-a" *ngIf="plan.semester === 1">
           <h4 class="section-title">A. TÌNH HÌNH CHUNG</h4>
           <div class="section-content">
             <div class="content-item">
@@ -134,11 +144,9 @@
           </div>
         </div>
 
-        <!-- Section B -->
         <div class="section section-b">
           <h4 class="section-title">B. KẾ HOẠCH GIÁO DỤC</h4>
           
-          <!-- Subsection 1 -->
           <div class="subsection">
             <h5 class="subsection-title">
               <span class="number">1</span>
@@ -147,24 +155,23 @@
             <div class="subsection-content">
               <div class="content-row">
                 <span class="content-label">a) Mục tiêu:</span>
-                <span class="content-text">{{plan.tradition_objectives}}</span>
+                <span class="content-text">{{plan.traditionEducation.objectives}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">b) Nội dung:</span>
-                <span class="content-text">{{plan.tradition_content}}</span>
+                <span class="content-text">{{plan.traditionEducation.content}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">c) Giải pháp:</span>
-                <span class="content-text">{{plan.tradition_solutions}}</span>
+                <span class="content-text">{{plan.traditionEducation.solutions}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">d) Kết quả mong đợi:</span>
-                <span class="content-text">{{plan.tradition_expected_results}}</span>
+                <span class="content-text">{{plan.traditionEducation.expectedResults}}</span>
               </div>
             </div>
           </div>
 
-          <!-- Subsection 2 -->
           <div class="subsection">
             <h5 class="subsection-title">
               <span class="number">2</span>
@@ -173,24 +180,23 @@
             <div class="subsection-content">
               <div class="content-row">
                 <span class="content-label">a) Mục tiêu:</span>
-                <span class="content-text">{{plan.academic_objectives}}</span>
+                <span class="content-text">{{plan.academicEducation.objectives}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">b) Nội dung:</span>
-                <span class="content-text">{{plan.academic_content}}</span>
+                <span class="content-text">{{plan.academicEducation.content}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">c) Giải pháp:</span>
-                <span class="content-text">{{plan.academic_solutions}}</span>
+                <span class="content-text">{{plan.academicEducation.solutions}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">d) Kết quả mong đợi:</span>
-                <span class="content-text">{{plan.academic_expected_results}}</span>
+                <span class="content-text">{{plan.academicEducation.expectedResults}}</span>
               </div>
             </div>
           </div>
 
-          <!-- Subsection 3 -->
           <div class="subsection">
             <h5 class="subsection-title">
               <span class="number">3</span>
@@ -199,31 +205,26 @@
             <div class="subsection-content">
               <div class="content-row">
                 <span class="content-label">a) Mục tiêu:</span>
-                <span class="content-text">{{plan.extracurricular_objectives}}</span>
+                <span class="content-text">{{plan.extracurricularEducation.objectives}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">b) Nội dung:</span>
-                <span class="content-text">{{plan.extracurricular_content}}</span>
+                <span class="content-text">{{plan.extracurricularEducation.content}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">c) Giải pháp:</span>
-                <span class="content-text">{{plan.extracurricular_solutions}}</span>
+                <span class="content-text">{{plan.extracurricularEducation.solutions}}</span>
               </div>
               <div class="content-row">
                 <span class="content-label">d) Kết quả mong đợi:</span>
-                <span class="content-text">{{plan.extracurricular_expected_results}}</span>
+                <span class="content-text">{{plan.extracurricularEducation.expectedResults}}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Additional Info -->
-        <div class="additional-info" *ngIf="plan.approvedBy || plan.notes">
-          <div class="info-item" *ngIf="plan.approvedBy">
-            <i class="dx-icon-user"></i>
-            <strong>Người duyệt:</strong> {{plan.approvedBy}}
-          </div>
-          <div class="info-item" *ngIf="plan.notes">
+        <div class="additional-info" *ngIf="plan.notes">
+          <div class="info-item">
             <i class="dx-icon-comment"></i>
             <strong>Ghi chú:</strong> {{plan.notes}}
           </div>
@@ -232,195 +233,303 @@
     </div>
   </div>
 
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="filteredDatas.length === 0">
+  <div class="empty-state" *ngIf="filteredDatas.length === 0 && !isLoading">
     <i class="dx-icon-info"></i>
     <h3>Chưa có kế hoạch nào</h3>
     <p>Nhấn nút "Thêm kế hoạch mới" để tạo kế hoạch chủ nhiệm</p>
   </div>
 
-  <!-- Popup for Add/Edit -->
+  <!-- WIZARD POPUP -->
   <dx-popup
     [(visible)]="popupVisible"
     [showTitle]="true"
     [title]="isEditMode ? 'Chỉnh sửa kế hoạch' : 'Thêm kế hoạch mới'"
-    [width]="1000"
-    [height]="'90vh'"
+    [width]="800"
+    [height]="600"
     [dragEnabled]="false"
     [closeOnOutsideClick]="false"
   >
-    <dxi-toolbar-item
-      widget="dxButton"
-      toolbar="bottom"
-      location="after"
-      [options]="{
-        text: 'Lưu',
-        type: 'default',
-        onClick: savePlan.bind(this)
-      }"
-    ></dxi-toolbar-item>
-    <dxi-toolbar-item
-      widget="dxButton"
-      toolbar="bottom"
-      location="after"
-      [options]="{
-        text: 'Hủy',
-        onClick: closePopup.bind(this)
-      }"
-    ></dxi-toolbar-item>
-
     <div *dxTemplate="let data of 'content'">
-      <dx-scroll-view>
-        <dx-form
-          [(formData)]="currentPlan"
-          [colCount]="1"
-          labelLocation="top"
-        >
-          <!-- Basic Info -->
-          <dxi-item itemType="group" caption="THÔNG TIN CƠ BẢN" [colCount]="3" cssClass="basic-info-group">
-            <dxi-item dataField="schoolYear" [isRequired]="true">
-              <dxo-label text="Năm học"></dxo-label>
-              <dxi-validation-rule type="required" message="Vui lòng chọn năm học"></dxi-validation-rule>
-            </dxi-item>
-            <dxi-item dataField="semester" [isRequired]="true" editorType="dxSelectBox"
-              [editorOptions]="{
-                dataSource: semesterSource,
-                displayExpr: 'name',
-                valueExpr: 'value'
-              }">
-              <dxo-label text="Học kỳ"></dxo-label>
-              <dxi-validation-rule type="required" message="Vui lòng chọn học kỳ"></dxi-validation-rule>
-            </dxi-item>
-            <dxi-item dataField="className" [isRequired]="true" editorType="dxSelectBox"
-              [editorOptions]="{
-                dataSource: classSource,
-                displayExpr: 'name',
-                valueExpr: 'name'
-              }">
-              <dxo-label text="Lớp"></dxo-label>
-              <dxi-validation-rule type="required" message="Vui lòng chọn lớp"></dxi-validation-rule>
-            </dxi-item>
-            <dxi-item dataField="teacherName" [isRequired]="true" [colSpan]="2">
-              <dxo-label text="Giáo viên chủ nhiệm"></dxo-label>
-              <dxi-validation-rule type="required" message="Vui lòng nhập tên giáo viên"></dxi-validation-rule>
-            </dxi-item>
-            <dxi-item dataField="planDate" [isRequired]="true" editorType="dxDateBox">
-              <dxo-label text="Ngày lập kế hoạch"></dxo-label>
-              <dxi-validation-rule type="required" message="Vui lòng chọn ngày"></dxi-validation-rule>
-            </dxi-item>
-          </dxi-item>
+      <div style="height: 100%;">
 
-          <!-- Section A -->
-          <dxi-item itemType="group" caption="A. TÌNH HÌNH CHUNG" [colCount]="1" cssClass="section-a">
-            <dxi-item dataField="advantages" 
-              editorType="dxTextArea" 
-              [editorOptions]="{ height: 100, placeholder: 'Nhập những thuận lợi trong công tác giáo dục lớp...' }">
-              <dxo-label text="1. Thuận lợi"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="difficulties" 
-              editorType="dxTextArea" 
-              [editorOptions]="{ height: 100, placeholder: 'Nhập những khó khăn cần giải quyết...' }">
-              <dxo-label text="2. Khó khăn"></dxo-label>
-            </dxi-item>
-          </dxi-item>
+        <div style="display: flex; justify-content: space-between;">
+          <div *ngFor="let step of [1,2,3,4,5,6]; let i = index" 
+               [style.flex]="1"
+               [style.text-align]="'center'"
+               [style.opacity]="currentStep === step ? 1 : 0.4"
+               [style.font-weight]="currentStep === step ? 'bold' : 'normal'">
+            <div [style.width]="'40px'" 
+                 [style.height]="'40px'" 
+                 [style.border-radius]="'50%'" 
+                 [style.background]="currentStep >= step ? '#1890ff' : '#d9d9d9'"
+                 [style.color]="'white'"
+                 [style.display]="'flex'"
+                 [style.align-items]="'center'"
+                 [style.justify-content]="'center'"
+                 [style.margin]="'0 auto 5px'">
+              {{step}}
+            </div>
+            <small>{{getStepName(step)}}</small>
+          </div>
+        </div>
 
-          <!-- Section B -->
-          <dxi-item itemType="group" caption="B. KẾ HOẠCH GIÁO DỤC" [colCount]="1" cssClass="section-b">
+        <!-- STEP 1: CƠ BẢN -->
+        <div *ngIf="currentStep === 1" style="padding: 20px 0;">
+          <h3 style="margin-bottom: 20px;">📋 Thông tin cơ bản</h3>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Năm học *</label>
+            <input 
+              type="number" 
+              [(ngModel)]="tempFormData.schoolYear"
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
+            />
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Học kỳ *</label>
+            <select 
+              [(ngModel)]="tempFormData.semester"
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
+            >
+              <option [value]="1">Học kỳ I</option>
+              <option [value]="2">Học kỳ II</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Lớp *</label>
+            <select 
+              [(ngModel)]="tempFormData.classId"
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
+            >
+              <option *ngFor="let cls of classSource" [value]="cls.id">{{cls.name}}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- STEP 2: TÌNH HÌNH -->
+        <div *ngIf="currentStep === 2" style="padding: 20px 0;">
+          <h3 style="margin-bottom: 20px;">📊 Tình hình chung</h3>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Thuận lợi</label>
+            <textarea 
+              [(ngModel)]="tempFormData.advantages"
+              rows="6"
+              placeholder="Nhập những thuận lợi trong công tác giáo dục lớp..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Khó khăn</label>
+            <textarea 
+              [(ngModel)]="tempFormData.difficulties"
+              rows="6"
+              placeholder="Nhập những khó khăn cần giải quyết..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- STEP 3: TRUYỀN THỐNG -->
+        <div *ngIf="currentStep === 3" style="padding: 20px 0;">
+          <h3 style="margin-bottom: 20px;">🎯 Truyền thống - Đạo đức</h3>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Mục tiêu</label>
+            <textarea 
+              [(ngModel)]="tempFormData.trad_obj"
+              rows="4"
+              placeholder="Mục tiêu giáo dục..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nội dung</label>
+            <textarea 
+              [(ngModel)]="tempFormData.trad_con"
+              rows="4"
+              placeholder="Nội dung cụ thể..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Giải pháp</label>
+            <textarea 
+              [(ngModel)]="tempFormData.trad_sol"
+              rows="4"
+              placeholder="Giải pháp thực hiện..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Kết quả mong đợi</label>
+            <textarea 
+              [(ngModel)]="tempFormData.trad_res"
+              rows="4"
+              placeholder="Kết quả mong đợi..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- STEP 4: HỌC TẬP -->
+        <div *ngIf="currentStep === 4" style="padding: 20px 0;">
+          <h3 style="margin-bottom: 20px;">📚 Học tập</h3>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Mục tiêu</label>
+            <textarea 
+              [(ngModel)]="tempFormData.acad_obj"
+              rows="4"
+              placeholder="Mục tiêu học tập..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nội dung</label>
+            <textarea 
+              [(ngModel)]="tempFormData.acad_con"
+              rows="4"
+              placeholder="Nội dung hỗ trợ học tập..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Giải pháp</label>
+            <textarea 
+              [(ngModel)]="tempFormData.acad_sol"
+              rows="4"
+              placeholder="Giải pháp nâng cao học tập..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Kết quả mong đợi</label>
+            <textarea 
+              [(ngModel)]="tempFormData.acad_res"
+              rows="4"
+              placeholder="Kết quả kỳ vọng..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- STEP 5: NGOẠI KHÓA -->
+        <div *ngIf="currentStep === 5" style="padding: 20px 0;">
+          <h3 style="margin-bottom: 20px;">🎨 Ngoại khóa</h3>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Mục tiêu</label>
+            <textarea 
+              [(ngModel)]="tempFormData.extra_obj"
+              rows="4"
+              placeholder="Mục tiêu ngoại khóa..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nội dung</label>
+            <textarea 
+              [(ngModel)]="tempFormData.extra_con"
+              rows="4"
+              placeholder="Nội dung hoạt động..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Giải pháp</label>
+            <textarea 
+              [(ngModel)]="tempFormData.extra_sol"
+              rows="4"
+              placeholder="Giải pháp tổ chức..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+          
+          <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Kết quả mong đợi</label>
+            <textarea 
+              [(ngModel)]="tempFormData.extra_res"
+              rows="4"
+              placeholder="Kết quả mong đợi..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- STEP 6: GHI CHÚ -->
+        <div *ngIf="currentStep === 6" style="padding: 20px 0;">
+          <h3 style="margin-bottom: 20px;">📝 Hoàn tất</h3>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Trạng thái</label>
+            <select 
+              [(ngModel)]="tempFormData.status"
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
+            >
+              <option value="draft">Bản nháp</option>
+              <option value="submitted">Đã nộp</option>
+              <option value="approved">Đã duyệt</option>
+              <option value="rejected">Cần sửa</option>
+            </select>
+          </div>
+          
+          <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Ghi chú</label>
+            <textarea 
+              [(ngModel)]="tempFormData.notes"
+              rows="8"
+              placeholder="Ghi chú bổ sung (nếu có)..."
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- NAVIGATION BUTTONS -->
+        <div style="display: flex; justify-content: space-between; padding-top: 20px; border-top: 1px solid #ddd;">
+          <button 
+            *ngIf="currentStep > 1"
+            (click)="previousStep()"
+            style="padding: 10px 24px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+            ← Quay lại
+          </button>
+          <div *ngIf="currentStep === 1"></div>
+          
+          <div style="display: flex; gap: 10px;">
+            <button 
+              (click)="onCancelClick()"
+              style="padding: 10px 24px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 14px;">
+              Hủy
+            </button>
             
-            <!-- Subsection 1 -->
-            <dxi-item itemType="group" caption="1. TRUYỀN THỐNG - ĐẠO ĐỨC - LỐI SỐNG" [colCount]="1" cssClass="subsection">
-              <dxi-item dataField="tradition_objectives" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập mục tiêu giáo dục về truyền thống, đạo đức, lối sống...' }">
-                <dxo-label text="a) Mục tiêu"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="tradition_content" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập nội dung giáo dục cụ thể...' }">
-                <dxo-label text="b) Nội dung"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="tradition_solutions" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập các giải pháp, phương pháp thực hiện...' }">
-                <dxo-label text="c) Những giải pháp"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="tradition_expected_results" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập kết quả mong đợi, mục tiêu cần đạt được...' }">
-                <dxo-label text="d) Kết quả mong đợi"></dxo-label>
-              </dxi-item>
-            </dxi-item>
+            <button 
+              *ngIf="currentStep < 6"
+              (click)="nextStep()"
+              style="padding: 10px 24px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+              Tiếp theo →
+            </button>
+            
+            <button 
+              *ngIf="currentStep === 6"
+              (click)="onSaveClick()"
+              style="padding: 10px 24px; background: #52c41a; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+              💾 Lưu
+            </button>
+          </div>
+        </div>
 
-            <!-- Subsection 2 -->
-            <dxi-item itemType="group" caption="2. HỌC TẬP" [colCount]="1" cssClass="subsection">
-              <dxi-item dataField="academic_objectives" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập mục tiêu về học tập của lớp...' }">
-                <dxo-label text="a) Mục tiêu"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="academic_content" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập nội dung hướng dẫn, hỗ trợ học tập...' }">
-                <dxo-label text="b) Nội dung"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="academic_solutions" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập giải pháp nâng cao chất lượng học tập...' }">
-                <dxo-label text="c) Những giải pháp"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="academic_expected_results" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập kết quả kỳ vọng về học tập...' }">
-                <dxo-label text="d) Kết quả mong đợi"></dxo-label>
-              </dxi-item>
-            </dxi-item>
-
-            <!-- Subsection 3 -->
-            <dxi-item itemType="group" caption="3. CÁC MẶT GIÁO DỤC NGOẠI KHÓA" [colCount]="1" cssClass="subsection">
-              <dxi-item dataField="extracurricular_objectives" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập mục tiêu về hoạt động ngoại khóa...' }">
-                <dxo-label text="a) Mục tiêu"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="extracurricular_content" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập nội dung các hoạt động ngoại khóa dự kiến...' }">
-                <dxo-label text="b) Nội dung"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="extracurricular_solutions" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập giải pháp tổ chức hiệu quả các hoạt động...' }">
-                <dxo-label text="c) Những giải pháp"></dxo-label>
-              </dxi-item>
-              <dxi-item dataField="extracurricular_expected_results" 
-                editorType="dxTextArea" 
-                [editorOptions]="{ height: 90, placeholder: 'Nhập kết quả mong đợi về hoạt động ngoại khóa...' }">
-                <dxo-label text="d) Kết quả mong đợi"></dxo-label>
-              </dxi-item>
-            </dxi-item>
-          </dxi-item>
-
-          <!-- Additional Info -->
-          <dxi-item itemType="group" caption="THÔNG TIN BỔ SUNG" [colCount]="2" cssClass="additional-info">
-            <dxi-item dataField="status" editorType="dxSelectBox"
-              [editorOptions]="{
-                dataSource: statusSource,
-                displayExpr: 'name',
-                valueExpr: 'value'
-              }">
-              <dxo-label text="Trạng thái"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="approvedBy">
-              <dxo-label text="Người duyệt"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="notes" [colSpan]="2"
-              editorType="dxTextArea" 
-              [editorOptions]="{ height: 80, placeholder: 'Ghi chú bổ sung (nếu có)...' }">
-              <dxo-label text="Ghi chú"></dxo-label>
-            </dxi-item>
-          </dxi-item>
-        </dx-form>
-      </dx-scroll-view>
+      </div>
     </div>
   </dx-popup>
 </div>
