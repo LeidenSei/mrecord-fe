@@ -21,9 +21,7 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
   isEditMode = false;
   currentPlan: KeHoachChuNhiem = this.getEmptyPlan();
   
-  // Track trạng thái đóng/mở của từng card - MẶC ĐỊNH TẤT CẢ ĐÓNG
   collapsedCards: { [key: string]: boolean } = {};
-  
   tempFormData: any = {};
   
   schoolYearSource: number[] = [];
@@ -36,9 +34,8 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
   ];
   selectedSemester = 0;
   
-  gradeSource = [];
   classSource = [];
-  filterClassSource = [];
+  classSourceWithAll = [];
   filterClassId: any = null;
   
   filterStatusSource: any[] = [];
@@ -85,14 +82,13 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
       this.setupSchoolYears();
       
       forkJoin([
-        this.generalService.getListGradeOfSchool(user.data.schoolId),
         this.generalService.getListClassByTeacher(user.data.schoolId, user.data.personId),
         this.generalService.getListClassBySchool(user.data.schoolId),
       ])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ([gradeSource, classSource, schoolClassSource]) => {
-          this.setupFilters(gradeSource, classSource, schoolClassSource);
+        next: ([classSource, schoolClassSource]) => {
+          this.setupFilters(classSource, schoolClassSource);
           this.loadPlanData();
         },
         error: (error) => {
@@ -116,25 +112,17 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private setupFilters(gradeSource: any[], classSource: any[], schoolClassSource: any[]) {
+  private setupFilters(classSource: any[], schoolClassSource: any[]) {
     this.classSource = (this.currentUser.role === 2 || this.currentUser.isBGH) 
       ? schoolClassSource 
       : classSource;
     
-    const filterGradeIds = classSource.map(en => en.grade);
-
-    if (this.currentUser.role === 2 || this.currentUser.isBGH) {
-      this.gradeSource = [...gradeSource];
-    } else {
-      this.gradeSource = gradeSource.filter(en => filterGradeIds.includes(en));
-    }
+    this.classSourceWithAll = [
+      { id: null, name: 'Tất cả', grade: null },
+      ...this.classSource
+    ];
     
-    this.gradeSource.unshift('Tất cả');
-    this.filterClassSource = [...this.classSource];
-    
-    if (this.filterClassSource.length > 0) {
-      this.filterClassId = this.filterClassSource[0].id;
-    }
+    this.filterClassId = null;
 
     this.filterStatusSource = [
       { value: '', name: 'Tất cả' },
@@ -151,12 +139,16 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
     const schoolYear = this.selectedSchoolYear || this.currentSchoolYear;
     this.isLoading = true;
 
+    const className = this.filterClassId 
+      ? this.classSource.find(c => c.id === this.filterClassId)?.name 
+      : undefined;
+
     this.keHoachService.getListBySchool(
       this.currentSchoolId,
       schoolYear,
       1,
       1000,
-      this.filterClassId ? this.filterClassSource.find(c => c.id === this.filterClassId)?.name : undefined,
+      className,
       this.selectedSemester > 0 ? this.selectedSemester : undefined,
       undefined,
       this.selectedStatus || undefined
@@ -165,7 +157,6 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
     .subscribe({
       next: (result) => {
         this.datas = result.items.map(item => this.mapFromApi(item));
-        // MẶC ĐỊNH TẤT CẢ CARD ĐÓNG
         this.datas.forEach(plan => {
           if (plan.id) {
             this.collapsedCards[plan.id] = true;
@@ -238,22 +229,6 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
     this.selectedSemester = 0;
     this.filterClassId = null;
     this.selectedStatus = '';
-    this.loadPlanData();
-  }
-
-  gradeChange($event: any) {
-    if (!Number.isNaN($event.itemData)) {
-      this.filterClassSource = this.classSource.filter(en => en.grade === +$event.itemData);
-    } else {
-      this.filterClassSource = [...this.classSource];
-    }
-    
-    if (this.filterClassSource.length > 0) {
-      this.filterClassId = this.filterClassSource[0].id;
-    } else {
-      this.filterClassId = null;
-      notify('Không có lớp nào trong khối này', 'info', 2000);
-    }
     this.loadPlanData();
   }
 
@@ -456,15 +431,9 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
     return classes[status] || '';
   }
 
-  nextStep(): void {
-    if (this.currentStep < 6) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
+  goToStep(step: number): void {
+    if (step >= 1 && step <= 6) {
+      this.currentStep = step;
     }
   }
 
@@ -479,9 +448,11 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
     };
     return names[step] || '';
   }
+  
   toggleCard(planId: string): void {
     this.collapsedCards[planId] = !this.collapsedCards[planId];
   }
+  
   isCardCollapsed(planId: string): boolean {
     return this.collapsedCards[planId] !== false;
   }

@@ -19,15 +19,23 @@ export class StudentService extends BaseService {
    * Lấy danh sách học sinh theo lớp
    * @param classId Class Id
    */
-  getListByClass(classId: string): Observable<any[]> {
+  getListByClass(classId: string): Observable<any> {
     return this.get('/Student/ListByClass', { ClassId: classId });
+  }
+
+  /**
+   * Lấy danh sách học sinh theo trường
+   * @param schoolId School Id
+   */
+  getListBySchool(schoolId: string): Observable<any> {
+    return this.get('/Student/ListBySchool', { SchoolId: schoolId });
   }
 
   /**
    * Lấy danh sách học sinh theo lớp (version 2 - có thông tin đã học)
    * @param classId Class Id
    */
-  getListByClass2(classId: string): Observable<any[]> {
+  getListByClass2(classId: string): Observable<any> {
     return this.get('/Student/ListByClass2', { ClassId: classId });
   }
 
@@ -54,11 +62,11 @@ export class StudentService extends BaseService {
    * @param classId Class Id
    * @param ids Danh sách Student Ids
    */
-  getListByIds(classId: string, ids: string[]): Observable<any[]> {
+  getListByIds(classId: string, ids: string[]): Observable<any> {
     return this.post('/Student/ListByIds', { classId, ids });
   }
   
-  getListRole(): Observable<any[]> {
+  getListRole(): Observable<any> {
     return this.get('/Student/ListRole');
-    }
+  }
 }

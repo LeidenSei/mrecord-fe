@@ -105,21 +105,6 @@
         ></dx-drop-down-button>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
-        <label>Loại lưu ý</label>
-      </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="categoryFilterSource"
-          keyExpr="value"
-          displayExpr="name"
-          (onItemClick)="categoryFilterChange($event)"
-          [selectedItemKey]="selectedCategoryFilter"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
-      </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
         <label>Mức độ ưu tiên</label>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
@@ -153,18 +138,6 @@
       dataType="date"
       format="dd/MM/yyyy"
       alignment="center"
-    ></dxi-column>
-    
-    <dxi-column 
-      dataField="category" 
-      [width]="140" 
-      caption="Loại lưu ý"
-      cellTemplate="cellCategory"
-      [lookup]="{
-        dataSource: categorySource,
-        displayExpr: 'name',
-        valueExpr: 'value'
-      }"
     ></dxi-column>
     
     <dxi-column 
@@ -240,11 +213,6 @@
     </dxi-column>
 
     <!-- Templates -->
-    <div *dxTemplate="let cellInfo of 'cellCategory'">
-      <span [ngClass]="getCategoryClass(cellInfo.value)">
-        {{getCategoryText(cellInfo.value)}}
-      </span>
-    </div>
     
     <div *dxTemplate="let cellInfo of 'cellPriority'">
       <span [ngClass]="getPriorityClass(cellInfo.value)">

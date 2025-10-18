@@ -1,3 +1,4 @@
+<!-- parent-committee.component.html -->
 <div class="view-wrapper list-page parent-committee">
   <dx-data-grid
     class="grid theme-dependent"
@@ -33,19 +34,41 @@
       <dxo-popup
         title="Thông tin ban đại diện cha mẹ học sinh"
         [showTitle]="true"
-        [width]="650"
-        [height]="450"
+        [width]="700"
+        [height]="500"
       ></dxo-popup>
       <dxo-form>
         <dxi-item itemType="group" [colCount]="2">
-          <dxi-item dataField="parentName" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="position" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="studentName" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="relationship" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="phoneNumber" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="email"></dxi-item>
-          <dxi-item dataField="workplace" [colSpan]="2"></dxi-item>
-          <dxi-item dataField="address" [colSpan]="2"></dxi-item>
+          <!-- ✅ SỬA: Dùng parentId với lookup -->
+          <dxi-item dataField="parentId" caption="Phụ huynh" [isRequired]="true"
+            [editorOptions]="{
+              displayExpr: 'fullName',
+              valueExpr: 'id',
+              dataSource: parentSource,
+              searchEnabled: true,
+              placeholder: 'Chọn phụ huynh...'
+            }">
+          </dxi-item>
+          
+          <dxi-item dataField="position" caption="Chức vụ" [isRequired]="true"></dxi-item>
+          
+          <!-- ✅ SỬA: Dùng studentId với lookup -->
+          <dxi-item dataField="studentId" caption="Học sinh" [isRequired]="true"
+            [editorOptions]="{
+              displayExpr: 'fullName',
+              valueExpr: 'id',
+              dataSource: studentSource,
+              searchEnabled: true,
+              placeholder: 'Chọn học sinh...'
+            }">
+          </dxi-item>
+          
+          <dxi-item dataField="relationship" caption="Quan hệ" [isRequired]="true"></dxi-item>
+          
+          <dxi-item dataField="note" caption="Ghi chú" [colSpan]="2"
+            editorType="dxTextArea"
+            [editorOptions]="{ height: 80 }">
+          </dxi-item>
         </dxi-item>
       </dxo-form>
     </dxo-editing>
@@ -140,31 +163,54 @@
       dataField="parentName" 
       [width]="200" 
       caption="Họ và tên"
+      [allowEditing]="false"
     ></dxi-column>
 
     <dxi-column 
       dataField="workplace" 
       [width]="250" 
       caption="Nơi công tác"
+      [allowEditing]="false"
     ></dxi-column>
 
     <dxi-column 
       dataField="phoneNumber" 
-      [width]="240" 
+      [width]="160" 
       caption="Số điện thoại"
       alignment="center"
       cellTemplate="cellPhone"
+      [allowEditing]="false"
     ></dxi-column>
 
     <dxi-column 
       dataField="studentName" 
       [width]="200" 
       caption="Cha/mẹ của học sinh"
+      [allowEditing]="false"
+    ></dxi-column>
+
+    <dxi-column 
+      dataField="relationship" 
+      [width]="120" 
+      caption="Quan hệ"
       [lookup]="{
-        dataSource: studentSource,
-        displayExpr: 'fullName',
-        valueExpr: 'fullName'
+        dataSource: relationshipSource,
+        displayExpr: 'name',
+        valueExpr: 'value'
       }"
+    ></dxi-column>
+
+    <!-- Hidden columns for editing -->
+    <dxi-column 
+      dataField="parentId" 
+      [visible]="false"
+      [showInColumnChooser]="false"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="studentId" 
+      [visible]="false"
+      [showInColumnChooser]="false"
     ></dxi-column>
 
     <dxi-column type="buttons" [width]="100" fixedPosition="right">

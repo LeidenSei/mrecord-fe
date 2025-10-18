@@ -1,17 +1,15 @@
+// parent-committee.component.ts
 import { Component, OnInit } from '@angular/core';
-
-interface ParentCommittee {
-  id?: number;
-  stt: number;
-  position: string;
-  parentName: string;
-  phoneNumber: string;
-  workplace: string;
-  studentName: string;
-  relationship: string;
-  email?: string;
-  address?: string;
-}
+import { AuthService, ScreenService } from "../../../services";
+import { GeneralService } from "../../../services/general.service";
+import { ParentCommitteeService, ParentCommitteeDto, ParentCommitteeRequest, ParentCommitteeUpdateRequest } from "../../../services/parent-committee.service";
+import { NotificationService } from "../../../services/notification.service";
+import { Constant } from "../../../shared/constants/constant.class";
+import { forkJoin } from 'rxjs';
+import { ExportingEvent } from "devextreme/ui/data_grid";
+import { Workbook } from "exceljs";
+import { exportDataGrid as exportDataGridToXLSX } from "devextreme/excel_exporter";
+import { saveAs } from 'file-saver-es';
 
 @Component({
   selector: 'app-parent-committee',
@@ -19,12 +17,16 @@ interface ParentCommittee {
   styleUrls: ['./parent-committee.component.scss']
 })
 export class ParentCommitteeComponent implements OnInit {
-  datas: ParentCommittee[] = [];
+  datas: ParentCommitteeDto[] = [];
   committeeCount = 0;
 
-  gradeSource = ['Tất cả', 'Khối 6', 'Khối 7', 'Khối 8', 'Khối 9'];
+  // Filter data
+  gradeSource = [];
+  classSource = [];
   filterClassSource: any[] = [];
   filterClassId: any = null;
+  filterGrade: any = 0;
+  schoolYearId: string = '2024-2025';
   
   positionFilterSource = [
     { value: '', name: 'Tất cả chức vụ' },
@@ -37,6 +39,8 @@ export class ParentCommitteeComponent implements OnInit {
   selectedPositionFilter = '';
 
   studentSource: any[] = [];
+  parentSource: any[] = [];
+  
   positionSource = [
     { value: 'president', name: 'Trưởng ban' },
     { value: 'vice_president', name: 'Phó ban' },
@@ -45,156 +49,267 @@ export class ParentCommitteeComponent implements OnInit {
     { value: 'member', name: 'Ủy viên' }
   ];
 
+  relationshipSource = [
+    { value: 'father', name: 'Cha' },
+    { value: 'mother', name: 'Mẹ' },
+    { value: 'guardian', name: 'Người giám hộ' }
+  ];
+
   exportTexts = {
-    exportAll: 'Xuất toàn bộ',
+    exportAll: 'Xuất dữ liệu excel',
     exportSelectedRows: 'Xuất dòng được chọn',
     exportTo: 'Xuất ra'
   };
 
-  constructor() { }
+  isAdmin = false;
 
-  ngOnInit(): void {
-    this.loadClassData();
-    this.loadStudentData();
-    this.loadCommitteeData();
-  }
+  constructor(
+    public screen: ScreenService,
+    public generalService: GeneralService,
+    public authService: AuthService,
+    private parentCommitteeService: ParentCommitteeService,
+    private notificationService: NotificationService
+  ) { }
 
-  loadClassData(): void {
-    this.filterClassSource = [
-      { id: null, name: 'Tất cả lớp' },
-      { id: 1, name: '6A1' },
-      { id: 2, name: '6A2' },
-      { id: 3, name: '7A1' },
-      { id: 4, name: '7A2' }
-    ];
-    this.filterClassId = null;
-  }
+  async ngOnInit() {
+    const user = await this.authService.getUser();
+    this.isAdmin = user.data.role === 2;
 
-  loadStudentData(): void {
-    this.studentSource = [
-      { id: 1, fullName: 'Nguyễn Văn An', className: '6A1' },
-      { id: 2, fullName: 'Trần Thị Bình', className: '6A1' },
-      { id: 3, fullName: 'Lê Văn Cường', className: '6A1' },
-      { id: 4, fullName: 'Phạm Thị Dung', className: '6A1' },
-      { id: 5, fullName: 'Hoàng Văn Em', className: '6A1' },
-      { id: 6, fullName: 'Đỗ Thị Hoa', className: '6A1' }
-    ];
+    forkJoin([
+      this.generalService.getListGradeOfSchool(user.data.schoolId),
+      this.generalService.getListClassByTeacher(user.data.schoolId, user.data.personId),
+      this.generalService.getListClassBySchool(user.data.schoolId)
+    ]).subscribe(([gradeSource, classSource, schoolClassSource]) => {
+      this.classSource = (user.data.role === 2 || user.data.isBGH) ? schoolClassSource : classSource;
+      
+      let filterGradeIds = classSource.map(en => en.grade);
+      
+      if (user.data.role === 2 || user.data.isBGH) {
+        this.gradeSource = gradeSource.filter(en => 1 === 1);
+      } else {
+        this.gradeSource = gradeSource.filter(en => filterGradeIds.includes(en));
+      }
+
+      this.filterGrade = this.gradeSource[0];
+      
+      if (this.filterGrade) {
+        this.filterClassSource = this.classSource.filter(en => en.grade === this.filterGrade);
+      } else {
+        this.filterClassSource = this.classSource.filter(en => 1 === 1);
+      }
+
+      if (this.filterClassSource.length > 0) {
+        this.filterClassId = this.filterClassSource[0].id;
+        this.loadCommitteeData();
+        this.loadStudentAndParentData();
+      }
+    });
   }
 
   loadCommitteeData(): void {
-    this.datas = [
-      {
-        id: 1,
-        stt: 1,
-        position: 'president',
-        parentName: 'Nguyễn Văn Hùng',
-        phoneNumber: '0987654321',
-        workplace: 'Công ty TNHH ABC',
-        studentName: 'Nguyễn Văn An',
-        relationship: 'father',
-        email: 'hung.nguyen@abc.com',
-        address: '123 Đường Láng, Đống Đa, Hà Nội'
+    if (!this.filterClassId || !this.schoolYearId) return;
+
+    this.parentCommitteeService.getListByClass(
+      this.filterClassId, 
+      this.schoolYearId, 
+      this.selectedPositionFilter
+    ).subscribe(
+      res => {
+        this.datas = res;
+        this.committeeCount = this.datas.length;
       },
-      {
-        id: 2,
-        stt: 2,
-        position: 'vice_president',
-        parentName: 'Trần Thị Lan',
-        phoneNumber: '0912345678',
-        workplace: 'Bệnh viện Bạch Mai',
-        studentName: 'Trần Thị Bình',
-        relationship: 'mother',
-        email: 'lan.tran@bachmai.gov.vn',
-        address: '456 Giải Phóng, Hai Bà Trưng, Hà Nội'
-      },
-      {
-        id: 3,
-        stt: 3,
-        position: 'secretary',
-        parentName: 'Lê Thị Mai',
-        phoneNumber: '0934567890',
-        workplace: 'Trường Đại học Quốc gia',
-        studentName: 'Lê Văn Cường',
-        relationship: 'mother',
-        email: 'mai.le@vnu.edu.vn',
-        address: '789 Xuân Thủy, Cầu Giấy, Hà Nội'
-      },
-      {
-        id: 4,
-        stt: 4,
-        position: 'treasurer',
-        parentName: 'Phạm Văn Đức',
-        phoneNumber: '0945678901',
-        workplace: 'Ngân hàng Vietcombank',
-        studentName: 'Phạm Thị Dung',
-        relationship: 'father',
-        email: 'duc.pham@vietcombank.com.vn',
-        address: '321 Cầu Giấy, Cầu Giấy, Hà Nội'
-      },
-      {
-        id: 5,
-        stt: 5,
-        position: 'member',
-        parentName: 'Hoàng Thị Nga',
-        phoneNumber: '0956789012',
-        workplace: 'Công ty Du lịch Saigontourist',
-        studentName: 'Hoàng Văn Em',
-        relationship: 'mother',
-        email: 'nga.hoang@saigontourist.net',
-        address: '654 Kim Mã, Ba Đình, Hà Nội'
-      },
-      {
-        id: 6,
-        stt: 6,
-        position: 'member',
-        parentName: 'Đỗ Văn Nam',
-        phoneNumber: '0967890123',
-        workplace: 'Viện Công nghệ thông tin',
-        studentName: 'Đỗ Thị Hoa',
-        relationship: 'father',
-        email: 'nam.do@ioit.ac.vn',
-        address: '987 Nguyễn Trãi, Thanh Xuân, Hà Nội'
+      error => {
+        this.notificationService.showNotification(Constant.ERROR, 'Lỗi khi tải dữ liệu ban đại diện');
+        console.error(error);
       }
-    ];
+    );
+  }
+
+  loadStudentAndParentData(): void {
+    if (!this.filterClassId) return;
+
+    // Load students of the class
+    this.generalService.getListStudentByClass2(this.filterClassId).subscribe(
+      students => {
+        // Map students with fullName for display
+        this.studentSource = students.map(s => ({
+          id: s.id,
+          fullName: s.fullName,
+          code: s.code
+        }));
+      },
+      error => {
+        console.error('Error loading students:', error);
+      }
+    );
+
+    // TODO: Load parents by class - cần thêm API ở backend
+    // Tạm thời có thể lấy từ students.contacts
+    this.loadParentsFromStudents();
+  }
+
+  // Temporary: Load parents from student contacts
+  loadParentsFromStudents(): void {
+    this.generalService.getListStudentByClass2(this.filterClassId).subscribe(
+      students => {
+        const parents: any[] = [];
+        students.forEach(student => {
+          if (student.contacts && student.contacts.length > 0) {
+            student.contacts.forEach(contact => {
+              // Giả sử contact có parentId và parentName
+              if (contact.parentId) {
+                const existingParent = parents.find(p => p.id === contact.parentId);
+                if (!existingParent) {
+                  parents.push({
+                    id: contact.parentId,
+                    fullName: contact.parentName || contact.name || 'Chưa có tên',
+                    phoneNo: contact.value,
+                    studentId: student.id
+                  });
+                }
+              }
+            });
+          }
+        });
+        this.parentSource = parents;
+      },
+      error => {
+        console.error('Error loading parents:', error);
+      }
+    );
+  }
+
+  gradeChange($event: any): void {
+    this.filterGrade = $event.itemData;
     
-    this.committeeCount = this.datas.length;
+    if (!Number.isNaN(this.filterGrade)) {
+      this.filterClassSource = this.classSource.filter(en => en.grade === +this.filterGrade);
+    } else {
+      this.filterClassSource = this.classSource.filter(en => 1 === 1);
+    }
+
+    if (this.filterClassSource.length > 0) {
+      this.filterClassId = this.filterClassSource[0].id;
+      this.loadCommitteeData();
+      this.loadStudentAndParentData();
+    } else {
+      this.datas = [];
+      this.committeeCount = 0;
+    }
   }
 
-  gradeChange(event: any): void {
-    console.log('Grade changed:', event);
-  }
-
-  classChange(event: any): void {
-    this.filterClassId = event.itemData.id;
-    console.log('Class changed:', event.itemData);
+  classChange($event): void {
+    this.filterClassId = $event.itemData.id;
+    this.loadCommitteeData();
+    this.loadStudentAndParentData();
   }
 
   positionFilterChange(event: any): void {
     this.selectedPositionFilter = event.itemData.value;
-    console.log('Position filter changed:', event.itemData);
+    this.loadCommitteeData();
   }
 
-  onExporting(event: any): void {
-    console.log('Exporting data');
+  onExporting(event: ExportingEvent): void {
+    let cls = this.classSource.find(en => en.id === this.filterClassId);
+    let clsName = cls ? cls.name.toUpperCase() : 'ALL';
+    
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('BanDaiDienPhuHuynh');
+
+    exportDataGridToXLSX({
+      component: event.component,
+      worksheet,
+      autoFilterEnabled: true,
+    }).then(() => {
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        saveAs(
+          new Blob([buffer], { type: 'application/octet-stream' }), 
+          `BAN_DAI_DIEN_PH_${clsName}.xlsx`
+        );
+      });
+    });
+    event.cancel = true;
   }
 
   onRowUpdating(event: any): void {
-    if (event.newData.position && !this.validatePosition(event.newData.position, event.key)) {
-      event.cancel = true;
-    }
+    const request: ParentCommitteeUpdateRequest = {
+      id: event.key,
+      position: event.newData.position !== undefined ? event.newData.position : event.oldData.position,
+      relationship: event.newData.relationship !== undefined ? event.newData.relationship : event.oldData.relationship,
+      note: event.newData.note !== undefined ? event.newData.note : event.oldData.note
+    };
+
+    this.parentCommitteeService.update(request).subscribe(
+      res => {
+        if (res.errorCode === 0) {
+          this.notificationService.showNotification(Constant.SUCCESS, res.message);
+          this.loadCommitteeData();
+        } else {
+          this.notificationService.showNotification(Constant.ERROR, res.message);
+          event.cancel = true;
+        }
+      },
+      error => {
+        this.notificationService.showNotification(Constant.ERROR, 'Có lỗi xảy ra khi cập nhật');
+        console.error(error);
+        event.cancel = true;
+      }
+    );
   }
 
   onRowInserting(event: any): void {
-    console.log('Inserting row:', event);
-    if (event.data.position && !this.validatePosition(event.data.position)) {
+    // Validate required fields
+    if (!event.data.parentId || !event.data.studentId || !event.data.position || !event.data.relationship) {
+      this.notificationService.showNotification(Constant.ERROR, 'Vui lòng điền đầy đủ thông tin bắt buộc');
       event.cancel = true;
-    } else {
-      event.data.stt = this.datas.length + 1;
+      return;
     }
+
+    const request: ParentCommitteeRequest = {
+      parentId: event.data.parentId,
+      studentId: event.data.studentId,
+      classId: this.filterClassId,
+      schoolYearId: this.schoolYearId,
+      position: event.data.position,
+      relationship: event.data.relationship,
+      note: event.data.note || ''
+    };
+
+    this.parentCommitteeService.create(request).subscribe(
+      res => {
+        if (res.errorCode === 0) {
+          this.notificationService.showNotification(Constant.SUCCESS, res.message);
+          this.loadCommitteeData();
+        } else {
+          this.notificationService.showNotification(Constant.ERROR, res.message);
+          event.cancel = true;
+        }
+      },
+      error => {
+        this.notificationService.showNotification(Constant.ERROR, 'Có lỗi xảy ra khi thêm mới');
+        console.error(error);
+        event.cancel = true;
+      }
+    );
   }
 
   onRowRemoving(event: any): void {
-    console.log('Removing row:', event);
+    this.parentCommitteeService.delete(event.key).subscribe(
+      res => {
+        if (res.errorCode === 0) {
+          this.notificationService.showNotification(Constant.SUCCESS, res.message);
+          this.loadCommitteeData();
+        } else {
+          this.notificationService.showNotification(Constant.ERROR, res.message);
+          event.cancel = true;
+        }
+      },
+      error => {
+        this.notificationService.showNotification(Constant.ERROR, 'Có lỗi xảy ra khi xóa');
+        console.error(error);
+        event.cancel = true;
+      }
+    );
   }
 
   getPositionText(position: string): string {
@@ -216,15 +331,5 @@ export class ParentCommitteeComponent implements OnInit {
   formatPhoneNumber(phone: string): string {
     if (!phone) return '';
     return phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
-  }
-
-  private validatePosition(position: string, excludeId?: number): boolean {
-    const currentData = this.datas.filter(d => d.id !== excludeId);
-    
-    if (['president', 'vice_president', 'secretary', 'treasurer'].includes(position)) {
-      return !currentData.some(d => d.position === position);
-    }
-    
-    return true;
   }
 }

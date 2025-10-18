@@ -27,15 +27,6 @@ export class ClassNotesComponent implements OnInit {
   filterClassSource: any[] = [];
   filterClassId: any = null;
   
-  categoryFilterSource = [
-    { value: '', name: 'Tất cả loại' },
-    { value: 'student_behavior', name: 'Hành vi học sinh' },
-    { value: 'academic', name: 'Học tập' },
-    { value: 'health', name: 'Sức khỏe' },
-    { value: 'family', name: 'Gia đình' },
-    { value: 'class_management', name: 'Quản lý lớp' },
-    { value: 'facility', name: 'Cơ sở vật chất' }
-  ];
   selectedCategoryFilter = '';
   
   priorityFilterSource = [

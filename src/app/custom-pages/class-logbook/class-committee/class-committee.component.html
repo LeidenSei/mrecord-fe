@@ -310,29 +310,19 @@
         ></dx-drop-down-button>
       </dxi-item>
     </dxo-toolbar>
-
-    <!-- ========== COLUMNS ========== -->
     
     <!-- Học sinh -->
     <dxi-column 
       dataField="studentName" 
       caption="Họ và tên" 
-      [width]="180"
+      [width]="220"
       [allowEditing]="false"
     ></dxi-column>
-    
-    <dxi-column 
-      dataField="studentCode" 
-      caption="Mã HS" 
-      [width]="100"
-      alignment="center"
-      [allowEditing]="false"
-    ></dxi-column>
-    
+
     <dxi-column 
       dataField="className" 
       caption="Lớp" 
-      [width]="80"
+      [width]="120"
       alignment="center"
       [allowEditing]="false"
     ></dxi-column>
@@ -348,39 +338,11 @@
     <dxi-column 
       dataField="teamNumber" 
       caption="Tổ" 
-      [width]="70"
+      [width]="120"
       alignment="center"
       cellTemplate="cellTeam"
     ></dxi-column>
-    
-    <!-- Thông tin bầu cử -->
-    <dxi-column 
-      dataField="electionRound" 
-      caption="Lần BC" 
-      [width]="80"
-      alignment="center"
-      cellTemplate="cellElectionRound"
-    ></dxi-column>
-    
-    <dxi-column 
-      dataField="electionDate" 
-      caption="Ngày bầu cử" 
-      [width]="110"
-      dataType="date"
-      format="dd/MM/yyyy"
-      alignment="center"
-    ></dxi-column>
-    
-    <dxi-column 
-      dataField="startDate" 
-      caption="Ngày nhận nhiệm" 
-      [width]="120"
-      dataType="date"
-      format="dd/MM/yyyy"
-      alignment="center"
-    ></dxi-column>
-    
-    <!-- Trạng thái -->
+
     <dxi-column 
       dataField="isActive" 
       caption="Trạng thái" 
@@ -388,23 +350,7 @@
       alignment="center"
       cellTemplate="cellStatus"
     ></dxi-column>
-    
-    <!-- Ghi chú -->
-    <dxi-column 
-      dataField="notes" 
-      caption="Ghi chú" 
-      [width]="200"
-      [visible]="false"
-    ></dxi-column>
-    
-    <dxi-column 
-      dataField="responsibilities" 
-      caption="Nhiệm vụ" 
-      [width]="200"
-      [visible]="false"
-    ></dxi-column>
 
-    <!-- Actions -->
     <dxi-column 
       type="buttons" 
       [width]="100" 

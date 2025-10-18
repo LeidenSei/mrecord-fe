@@ -18,29 +18,8 @@
     </div>
   </div>
 
+  <!-- FILTER ĐƠN GIẢN HÓA - GIỐNG FORM TẠO -->
   <div class="filters-container">
-    <div class="filter-item">
-      <label>Khối học</label>
-      <dx-select-box
-        [dataSource]="gradeSource"
-        [(value)]="gradeSource[0]"
-        (onValueChanged)="gradeChange($event)"
-        [width]="150"
-      ></dx-select-box>
-    </div>
-
-    <div class="filter-item">
-      <label>Lớp học</label>
-      <dx-select-box
-        [dataSource]="filterClassSource"
-        [(value)]="filterClassId"
-        displayExpr="name"
-        valueExpr="id"
-        (onValueChanged)="onFilterChange()"
-        [width]="150"
-      ></dx-select-box>
-    </div>
-
     <div class="filter-item">
       <label>Năm học</label>
       <dx-select-box
@@ -60,6 +39,18 @@
         valueExpr="value"
         (onValueChanged)="onFilterChange()"
         [width]="150"
+      ></dx-select-box>
+    </div>
+
+    <div class="filter-item">
+      <label>Lớp học</label>
+      <dx-select-box
+        [dataSource]="classSourceWithAll"
+        [(value)]="filterClassId"
+        displayExpr="name"
+        valueExpr="id"
+        (onValueChanged)="onFilterChange()"
+        [width]="200"
       ></dx-select-box>
     </div>
 
@@ -252,12 +243,15 @@
     <div *dxTemplate="let data of 'content'">
       <div style="height: 100%;">
 
-        <div style="display: flex; justify-content: space-between;">
+        <!-- STEP INDICATOR - CÓ THỂ CLICK -->
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
           <div *ngFor="let step of [1,2,3,4,5,6]; let i = index" 
                [style.flex]="1"
                [style.text-align]="'center'"
                [style.opacity]="currentStep === step ? 1 : 0.4"
-               [style.font-weight]="currentStep === step ? 'bold' : 'normal'">
+               [style.font-weight]="currentStep === step ? 'bold' : 'normal'"
+               [style.cursor]="'pointer'"
+               (click)="goToStep(step)">
             <div [style.width]="'40px'" 
                  [style.height]="'40px'" 
                  [style.border-radius]="'50%'" 
@@ -266,7 +260,8 @@
                  [style.display]="'flex'"
                  [style.align-items]="'center'"
                  [style.justify-content]="'center'"
-                 [style.margin]="'0 auto 5px'">
+                 [style.margin]="'0 auto 5px'"
+                 [style.transition]="'all 0.3s ease'">
               {{step}}
             </div>
             <small>{{getStepName(step)}}</small>
@@ -497,36 +492,18 @@
         </div>
 
         <!-- NAVIGATION BUTTONS -->
-        <div style="display: flex; justify-content: space-between; padding-top: 20px; border-top: 1px solid #ddd;">
+        <div style="display: flex; justify-content: flex-end; gap: 10px; padding-top: 20px; border-top: 1px solid #ddd;">
           <button 
-            *ngIf="currentStep > 1"
-            (click)="previousStep()"
-            style="padding: 10px 24px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
-            ← Quay lại
+            (click)="onCancelClick()"
+            style="padding: 10px 24px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 14px;">
+            Hủy
           </button>
-          <div *ngIf="currentStep === 1"></div>
           
-          <div style="display: flex; gap: 10px;">
-            <button 
-              (click)="onCancelClick()"
-              style="padding: 10px 24px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 14px;">
-              Hủy
-            </button>
-            
-            <button 
-              *ngIf="currentStep < 6"
-              (click)="nextStep()"
-              style="padding: 10px 24px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
-              Tiếp theo →
-            </button>
-            
-            <button 
-              *ngIf="currentStep === 6"
-              (click)="onSaveClick()"
-              style="padding: 10px 24px; background: #52c41a; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
-              💾 Lưu
-            </button>
-          </div>
+          <button 
+            (click)="onSaveClick()"
+            style="padding: 10px 24px; background: #52c41a; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+            💾 Lưu
+          </button>
         </div>
 
       </div>

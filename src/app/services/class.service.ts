@@ -19,7 +19,7 @@ export class ClassService extends BaseService {
    * Lấy danh sách lớp học theo trường
    * @param schoolId School Id
    */
-  getListBySchool(schoolId: string): Observable<any[]> {
+  getListBySchool(schoolId: string): Observable<any> {
     return this.get('/Class/ListBySchool', { SchoolId: schoolId });
   }
 
@@ -27,7 +27,7 @@ export class ClassService extends BaseService {
    * Lấy danh sách lớp học theo Tổ trưởng chuyên môn (TTCM)
    * Chỉ dành cho Teacher, Staff, SchoolAdmin
    */
-  getListByTTCM(): Observable<any[]> {
+  getListByTTCM(): Observable<any> {
     return this.get('/Class/ListByTTCM');
   }
 
@@ -36,33 +36,34 @@ export class ClassService extends BaseService {
    * @param schoolId School Id
    * @param teacherId Teacher Id
    */
-  getListByTeacher(schoolId: string, teacherId: string): Observable<any[]> {
+  getListByTeacher(schoolId: string, teacherId: string): Observable<any> {
     return this.get('/Class/ListByTeacher', { 
       SchoolId: schoolId, 
       TeacherId: teacherId 
     });
   }
+
   /**
- * Lưu vai trò học sinh trong lớp
- * @param classId Class Id
- * @param studentId Student Id
- * @param studentName Tên học sinh
- * @param roleIds Danh sách Role Ids
- * @param roleNames Danh sách tên vai trò
- */
-    saveStudentRole(
+   * Lưu vai trò học sinh trong lớp
+   * @param classId Class Id
+   * @param studentId Student Id
+   * @param studentName Tên học sinh
+   * @param roleIds Danh sách Role Ids
+   * @param roleNames Danh sách tên vai trò
+   */
+  saveStudentRole(
     classId: string, 
     studentId: string, 
     studentName: string, 
     roleIds: string[], 
     roleNames: string[]
-    ): Observable<any> {
+  ): Observable<any> {
     return this.post('/Class/SaveStudentRole', { 
-        ClassId: classId,
-        StudentId: studentId,
-        StudentName: studentName,
-        RoleIds: roleIds,
-        RoleNames: roleNames
+      ClassId: classId,
+      StudentId: studentId,
+      StudentName: studentName,
+      RoleIds: roleIds,
+      RoleNames: roleNames
     });
-    }
+  }
 }

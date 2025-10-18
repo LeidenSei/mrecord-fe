@@ -23,28 +23,50 @@
     <dxo-sorting mode="multiple"></dxo-sorting>
     <dxo-header-filter [visible]="true"></dxo-header-filter>
     <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
-    <dxo-editing
-      mode="popup"
-      [allowUpdating]="true"
-      [allowAdding]="true"
-      [allowDeleting]="true"
-      [useIcons]="true"
-    >
-      <dxo-popup
-        title="Ghi nhận hoa việc tốt"
-        [showTitle]="true"
-        [width]="550"
-        [height]="400"
-      ></dxo-popup>
-      <dxo-form>
-        <dxi-item itemType="group" [colCount]="2">
-          <dxi-item dataField="studentName" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="date" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="title" [isRequired]="true" [colSpan]="2"></dxi-item>
-          <dxi-item dataField="recognizedBy" [colSpan]="2"></dxi-item>
-        </dxi-item>
-      </dxo-form>
-    </dxo-editing>
+<dxo-editing
+  mode="popup"
+  [allowUpdating]="true"
+  [allowAdding]="true"
+  [allowDeleting]="true"
+  [useIcons]="true"
+>
+  <dxo-popup
+    title="Ghi nhận hoa việc tốt"
+    [showTitle]="true"
+    [width]="550"
+    [height]="450"
+  ></dxo-popup>
+  <dxo-form [colCount]="2">
+    <dxi-item 
+      dataField="studentName" 
+      [isRequired]="true"
+      [label]="{ text: 'Học sinh' }"
+    ></dxi-item>
+    
+    <dxi-item 
+      dataField="date" 
+      [isRequired]="true"
+      [label]="{ text: 'Ngày' }"
+      editorType="dxDateBox"
+    ></dxi-item>
+    
+    <dxi-item 
+      dataField="title" 
+      [isRequired]="true" 
+      [colSpan]="2"
+      [label]="{ text: 'Nội dung việc tốt' }"
+      editorType="dxTextArea"
+      [editorOptions]="{ height: 120 }" 
+    ></dxi-item>
+    
+    <dxi-item 
+      dataField="recognizedBy" 
+      [colSpan]="2"
+      [label]="{ text: 'Người ghi nhận' }"
+      [editorOptions]="{ height: 60 }"  
+    ></dxi-item>
+  </dxo-form>
+</dxo-editing>
     
     <dxo-export
       [enabled]="true"

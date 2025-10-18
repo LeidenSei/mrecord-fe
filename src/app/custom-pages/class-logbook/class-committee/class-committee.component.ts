@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import notify from 'devextreme/ui/notify';
 import { ClassService } from 'src/app/services/class.service';
 import { StudentService } from 'src/app/services/student.service';
+import { AuthService } from 'src/app/services'; // ✅ THÊM
 
 interface CommitteeMember {
   id?: string;
@@ -47,10 +48,10 @@ export class ClassCommitteeComponent implements OnInit {
     { value: 4, name: 'Lần 4' }
   ];
   
-  gradeSource = ['Tất cả', 'Khối 6', 'Khối 7', 'Khối 8', 'Khối 9'];
+  gradeSource: string[] = ['Tất cả']; 
   selectedGrade = 'Tất cả';
   
-  filterClassId: string = '61d505578491e62fb4e390a3';
+  filterClassId: string | null = null;
   filterClassSource: any[] = [];
   
   positionSource: any[] = [];
@@ -74,19 +75,85 @@ export class ClassCommitteeComponent implements OnInit {
   isEditMode = false;
   selectedRows: CommitteeMember[] = [];
   
-  currentSchoolId: string;
-
-  constructor(
+  currentSchoolId: string = '';
+  currentPersonId: string = '';
+  isAdmin: boolean = false;
+  allClasses: any[] = [];
+ constructor(
     private studentService: StudentService,
-    private classService: ClassService
+    private classService: ClassService,
+    public authService: AuthService
   ) { }
 
-  ngOnInit(): void {
-    this.currentSchoolId = localStorage.getItem('schoolId') || '';
+  async ngOnInit(): Promise<void> {
+    const user = await this.authService.getUser();
+    this.currentSchoolId = user.data.schoolId;
+    this.currentPersonId = user.data.personId;
+    this.isAdmin = user.data.role === 2 || user.data.isBGH;
+
+    if (!this.currentSchoolId) {
+      notify('Không tìm thấy thông tin trường học', 'warning', 3000);
+      return;
+    }
+
     this.loadStudentRoles();
-    this.loadClassData();
-    this.loadStudentData();
+    await this.loadClassData(user);
   }
+
+  async loadClassData(user: any): Promise<void> {
+    try {
+      let classesResponse: any;
+      
+      if (this.isAdmin) {
+        classesResponse = await this.classService.getListBySchool(this.currentSchoolId).toPromise();
+      } else {
+        if (typeof this.classService.getListByTeacher === 'function') {
+          classesResponse = await this.classService.getListByTeacher(
+            this.currentSchoolId, 
+            this.currentPersonId
+          ).toPromise();
+        } else {
+          classesResponse = await this.classService.getListBySchool(this.currentSchoolId).toPromise();
+        }
+      }
+      
+      const classes = this.extractData(classesResponse);
+      
+      if (classes.length === 0) {
+        notify('Không tìm thấy lớp học nào', 'warning', 3000);
+        this.filterClassSource = [{ id: null, name: 'Tất cả lớp' }];
+        return;
+      }
+      
+      // ✅ LUU danh sách classes gốc
+      this.allClasses = classes.map((cls: any) => ({
+        id: cls.id,
+        name: cls.shortName || cls.name || cls.tenLop,
+        grade: cls.grade
+      }));
+      
+      // Lọc grades theo classes được phân công
+      const gradeIds = [...new Set(this.allClasses.map(c => c.grade).filter(g => g))].sort();
+      this.gradeSource = ['Tất cả', ...gradeIds.map((g: number) => `Khối ${g}`)];
+      
+      // Hiển thị tất cả lớp ban đầu
+      this.filterClassSource = [
+        { id: null, name: 'Tất cả lớp' },
+        ...this.allClasses
+      ];
+      
+      // Set default class
+      if (this.filterClassSource.length > 1) {
+        this.filterClassId = this.filterClassSource[1].id;
+        this.loadStudentData();
+      }
+    } catch (err) {
+      console.error('Error loading classes:', err);
+      notify('Không thể tải danh sách lớp', 'error', 2000);
+      this.filterClassSource = [{ id: null, name: 'Tất cả lớp' }];
+    }
+  }
+
   
   loadStudentRoles(): void {
     this.studentService.getListRole().subscribe({
@@ -101,26 +168,85 @@ export class ClassCommitteeComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading student roles:', err);
+        notify('Không thể tải danh sách chức vụ', 'error', 2000);
       }
     });
   }
-  
-  loadClassData(): void {
-    if (!this.currentSchoolId) return;
+
+  private extractData(response: any): any[] {
+    if (!response) return [];
     
-    this.classService.getListBySchool(this.currentSchoolId).subscribe({
-      next: (classes) => {
+    if (response.data !== undefined) {
+      return Array.isArray(response.data) ? response.data : [];
+    }
+    
+    if (Array.isArray(response)) {
+      return response;
+    }
+    
+    return [];
+  }
+
+  getGradeNumber(gradeText: string): number | undefined {
+    if (gradeText === 'Tất cả') return undefined;
+    const match = gradeText.match(/\d+/);
+    return match ? parseInt(match[0]) : undefined;
+  }
+
+  gradeChange(event: any): void {
+    this.selectedGrade = event.itemData;
+    
+    if (this.selectedGrade === 'Tất cả') {
+      this.filterClassSource = [
+        { id: null, name: 'Tất cả lớp' },
+        ...this.allClasses
+      ];
+    } else {
+      const gradeNumber = this.getGradeNumber(this.selectedGrade);
+      
+      if (gradeNumber !== undefined) {
+        const filteredClasses = this.allClasses.filter(c => c.grade === gradeNumber);
+        
         this.filterClassSource = [
           { id: null, name: 'Tất cả lớp' },
-          ...classes.map(cls => ({ id: cls.id, name: cls.shortName || cls.name }))
+          ...filteredClasses
         ];
-      },
-      error: (err) => {
-        console.error('Error loading classes:', err);
+
+        if (filteredClasses.length > 0) {
+          this.filterClassId = filteredClasses[0].id;
+          this.loadStudentData();
+        } else {
+          this.filterClassId = null;
+          this.studentSource = [];
+          this.datas = [];
+          this.committeeCount = 0;
+          notify('Không có lớp nào trong khối này', 'info', 2000);
+        }
       }
-    });
+    }
+  }
+
+  classChange(event: any): void {
+    this.filterClassId = event.itemData.id;
+    if (this.filterClassId) {
+      this.loadStudentData();
+    } else {
+      this.studentSource = [];
+      this.datas = [];
+      this.committeeCount = 0;
+    }
+  }
+
+  schoolYearChange(event: any): void {
+    this.selectedSchoolYear = event.itemData;
+    this.loadCommitteeData();
   }
   
+  electionRoundChange(event: any): void {
+    this.selectedElectionRound = event.itemData.value;
+    this.datas = this.filterCommitteeData(this.allCommitteeData);
+    this.committeeCount = this.datas.length;
+  }
   loadStudentData(): void {
     if (!this.filterClassId) {
       this.studentSource = [];
@@ -128,8 +254,9 @@ export class ClassCommitteeComponent implements OnInit {
     }
     
     this.studentService.getListByClass(this.filterClassId).subscribe({
-      next: (students) => {
-        this.studentSource = students.map(student => ({
+      next: (response) => {
+        const students = this.extractData(response); 
+        this.studentSource = students.map((student: any) => ({
           id: student.id,
           code: student.code || '',
           fullName: this.getFullName(student),
@@ -148,6 +275,7 @@ export class ClassCommitteeComponent implements OnInit {
       error: (err) => {
         console.error('Error loading students:', err);
         notify('Không thể tải danh sách học sinh', 'error', 2000);
+        this.studentSource = [];
       }
     });
   }
@@ -199,35 +327,12 @@ export class ClassCommitteeComponent implements OnInit {
     localStorage.setItem(committeeKey, JSON.stringify(data));
   }
 
-  schoolYearChange(event: any): void {
-    this.selectedSchoolYear = event.itemData;
-    this.loadCommitteeData();
-  }
-  
-  electionRoundChange(event: any): void {
-    this.selectedElectionRound = event.itemData.value;
-    this.datas = this.filterCommitteeData(this.allCommitteeData);
-    this.committeeCount = this.datas.length;
-  }
-
-  gradeChange(event: any): void {
-    this.selectedGrade = event.itemData;
-    this.datas = this.filterCommitteeData(this.allCommitteeData);
-    this.committeeCount = this.datas.length;
-  }
-
-  classChange(event: any): void {
-    this.filterClassId = event.itemData.id;
-    if (this.filterClassId) {
-      this.loadStudentData();
-    } else {
-      this.studentSource = [];
-      this.datas = [];
-      this.committeeCount = 0;
-    }
-  }
-
   openAddModal(): void {
+    if (!this.filterClassId) {
+      notify('Vui lòng chọn lớp học trước', 'warning', 2000);
+      return;
+    }
+    
     this.isEditMode = false;
     this.selectedStudents = [];
     this.selectedPositions = [];
@@ -279,7 +384,7 @@ export class ClassCommitteeComponent implements OnInit {
     const newMembers: CommitteeMember[] = [];
     const currentDate = new Date();
     const electionRound = this.getNextElectionRound();
-    const className = this.getClassName(this.filterClassId);
+    const className = this.getClassName(this.filterClassId!); // ✅ SỬA: Non-null assertion
     
     this.selectedStudents.forEach(student => {
       this.selectedPositions.forEach(position => {
@@ -292,7 +397,7 @@ export class ClassCommitteeComponent implements OnInit {
           studentId: student.id,
           studentName: student.fullName,
           studentCode: student.code,
-          classId: this.filterClassId,
+          classId: this.filterClassId!,
           className: className,
           position: position.id,
           teamNumber: undefined,
@@ -324,7 +429,7 @@ export class ClassCommitteeComponent implements OnInit {
     
     this.selectedStudents.forEach(student => {
       this.classService.saveStudentRole(
-        this.filterClassId,
+        this.filterClassId!,
         student.id,
         student.fullName,
         roleIds,
@@ -354,7 +459,7 @@ export class ClassCommitteeComponent implements OnInit {
     });
 
     const updatedMembers: CommitteeMember[] = [];
-    const className = this.getClassName(this.filterClassId);
+    const className = this.getClassName(this.filterClassId!);
     
     this.selectedRows.forEach(row => {
       const student = this.studentSource.find(s => s.id === row.studentId);
@@ -366,7 +471,7 @@ export class ClassCommitteeComponent implements OnInit {
           studentId: student.id,
           studentName: student.fullName,
           studentCode: student.code,
-          classId: this.filterClassId,
+          classId: this.filterClassId!,
           className: className,
           position: position.id,
           teamNumber: row.teamNumber,
@@ -401,7 +506,7 @@ export class ClassCommitteeComponent implements OnInit {
       const student = this.studentSource.find(s => s.id === studentId);
       if (student) {
         this.classService.saveStudentRole(
-          this.filterClassId,
+          this.filterClassId!,
           student.id,
           student.fullName,
           roleIds,
