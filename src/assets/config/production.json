@@ -1,8 +1,8 @@
 {
     "api": {
-      "baseUrl": "https://apilms.lienlacdientu.vn",
-      "curUrl": "https://lms.mschool.edu.vn",
-      "mSchoolUrl": "https://mschool.edu.vn",
+      "baseUrl": "https://api.record.mschool.edu.vn",
+      "curUrl": "https://record.mschool.edu.vn",
+      "mSchoolUrl": "https://lienlacdientu.vn",
       "h5pUrl": "https://h5p.mschool.edu.vn",
       "reportUrl": "http://apiv04.stc.vn:8088"
     },
