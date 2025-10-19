@@ -10,7 +10,6 @@ import { MonthlyPlanComponent } from './monthly-plan/monthly-plan.component';
 import { MidtermAssessmentComponent } from './midterm-assessment/midterm-assessment.component';
 import { FinalAssessmentComponent } from './final-assessment/final-assessment.component';
 import { Semester1CommentsComponent } from './semester1-comments/semester1-comments.component';
-import { Semester2PlanSupplementComponent } from './semester2-plan-supplement/semester2-plan-supplement.component';
 
 const routes: Routes = [
   {
@@ -90,14 +89,6 @@ const routes: Routes = [
       breadcrumbIcon: 'textdocument'
     }
   },
-  {
-    path: 'semester2-plan-supplement',
-    component: Semester2PlanSupplementComponent,
-    data: { 
-      breadcrumb: 'Bổ sung kế hoạch chủ nhiệm học kỳ II',
-      breadcrumbIcon: 'bookmark'
-    }
-  }
 ];
 
 @NgModule({

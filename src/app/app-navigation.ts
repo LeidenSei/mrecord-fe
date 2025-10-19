@@ -61,62 +61,77 @@ export const navigationTeacherHomeroom = [
       {
         text: 'Ban cán sự lớp',
         path: '/class-logbook/class-committee',
+        icon: 'user',
         selected: false
       },
       {
         text: 'Lưu ý nhân lớp',
         path: '/class-logbook/class-notes',
+        icon: 'edit',
         selected: false
       },
       {
         text: 'Hoa việc tốt',
         path: '/class-logbook/good-deeds',
+        icon: 'taskcomplete',
         selected: false
       },
       {
         text: 'Danh sách Ban đại diện Cha mẹ học sinh',
         path: '/class-logbook/parent-committee',
+        icon: 'user',
         selected: false
       },
       {
         text: 'Kế hoạch chủ nhiệm',
         path: '/class-logbook/homeroom-plan',
+        icon: 'bookmark',
         selected: false
       },
       {
         text: 'Kế hoạch tháng',
         path: '/class-logbook/monthly-plan',
+        icon: 'bookmark',
         selected: false
       },
       {
         text: 'Bảng tổng hợp kết quả đánh giá giáo dục giữa kỳ (GK)',
         path: '/class-logbook/midterm-assessment',
+        icon: 'checklist',
         selected: false
       },
       {
         text: 'Bảng tổng hợp kết quả đánh giá giáo dục cuối kỳ (CK)',
         path: '/class-logbook/final-assessment',
+        icon: 'checklist',
         selected: false
       },
       {
         text: 'Nhận xét sau khi đánh giá học kỳ I',
         path: '/class-logbook/semester1-comments',
+        icon: 'textdocument',
         selected: false
       },
-      {
-        text: 'Bổ sung kế hoạch chủ nhiệm học kỳ II',
-        path: '/class-logbook/semester2-plan-supplement',
-        selected: false
-      }
     ]
   },
-
   /*{
+    text: 'Nhận xét GVCN',
+    icon: 'textdocument',
+    path: '/transcript/teacher-homeroom-comment',
+    selected: false,
+  },*/
+  {
     text: 'Ký duyệt bộ môn',
     type: 'gvbm',
     icon: 'edit',
     grade: 'c2',
     path: '/transcript/teacher-subject-approval',
+    selected: false,
+  },
+  /*{
+    text: 'Ký duyệt GVCN',
+    icon: 'edit',
+    path: '/transcript/teacher-homeroom-approval',
     selected: false,
   },*/
   {
@@ -128,16 +143,18 @@ export const navigationTeacherHomeroom = [
       {
         text: 'Đánh giá thưởng xuyên tổng hợp',
         path: '/score-entry/one-period',
+        icon: 'taskcomplete',
         selected: false
       },
       {
         text: 'Đánh giá định kỳ và nhận xét môn học',
         path: '/score-entry/semester',
+        icon: 'bookmark',
         selected: false
       }
     ]
   },
-  /*{
+  {
     text: 'Học bạ số',
     icon: 'exportpdf',
     path: '',
@@ -170,7 +187,7 @@ export const navigationTeacherHomeroom = [
         selected: false
       },
     ],
-  },*/
+  },
 ];
 
 export const navigationTeacher = [
@@ -330,12 +347,6 @@ export const navigationAdmin = [
         icon: 'textdocument',
         selected: false
       },
-      {
-        text: 'Bổ sung kế hoạch chủ nhiệm học kỳ II',
-        path: '/class-logbook/semester2-plan-supplement',
-        icon: 'bookmark',
-        selected: false
-      }
     ]
   },
   {
