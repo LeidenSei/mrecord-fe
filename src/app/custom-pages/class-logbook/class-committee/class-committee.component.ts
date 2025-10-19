@@ -2,26 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import notify from 'devextreme/ui/notify';
 import { ClassService } from 'src/app/services/class.service';
 import { StudentService } from 'src/app/services/student.service';
-import { AuthService } from 'src/app/services'; // ✅ THÊM
-
-interface CommitteeMember {
-  id?: string;
-  studentId: string;
-  studentName: string;
-  studentCode: string;
-  classId: string;
-  className: string;
-  position: string;
-  teamNumber?: number;
-  schoolYear: string;
-  electionRound: number;
-  electionDate: Date;
-  startDate: Date;
-  endDate?: Date;
-  isActive: boolean;
-  responsibilities?: string;
-  notes?: string;
-}
+import { AuthService } from 'src/app/services';
+import { CommitteeService, CommitteeMemberDto, CreateCommitteeRequest, UpdateCommitteeRequest, BulkUpdatePositionRequest } from 'src/app/services/committee.service';
+import { GeneralService } from 'src/app/services/general.service';
 
 @Component({
   selector: 'app-class-committee',
@@ -29,8 +12,8 @@ interface CommitteeMember {
   styleUrls: ['./class-committee.component.scss']
 })
 export class ClassCommitteeComponent implements OnInit {
-  datas: CommitteeMember[] = [];
-  allCommitteeData: CommitteeMember[] = [];
+  datas: CommitteeMemberDto[] = [];
+  allCommitteeData: CommitteeMemberDto[] = [];
   committeeCount = 0;
   
   studentSource: any[] = [];
@@ -73,16 +56,19 @@ export class ClassCommitteeComponent implements OnInit {
   selectedStudents: any[] = [];
   selectedPositions: any[] = [];
   isEditMode = false;
-  selectedRows: CommitteeMember[] = [];
+  selectedRows: CommitteeMemberDto[] = [];
   
   currentSchoolId: string = '';
   currentPersonId: string = '';
   isAdmin: boolean = false;
   allClasses: any[] = [];
- constructor(
+  
+  constructor(
     private studentService: StudentService,
     private classService: ClassService,
-    public authService: AuthService
+    private committeeService: CommitteeService,
+    public authService: AuthService,
+    private generalService: GeneralService,
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -125,24 +111,19 @@ export class ClassCommitteeComponent implements OnInit {
         return;
       }
       
-      // ✅ LUU danh sách classes gốc
       this.allClasses = classes.map((cls: any) => ({
         id: cls.id,
-        name: cls.shortName || cls.name || cls.tenLop,
+        name: cls.name || cls.tenLop || cls.shortName,
         grade: cls.grade
       }));
-      
-      // Lọc grades theo classes được phân công
       const gradeIds = [...new Set(this.allClasses.map(c => c.grade).filter(g => g))].sort();
       this.gradeSource = ['Tất cả', ...gradeIds.map((g: number) => `Khối ${g}`)];
       
-      // Hiển thị tất cả lớp ban đầu
       this.filterClassSource = [
         { id: null, name: 'Tất cả lớp' },
         ...this.allClasses
       ];
       
-      // Set default class
       if (this.filterClassSource.length > 1) {
         this.filterClassId = this.filterClassSource[1].id;
         this.loadStudentData();
@@ -154,7 +135,16 @@ export class ClassCommitteeComponent implements OnInit {
     }
   }
 
-  
+  get selectedElectionRoundText(): string {
+    const item = this.electionRoundSource.find(x => x.value === this.selectedElectionRound);
+    return item ? item.name : 'Chọn lần BC';
+  }
+
+  get selectedClassText(): string {
+    const cls = this.filterClassSource.find(x => x.id === this.filterClassId);
+    return cls ? cls.name : 'Chọn lớp';
+  }
+
   loadStudentRoles(): void {
     this.studentService.getListRole().subscribe({
       next: (roles) => {
@@ -244,18 +234,17 @@ export class ClassCommitteeComponent implements OnInit {
   
   electionRoundChange(event: any): void {
     this.selectedElectionRound = event.itemData.value;
-    this.datas = this.filterCommitteeData(this.allCommitteeData);
-    this.committeeCount = this.datas.length;
+    this.loadCommitteeData();
   }
+
   loadStudentData(): void {
     if (!this.filterClassId) {
       this.studentSource = [];
       return;
     }
     
-    this.studentService.getListByClass(this.filterClassId).subscribe({
-      next: (response) => {
-        const students = this.extractData(response); 
+    this.generalService.getListStudentByClass2(this.filterClassId).subscribe({
+      next: (students) => {
         this.studentSource = students.map((student: any) => ({
           id: student.id,
           code: student.code || '',
@@ -290,41 +279,84 @@ export class ClassCommitteeComponent implements OnInit {
   }
 
   loadCommitteeData(): void {
-    const committeeKey = `committee_${this.filterClassId}_${this.selectedSchoolYear}`;
-    const savedData = localStorage.getItem(committeeKey);
-    
-    if (savedData) {
-      try {
-        this.allCommitteeData = JSON.parse(savedData).map((item: any) => ({
-          ...item,
+    if (!this.filterClassId) {
+      this.datas.length = 0;
+      this.committeeCount = 0;
+      return;
+    }
+
+    this.committeeService.getListByClass(
+      this.filterClassId,
+      this.selectedSchoolYear,
+      this.selectedElectionRound > 0 ? this.selectedElectionRound : undefined,
+      undefined
+    ).subscribe({
+      next: (data) => {
+        const mappedData = data.map(item => ({
+          id: item.id,
+          studentId: item.studentId,
+          studentName: item.studentName,
+          studentCode: item.studentCode,
+          classId: item.classId,
+          className: item.className,
+          positionId: item.positionId,
+          positionName: item.positionName,
+          teamNumber: item.teamNumber,
+          schoolYear: item.schoolYear,
+          electionRound: item.electionRound,
           electionDate: new Date(item.electionDate),
           startDate: new Date(item.startDate),
-          endDate: item.endDate ? new Date(item.endDate) : undefined
+          endDate: item.endDate ? new Date(item.endDate) : undefined,
+          isActive: item.isActive,
+          responsibilities: item.responsibilities,
+          notes: item.notes
         }));
-      } catch (e) {
-        this.allCommitteeData = [];
+
+        this.allCommitteeData.length = 0;
+        this.allCommitteeData.push(...mappedData);
+        
+        this.datas.length = 0;
+        this.datas.push(...mappedData);
+        
+        this.committeeCount = this.datas.length;
+      },
+      error: (err) => {
+        console.error('Error loading committee data:', err);
+        notify('Không thể tải danh sách ban cán sự', 'error', 2000);
+        this.allCommitteeData.length = 0;
+        this.datas.length = 0;
+        this.committeeCount = 0;
       }
-    } else {
-      this.allCommitteeData = [];
-    }
-    
-    this.datas = this.filterCommitteeData(this.allCommitteeData);
-    this.committeeCount = this.datas.length;
+    });
   }
 
-  filterCommitteeData(data: CommitteeMember[]): CommitteeMember[] {
-    let filtered = [...data];
+  onRowUpdating(event: any): void {
+    const updatedData = { ...event.oldData, ...event.newData };
     
-    if (this.selectedElectionRound > 0) {
-      filtered = filtered.filter(d => d.electionRound === this.selectedElectionRound);
-    }
-    
-    return filtered;
-  }
+    const request: UpdateCommitteeRequest = {
+      id: event.key,
+      positionId: updatedData.positionId,
+      teamNumber: updatedData.teamNumber,
+      electionRound: updatedData.electionRound,
+      responsibilities: updatedData.responsibilities,
+      notes: updatedData.notes
+    };
 
-  saveToLocalStorage(data: CommitteeMember[]): void {
-    const committeeKey = `committee_${this.filterClassId}_${this.selectedSchoolYear}`;
-    localStorage.setItem(committeeKey, JSON.stringify(data));
+    this.committeeService.update(request).subscribe({
+      next: (response) => {
+        if (response.code === 0) {
+          notify('Cập nhật thành công', 'success', 2000);
+          this.loadCommitteeData();
+        } else {
+          notify(response.message, 'warning', 2000);
+        }
+      },
+      error: (err) => {
+        console.error('Error updating committee:', err);
+        notify('Không thể cập nhật', 'error', 2000);
+        event.cancel = true;
+      }
+    });
   }
 
   openAddModal(): void {
@@ -340,7 +372,7 @@ export class ClassCommitteeComponent implements OnInit {
     this.showAddModal = true;
   }
 
-  openEditModal(rows: CommitteeMember[]): void {
+  openEditModal(rows: CommitteeMemberDto[]): void {
     if (rows.length === 0) {
       notify('Vui lòng chọn ít nhất một bản ghi để chỉnh sửa', 'warning', 2000);
       return;
@@ -380,69 +412,32 @@ export class ClassCommitteeComponent implements OnInit {
       notify('Vui lòng chọn ít nhất một chức vụ', 'error', 2000);
       return;
     }
-    
-    const newMembers: CommitteeMember[] = [];
-    const currentDate = new Date();
-    const electionRound = this.getNextElectionRound();
-    const className = this.getClassName(this.filterClassId!); // ✅ SỬA: Non-null assertion
-    
-    this.selectedStudents.forEach(student => {
-      this.selectedPositions.forEach(position => {
-        if (!this.validatePosition(position.id, undefined, student.id)) {
-          return;
-        }
 
-        const member: CommitteeMember = {
-          id: this.generateId(),
-          studentId: student.id,
-          studentName: student.fullName,
-          studentCode: student.code,
-          classId: this.filterClassId!,
-          className: className,
-          position: position.id,
-          teamNumber: undefined,
-          schoolYear: this.selectedSchoolYear,
-          electionRound: electionRound,
-          electionDate: currentDate,
-          startDate: currentDate,
-          isActive: true,
-          responsibilities: position.name
-        };
-        
-        newMembers.push(member);
-      });
+    const electionRound = this.getNextElectionRound();
+    
+    const request: CreateCommitteeRequest = {
+      classId: this.filterClassId!,
+      studentIds: this.selectedStudents.map(s => s.id),
+      positionIds: this.selectedPositions.map(p => p.id),
+      schoolYear: this.selectedSchoolYear,
+      electionRound: electionRound
+    };
+
+    this.committeeService.createBulk(request).subscribe({
+      next: (response) => {
+        if (response.code === 0) {
+          notify(response.message, 'success', 2000);
+          this.loadCommitteeData();
+          this.closeAddModal();
+        } else {
+          notify(response.message, 'warning', 2000);
+        }
+      },
+      error: (err) => {
+        console.error('Error creating committee:', err);
+        notify('Không thể tạo phân công', 'error', 2000);
+      }
     });
-    
-    if (newMembers.length === 0) {
-      notify('Không có phân công nào hợp lệ để thêm', 'error', 2000);
-      return;
-    }
-    
-    this.allCommitteeData.push(...newMembers);
-    this.saveToLocalStorage(this.allCommitteeData);
-    
-    this.datas = this.filterCommitteeData(this.allCommitteeData);
-    this.committeeCount = this.datas.length;
-    
-    const roleIds = this.selectedPositions.map(p => p.id);
-    const roleNames = this.selectedPositions.map(p => p.name);
-    
-    this.selectedStudents.forEach(student => {
-      this.classService.saveStudentRole(
-        this.filterClassId!,
-        student.id,
-        student.fullName,
-        roleIds,
-        roleNames
-      ).subscribe({
-        next: () => {},
-        error: (err) => console.error('Error saving student role:', err)
-      });
-    });
-    
-    notify(`Đã thêm ${newMembers.length} phân công thành công`, 'success', 2000);
-    
-    this.closeAddModal();
   }
 
   handleEditMode(): void {
@@ -451,76 +446,26 @@ export class ClassCommitteeComponent implements OnInit {
       return;
     }
 
-    this.selectedRows.forEach(row => {
-      const index = this.allCommitteeData.findIndex(d => d.id === row.id);
-      if (index !== -1) {
-        this.allCommitteeData.splice(index, 1);
+    const request: BulkUpdatePositionRequest = {
+      committeeIds: this.selectedRows.map(r => r.id!),
+      newPositionIds: this.selectedPositions.map(p => p.id)
+    };
+
+    this.committeeService.bulkUpdatePosition(request).subscribe({
+      next: (response) => {
+        if (response.code === 0) {
+          notify(response.message, 'success', 2000);
+          this.loadCommitteeData();
+          this.closeAddModal();
+        } else {
+          notify(response.message, 'warning', 2000);
+        }
+      },
+      error: (err) => {
+        console.error('Error updating positions:', err);
+        notify('Không thể cập nhật chức vụ', 'error', 2000);
       }
     });
-
-    const updatedMembers: CommitteeMember[] = [];
-    const className = this.getClassName(this.filterClassId!);
-    
-    this.selectedRows.forEach(row => {
-      const student = this.studentSource.find(s => s.id === row.studentId);
-      if (!student) return;
-
-      this.selectedPositions.forEach(position => {
-        const updated: CommitteeMember = {
-          id: this.generateId(),
-          studentId: student.id,
-          studentName: student.fullName,
-          studentCode: student.code,
-          classId: this.filterClassId!,
-          className: className,
-          position: position.id,
-          teamNumber: row.teamNumber,
-          schoolYear: this.selectedSchoolYear,
-          electionRound: row.electionRound,
-          electionDate: row.electionDate,
-          startDate: row.startDate,
-          isActive: true,
-          responsibilities: position.name
-        };
-        
-        updatedMembers.push(updated);
-      });
-    });
-
-    if (updatedMembers.length === 0) {
-      notify('Không có cập nhật nào hợp lệ', 'error', 2000);
-      return;
-    }
-
-    this.allCommitteeData.push(...updatedMembers);
-    this.saveToLocalStorage(this.allCommitteeData);
-    
-    this.datas = this.filterCommitteeData(this.allCommitteeData);
-    this.committeeCount = this.datas.length;
-    
-    const roleIds = this.selectedPositions.map(p => p.id);
-    const roleNames = this.selectedPositions.map(p => p.name);
-    
-    const uniqueStudents = [...new Set(this.selectedRows.map(r => r.studentId))];
-    uniqueStudents.forEach(studentId => {
-      const student = this.studentSource.find(s => s.id === studentId);
-      if (student) {
-        this.classService.saveStudentRole(
-          this.filterClassId!,
-          student.id,
-          student.fullName,
-          roleIds,
-          roleNames
-        ).subscribe({
-          next: () => {},
-          error: (err) => console.error('Error saving student role:', err)
-        });
-      }
-    });
-    
-    notify(`Đã cập nhật ${updatedMembers.length} phân công`, 'success', 2000);
-    
-    this.closeAddModal();
   }
 
   onRowInserting(event: any): void {
@@ -528,26 +473,22 @@ export class ClassCommitteeComponent implements OnInit {
     this.openAddModal();
   }
   
-  onRowUpdating(event: any): void {
-    const index = this.allCommitteeData.findIndex(d => d.id === event.key);
-    
-    if (index !== -1) {
-      Object.assign(this.allCommitteeData[index], event.newData);
-      this.saveToLocalStorage(this.allCommitteeData);
-    }
-    
-    notify('Cập nhật ban cán sự thành công', 'success', 2000);
-  }
-
   onRowRemoving(event: any): void {
-    const index = this.allCommitteeData.findIndex(d => d.id === event.key);
-    
-    if (index !== -1) {
-      this.allCommitteeData.splice(index, 1);
-      this.saveToLocalStorage(this.allCommitteeData);
-    }
-    
-    notify('Xóa ban cán sự thành công', 'success', 2000);
+    this.committeeService.deleteCommittee(event.key).subscribe({
+      next: (response) => {
+        if (response.code === 0) {
+          notify('Xóa thành công', 'success', 2000);
+          this.loadCommitteeData();
+        } else {
+          notify(response.message, 'warning', 2000);
+        }
+      },
+      error: (err) => {
+        console.error('Error deleting committee:', err);
+        notify('Không thể xóa', 'error', 2000);
+        event.cancel = true;
+      }
+    });
   }
 
   onExporting(event: any): void {
@@ -558,39 +499,10 @@ export class ClassCommitteeComponent implements OnInit {
     this.selectedRows = event.selectedRowsData;
   }
 
-  validatePosition(positionId: string, teamNumber: number | undefined, studentId: string, excludeId?: string): boolean {
-    if (this.needsTeam(positionId) && !teamNumber) {
-      notify('Chức vụ này yêu cầu phải có tổ', 'warning', 2000);
-      return false;
-    }
-    
-    const duplicate = this.allCommitteeData.some(d => 
-      d.studentId === studentId && 
-      d.position === positionId && 
-      d.id !== excludeId &&
-      d.isActive &&
-      d.electionRound === this.getNextElectionRound()
-    );
-    
-    if (duplicate) {
-      notify('Học sinh đã có chức vụ này trong lần bầu cử hiện tại', 'warning', 2000);
-      return false;
-    }
-    
-    return true;
-  }
-
   getNextElectionRound(): number {
     if (this.allCommitteeData.length === 0) return 1;
     const maxRound = Math.max(...this.allCommitteeData.map(d => d.electionRound || 0), 0);
     return maxRound > 0 ? maxRound : 1;
-  }
-
-  generateId(): string {
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 100000);
-    const counter = this.allCommitteeData.length;
-    return `CM_${timestamp}_${counter}_${random}`;
   }
 
   getClassName(classId: string): string {
@@ -598,17 +510,17 @@ export class ClassCommitteeComponent implements OnInit {
     return cls ? cls.name : '';
   }
 
-  getPositionText(position: string): string {
-    const role = this.studentRoles.find(r => r.id === position || r.code === position);
-    return role ? role.name : position;
+  getPositionText(positionId: string): string {
+    const role = this.studentRoles.find(r => r.id === positionId || r.code === positionId);
+    return role ? role.name : positionId;
   }
 
-  getPositionClass(position: string): string {
+  getPositionClass(positionId: string): string {
     return 'badge-primary';
   }
 
-  needsTeam(position: string): boolean {
-    const role = this.studentRoles.find(r => r.id === position);
+  needsTeam(positionId: string): boolean {
+    const role = this.studentRoles.find(r => r.id === positionId);
     if (!role) return false;
     
     const teamPositions = ['Tổ trưởng', 'Tổ phó'];

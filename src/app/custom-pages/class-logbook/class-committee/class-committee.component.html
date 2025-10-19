@@ -1,5 +1,4 @@
 <div class="view-wrapper list-page class-committee">
-  <!-- ========== CUSTOM ADD MODAL ========== -->
   <dx-popup
     [(visible)]="showAddModal"
     [showTitle]="true"
@@ -107,7 +106,6 @@
     </div>
   </dx-popup>
 
-  <!-- ========== DATA GRID ========== -->
   <dx-data-grid
     class="grid theme-dependent"
     [rowAlternationEnabled]="true"
@@ -122,6 +120,7 @@
     [columnAutoWidth]="true"
     [columnResizingMode]="'nextColumn'"
     [allowColumnResizing]="true"
+    [repaintChangesOnly]="true"
     (onExporting)="onExporting($event)"
     (onRowUpdating)="onRowUpdating($event)"
     (onRowInserting)="onRowInserting($event)"
@@ -136,7 +135,6 @@
     <dxo-header-filter [visible]="true"></dxo-header-filter>
     <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
     
-    <!-- ========== EDITING (Only Update/Delete) ========== -->
     <dxo-editing
       mode="popup"
       [allowUpdating]="true"
@@ -213,7 +211,6 @@
       </dxo-form>
     </dxo-editing>
     
-    <!-- ========== EXPORT ========== -->
     <dxo-export
       [enabled]="true"
       [texts]="exportTexts"
@@ -221,97 +218,105 @@
       [formats]="['xlsx']"
     ></dxo-export>
     
-    <!-- ========== TOOLBAR ========== -->
     <dxo-toolbar>
-  <dxi-item location="after" locateInMenu="never">
-    <div *dxTemplate="let data of 'content'">
-      <dx-button
-        icon="plus"
-        text="Thêm"
-        type="default"
-        stylingMode="contained"
-        (onClick)="openAddModal()"
-      ></dx-button>
-    </div>
-  </dxi-item>
+      <dxi-item location="after" locateInMenu="never">
+        <div *dxTemplate>
+          <dx-button
+            icon="plus"
+            text="Thêm"
+            type="default"
+            stylingMode="contained"
+            (onClick)="openAddModal()"
+          ></dx-button>
+        </div>
+      </dxi-item>
         
       <dxi-item name="exportButton"></dxi-item>
       
-      <!-- Header title -->
       <dxi-item location="before">
-        <div class="grid-header">
+        <div *dxTemplate class="grid-header">
           <i class="dx-icon-user" style="font-size: 16px"></i>
           Ban cán sự lớp 
           <span *ngIf="committeeCount > 0">&nbsp;({{committeeCount}})</span>
         </div>
       </dxi-item>
       
-      <!-- Filter: Năm học -->
       <dxi-item location="before" locateInMenu="auto">
-        <label style="margin-right: 8px;">Năm học:</label>
+        <div *dxTemplate>
+          <label style="margin-right: 8px;">Năm học:</label>
+        </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="schoolYearSource"
-          (onItemClick)="schoolYearChange($event)"
-          [selectedItemKey]="selectedSchoolYear"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
-      </dxi-item>
-      
-      <!-- Filter: Lần bầu cử -->
-      <dxi-item location="before" locateInMenu="auto">
-        <label style="margin-right: 8px;">Lần BC:</label>
-      </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="electionRoundSource"
-          keyExpr="value"
-          displayExpr="name"
-          (onItemClick)="electionRoundChange($event)"
-          [selectedItemKey]="selectedElectionRound"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
+        <div *dxTemplate>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="schoolYearSource"
+            (onItemClick)="schoolYearChange($event)"
+            [text]="selectedSchoolYear"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
       </dxi-item>
       
-      <!-- Filter: Khối học -->
       <dxi-item location="before" locateInMenu="auto">
-        <label style="margin-right: 8px;">Khối:</label>
+        <div *dxTemplate>
+          <label style="margin-right: 8px;">Lần BC:</label>
+        </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="gradeSource"
-          (onItemClick)="gradeChange($event)"
-          [selectedItemKey]="selectedGrade"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
+        <div *dxTemplate>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="electionRoundSource"
+            keyExpr="value"
+            displayExpr="name"
+            (onItemClick)="electionRoundChange($event)"
+            [text]="selectedElectionRoundText"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
       </dxi-item>
       
-      <!-- Filter: Lớp học -->
       <dxi-item location="before" locateInMenu="auto">
-        <label style="margin-right: 8px;">Lớp:</label>
+        <div *dxTemplate>
+          <label style="margin-right: 8px;">Khối:</label>
+        </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="filterClassSource"
-          keyExpr="id"
-          displayExpr="name"
-          (onItemClick)="classChange($event)"
-          [selectedItemKey]="filterClassId"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
+        <div *dxTemplate>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="gradeSource"
+            (onItemClick)="gradeChange($event)"
+            [text]="selectedGrade"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
+      </dxi-item>
+      
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <label style="margin-right: 8px;">Lớp:</label>
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <dx-drop-down-button
+            [text]="selectedClassText"
+            stylingMode="text"
+            [items]="filterClassSource"
+            keyExpr="id"
+            displayExpr="name"
+            (onItemClick)="classChange($event)"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
       </dxi-item>
     </dxo-toolbar>
     
-    <!-- Học sinh -->
     <dxi-column 
       dataField="studentName" 
       caption="Họ và tên" 
@@ -327,7 +332,6 @@
       [allowEditing]="false"
     ></dxi-column>
     
-    <!-- Chức vụ -->
     <dxi-column 
       dataField="position" 
       caption="Chức vụ" 
@@ -361,9 +365,6 @@
       <dxi-button name="delete" icon="trash" hint="Xóa"></dxi-button>
     </dxi-column>
 
-    <!-- ========== TEMPLATES ========== -->
-    
-    <!-- Position Template -->
     <div *dxTemplate="let cellInfo of 'cellPosition'">
       <span 
         class="badge" 
@@ -373,7 +374,6 @@
       </span>
     </div>
     
-    <!-- Team Template -->
     <div *dxTemplate="let cellInfo of 'cellTeam'">
       <span *ngIf="cellInfo.value" class="badge badge-info">
         Tổ {{cellInfo.value}}
@@ -383,11 +383,6 @@
       </span>
       <span *ngIf="!cellInfo.value && !needsTeam(cellInfo.data.position)">
         -
-      </span>
-    </div>
-    <div *dxTemplate="let cellInfo of 'cellElectionRound'">
-      <span class="badge badge-primary" style="padding: 4px 8px; border-radius: 4px;">
-        Lần {{cellInfo.value}}
       </span>
     </div>
 
