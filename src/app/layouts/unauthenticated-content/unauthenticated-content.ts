@@ -33,7 +33,7 @@ export class UnauthenticatedContentComponent {
   get title() {
     const path = this.router.url.split('/').at(-1);
     switch (path) {
-      case 'login': return 'CSDL Học bạ số';
+      case 'login': return 'Sổ và tài liệu giảng dạy';
       case 'reset-password': return 'Reset Password';
       case 'create-account': return 'Sign Up';
       case 'change-password': return 'Change Password';

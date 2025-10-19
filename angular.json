@@ -59,7 +59,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "src/mProfile.ico",
+              "src/mRecord.ico",
               "src/assets"
             ],
             "styles": [
@@ -164,7 +164,7 @@
             "karmaConfig": "karma.conf.js",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "src/mProfile.ico",
+              "src/mRecord.ico",
               "src/assets"
             ],
             "styles": [
