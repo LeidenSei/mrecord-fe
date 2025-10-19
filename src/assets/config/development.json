@@ -1,16 +1,16 @@
 {
   "api": {
-    "baseUrl": "http://localhost:5000",
+    "baseUrl": "https://apihocba.mschool.edu.vn",
     "curUrl": "http://localhost:4200",
     "mSchoolUrl": "https://mschool.edu.vn",
     "h5pUrl": "http://localhost:3001",
     "ipUrl": "http://192.168.18.27:8456",
     "reportUrl": "http://apiv04.stc.vn:8088"
   },
-  "sso": {
-    "baseUrl": "http://10.33.68.71:8888/vnpt-sso"
-  },
-  "pageSize": [10, 50, 100],
-  "page": 1,
-  "defaultPage": 10
-}               
+    "sso": {
+      "baseUrl": "http://10.33.68.71:8888/vnpt-sso"
+    },
+    "pageSize":[10,50,100],
+    "page":1,
+    "defaultPage":10
+}  

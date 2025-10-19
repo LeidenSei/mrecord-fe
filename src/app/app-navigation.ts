@@ -112,12 +112,6 @@ export const navigationTeacherHomeroom = [
         icon: 'textdocument',
         selected: false
       },
-      {
-        text: 'Bổ sung kế hoạch chủ nhiệm học kỳ II',
-        path: '/class-logbook/semester2-plan-supplement',
-        icon: 'bookmark',
-        selected: false
-      }
     ]
   },
   /*{
@@ -353,12 +347,6 @@ export const navigationAdmin = [
         icon: 'textdocument',
         selected: false
       },
-      {
-        text: 'Bổ sung kế hoạch chủ nhiệm học kỳ II',
-        path: '/class-logbook/semester2-plan-supplement',
-        icon: 'bookmark',
-        selected: false
-      }
     ]
   },
   {
