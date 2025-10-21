@@ -1,6 +1,6 @@
 {
   "api": {
-    "baseUrl": "https://apihocba.mschool.edu.vn",
+    "baseUrl": "https://api.record.mschool.edu.vn",
     "curUrl": "http://localhost:4200",
     "mSchoolUrl": "https://mschool.edu.vn",
     "h5pUrl": "http://localhost:3001",
@@ -13,4 +13,4 @@
     "pageSize":[10,50,100],
     "page":1,
     "defaultPage":10
-}  
+}
