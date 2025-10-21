@@ -1,10 +1,20 @@
 import { Component, OnInit } from '@angular/core';
+import { tap, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 import notify from 'devextreme/ui/notify';
 import { ClassService } from 'src/app/services/class.service';
 import { StudentService } from 'src/app/services/student.service';
 import { AuthService } from 'src/app/services';
 import { CommitteeService, CommitteeMemberDto, CreateCommitteeRequest, UpdateCommitteeRequest, BulkUpdatePositionRequest } from 'src/app/services/committee.service';
 import { GeneralService } from 'src/app/services/general.service';
+
+enum PositionClass {
+  MONITOR = 'badge-danger',
+  VICE_MONITOR = 'badge-info',
+  TEAM_LEADER = 'badge-primary',
+  TEAM_VICE = 'badge-success',
+  MEMBER = 'badge-secondary'
+}
 
 @Component({
   selector: 'app-class-committee',
@@ -19,8 +29,8 @@ export class ClassCommitteeComponent implements OnInit {
   studentSource: any[] = [];
   studentRoles: any[] = [];
   
-  selectedSchoolYear = '2024-2025';
-  schoolYearSource = ['2024-2025', '2023-2024', '2022-2023'];
+  selectedSchoolYear = 2025;
+  schoolYearSource = [2025, 2024, 2023]; 
   
   selectedElectionRound = 0;
   electionRoundSource = [
@@ -82,8 +92,33 @@ export class ClassCommitteeComponent implements OnInit {
       return;
     }
 
+    await this.loadSchoolYear();
     this.loadStudentRoles();
     await this.loadClassData(user);
+  }
+
+  async loadSchoolYear(): Promise<void> {
+    try {
+      const school = await this.generalService.getSchool(this.currentSchoolId).toPromise();
+      
+      if (school && school.currentSchoolYear) {
+        this.selectedSchoolYear = school.currentSchoolYear;
+        this.schoolYearSource = [
+          school.currentSchoolYear,
+          school.currentSchoolYear - 1,
+          school.currentSchoolYear - 2
+        ];
+      }
+    } catch (err) {
+      const currentYear = new Date().getFullYear();
+      this.selectedSchoolYear = currentYear;
+      this.schoolYearSource = [currentYear, currentYear - 1, currentYear - 2];
+    }
+  }
+
+  schoolYearChange(event: any): void {
+    this.selectedSchoolYear = event.itemData; 
+    this.loadCommitteeData();
   }
 
   async loadClassData(user: any): Promise<void> {
@@ -116,6 +151,7 @@ export class ClassCommitteeComponent implements OnInit {
         name: cls.name || cls.tenLop || cls.shortName,
         grade: cls.grade
       }));
+
       const gradeIds = [...new Set(this.allClasses.map(c => c.grade).filter(g => g))].sort();
       this.gradeSource = ['Tất cả', ...gradeIds.map((g: number) => `Khối ${g}`)];
       
@@ -165,15 +201,12 @@ export class ClassCommitteeComponent implements OnInit {
 
   private extractData(response: any): any[] {
     if (!response) return [];
-    
     if (response.data !== undefined) {
       return Array.isArray(response.data) ? response.data : [];
     }
-    
     if (Array.isArray(response)) {
       return response;
     }
-    
     return [];
   }
 
@@ -208,8 +241,7 @@ export class ClassCommitteeComponent implements OnInit {
         } else {
           this.filterClassId = null;
           this.studentSource = [];
-          this.datas = [];
-          this.committeeCount = 0;
+          this.resetCommitteeData();
           notify('Không có lớp nào trong khối này', 'info', 2000);
         }
       }
@@ -222,14 +254,8 @@ export class ClassCommitteeComponent implements OnInit {
       this.loadStudentData();
     } else {
       this.studentSource = [];
-      this.datas = [];
-      this.committeeCount = 0;
+      this.resetCommitteeData();
     }
-  }
-
-  schoolYearChange(event: any): void {
-    this.selectedSchoolYear = event.itemData;
-    this.loadCommitteeData();
   }
   
   electionRoundChange(event: any): void {
@@ -278,56 +304,45 @@ export class ClassCommitteeComponent implements OnInit {
     return parts.join(' ');
   }
 
+  getSchoolYearDisplay(year: number): string {
+    return `${year - 1}-${year}`;
+  }
+
+  get selectedSchoolYearText(): string {
+    return this.getSchoolYearDisplay(this.selectedSchoolYear);
+  }
+
   loadCommitteeData(): void {
     if (!this.filterClassId) {
-      this.datas.length = 0;
-      this.committeeCount = 0;
+      this.resetCommitteeData();
       return;
     }
 
     this.committeeService.getListByClass(
       this.filterClassId,
-      this.selectedSchoolYear,
+      this.selectedSchoolYear,  
       this.selectedElectionRound > 0 ? this.selectedElectionRound : undefined,
       undefined
-    ).subscribe({
-      next: (data) => {
-        const mappedData = data.map(item => ({
-          id: item.id,
-          studentId: item.studentId,
-          studentName: item.studentName,
-          studentCode: item.studentCode,
-          classId: item.classId,
-          className: item.className,
-          positionId: item.positionId,
-          positionName: item.positionName,
-          teamNumber: item.teamNumber,
-          schoolYear: item.schoolYear,
-          electionRound: item.electionRound,
-          electionDate: new Date(item.electionDate),
-          startDate: new Date(item.startDate),
-          endDate: item.endDate ? new Date(item.endDate) : undefined,
-          isActive: item.isActive,
-          responsibilities: item.responsibilities,
-          notes: item.notes
-        }));
-
-        this.allCommitteeData.length = 0;
-        this.allCommitteeData.push(...mappedData);
-        
-        this.datas.length = 0;
-        this.datas.push(...mappedData);
-        
-        this.committeeCount = this.datas.length;
-      },
-      error: (err) => {
-        console.error('Error loading committee data:', err);
+    ).pipe(
+      tap(data => {
+        const mappedData = this.mapCommitteeData(data);
+        this.allCommitteeData = mappedData;
+        this.datas = [...mappedData];
+        this.committeeCount = mappedData.length;
+      }),
+      catchError(err => {
+        console.error('Error loading committee:', err);
         notify('Không thể tải danh sách ban cán sự', 'error', 2000);
-        this.allCommitteeData.length = 0;
-        this.datas.length = 0;
-        this.committeeCount = 0;
-      }
-    });
+        this.resetCommitteeData();
+        return of([]);
+      })
+    ).subscribe();
+  }
+
+  private resetCommitteeData(): void {
+    this.allCommitteeData = [];
+    this.datas = [];
+    this.committeeCount = 0;
   }
 
   onRowUpdating(event: any): void {
@@ -516,7 +531,17 @@ export class ClassCommitteeComponent implements OnInit {
   }
 
   getPositionClass(positionId: string): string {
-    return 'badge-primary';
+    const role = this.studentRoles.find(r => r.id === positionId || r.code === positionId);
+    if (!role) return PositionClass.MEMBER;
+    
+    const classMap: Record<string, string> = {
+      'Lớp trưởng': PositionClass.MONITOR,
+      'Lớp phó': PositionClass.VICE_MONITOR,
+      'Tổ trưởng': PositionClass.TEAM_LEADER,
+      'Tổ phó': PositionClass.TEAM_VICE
+    };
+    
+    return classMap[role.name] || PositionClass.MEMBER;
   }
 
   needsTeam(positionId: string): boolean {
@@ -533,5 +558,37 @@ export class ClassCommitteeComponent implements OnInit {
 
   getStatusClass(isActive: boolean): string {
     return isActive ? 'badge-success' : 'badge-secondary';
+  }
+
+  private mapCommitteeData(data: any[]): CommitteeMemberDto[] {
+    return data.map(item => {
+      const positionName = item.positionName || this.getPositionText(item.positionId);
+      console.log('Position mapping:', {
+        positionId: item.positionId,
+        positionNameFromAPI: item.positionName,
+        positionNameComputed: positionName,
+        studentRoles: this.studentRoles
+      });
+      
+      return {
+        id: item.id,
+        studentId: item.studentId,
+        studentName: item.studentName,
+        studentCode: item.studentCode,
+        classId: item.classId,
+        className: item.className,
+        positionId: item.positionId,
+        positionName: positionName,
+        teamNumber: item.teamNumber,
+        schoolYear: item.schoolYear,
+        electionRound: item.electionRound,
+        electionDate: new Date(item.electionDate),
+        startDate: new Date(item.startDate),
+        endDate: item.endDate ? new Date(item.endDate) : undefined,
+        isActive: item.isActive,
+        responsibilities: item.responsibilities,
+        notes: item.notes
+      };
+    });
   }
 }

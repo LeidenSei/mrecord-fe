@@ -27,7 +27,6 @@
               <div class="student-info">
                 <span class="student-code">{{student.code}}</span>
                 <span class="student-class">{{student.className}}</span>
-                <span *ngIf="student.teamNumber" class="student-team">Tổ {{student.teamNumber}}</span>
               </div>
             </div>
           </div>
@@ -63,10 +62,7 @@
         >
           <div *dxTemplate="let position of 'positionItem'">
             <div class="position-item">
-              <span 
-                class="badge" 
-                [ngClass]="getPositionClass(position.value)"
-                style="padding: 6px 12px; border-radius: 4px; font-size: 13px;">
+              <span class="badge badge-lg" [ngClass]="getPositionClass(position.value)">
                 {{position.name}}
               </span>
             </div>
@@ -146,20 +142,40 @@
         title="Chỉnh sửa thông tin ban cán sự"
         [showTitle]="true"
         [width]="500"
-        [height]="400"
+        [height]="500"
       ></dxo-popup>
-      
       <dxo-form [colCount]="2">
+        <!-- Hiển thị tên học sinh -->
         <dxi-item 
-          dataField="position" 
+          dataField="studentName" 
+          caption="Học sinh"
+          [colSpan]="2"
+          editorType="dxTextBox"
+          [editorOptions]="{
+            readOnly: true
+          }"
+        ></dxi-item>
+        
+        <!-- Hiển thị lớp -->
+        <dxi-item 
+          dataField="className" 
+          caption="Lớp"
+          editorType="dxTextBox"
+          [editorOptions]="{
+            readOnly: true
+          }"
+        ></dxi-item>
+        
+        <!-- Chức vụ - tự động chọn giá trị hiện tại -->
+        <dxi-item 
+          dataField="positionId" 
           caption="Chức vụ"
           [isRequired]="true"
-          [colSpan]="2"
           editorType="dxSelectBox"
           [editorOptions]="{
             dataSource: positionSource,
             displayExpr: 'name',
-            valueExpr: 'value',
+            valueExpr: 'id',
             placeholder: 'Chọn chức vụ...'
           }"
         ></dxi-item>
@@ -178,23 +194,12 @@
         ></dxi-item>
         
         <dxi-item 
-          dataField="electionRound" 
           caption="Lần bầu cử"
+          dataField="electionRound" 
           editorType="dxNumberBox"
           [editorOptions]="{
             min: 1,
             showSpinButtons: true
-          }"
-        ></dxi-item>
-        
-        <dxi-item 
-          dataField="responsibilities" 
-          caption="Nhiệm vụ"
-          [colSpan]="2"
-          editorType="dxTextArea"
-          [editorOptions]="{
-            height: 80,
-            placeholder: 'Nhập nhiệm vụ...'
           }"
         ></dxi-item>
         
@@ -235,7 +240,7 @@
       
       <dxi-item location="before">
         <div *dxTemplate class="grid-header">
-          <i class="dx-icon-user" style="font-size: 16px"></i>
+          <i class="dx-icon-user"></i>
           Ban cán sự lớp 
           <span *ngIf="committeeCount > 0">&nbsp;({{committeeCount}})</span>
         </div>
@@ -243,7 +248,7 @@
       
       <dxi-item location="before" locateInMenu="auto">
         <div *dxTemplate>
-          <label style="margin-right: 8px;">Năm học:</label>
+          <label>Năm học:</label>
         </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
@@ -253,15 +258,20 @@
             [useSelectMode]="true"
             [items]="schoolYearSource"
             (onItemClick)="schoolYearChange($event)"
-            [text]="selectedSchoolYear"
+            [text]="getSchoolYearDisplay(selectedSchoolYear)"
             [dropDownOptions]="{ width: 'auto' }"
-          ></dx-drop-down-button>
+            itemTemplate="yearTemplate"
+          >
+            <div *dxTemplate="let year of 'yearTemplate'">
+              {{getSchoolYearDisplay(year)}}
+            </div>
+          </dx-drop-down-button>
         </div>
       </dxi-item>
       
       <dxi-item location="before" locateInMenu="auto">
         <div *dxTemplate>
-          <label style="margin-right: 8px;">Lần BC:</label>
+          <label>Lần BC:</label>
         </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
@@ -281,7 +291,7 @@
       
       <dxi-item location="before" locateInMenu="auto">
         <div *dxTemplate>
-          <label style="margin-right: 8px;">Khối:</label>
+          <label>Khối:</label>
         </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
@@ -299,7 +309,7 @@
       
       <dxi-item location="before" locateInMenu="auto">
         <div *dxTemplate>
-          <label style="margin-right: 8px;">Lớp:</label>
+          <label>Lớp:</label>
         </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
@@ -333,7 +343,7 @@
     ></dxi-column>
     
     <dxi-column 
-      dataField="position" 
+      dataField="positionId" 
       caption="Chức vụ" 
       [width]="150"
       cellTemplate="cellPosition"
@@ -366,11 +376,8 @@
     </dxi-column>
 
     <div *dxTemplate="let cellInfo of 'cellPosition'">
-      <span 
-        class="badge" 
-        [ngClass]="getPositionClass(cellInfo.value)"
-        style="padding: 4px 8px; border-radius: 4px; font-size: 12px;">
-        {{getPositionText(cellInfo.value)}}
+      <span class="badge" [ngClass]="getPositionClass(cellInfo.data.positionId)">
+        {{cellInfo.data.positionName}}
       </span>
     </div>
     
@@ -378,19 +385,16 @@
       <span *ngIf="cellInfo.value" class="badge badge-info">
         Tổ {{cellInfo.value}}
       </span>
-      <span *ngIf="!cellInfo.value && needsTeam(cellInfo.data.position)" class="text-muted">
+      <span *ngIf="!cellInfo.value && needsTeam(cellInfo.data.positionId)" class="text-muted">
         <i>Chưa phân tổ</i>
       </span>
-      <span *ngIf="!cellInfo.value && !needsTeam(cellInfo.data.position)">
+      <span *ngIf="!cellInfo.value && !needsTeam(cellInfo.data.positionId)">
         -
       </span>
     </div>
 
     <div *dxTemplate="let cellInfo of 'cellStatus'">
-      <span 
-        class="badge" 
-        [ngClass]="getStatusClass(cellInfo.value)"
-        style="padding: 4px 8px; border-radius: 4px;">
+      <span class="badge" [ngClass]="getStatusClass(cellInfo.value)">
         {{getStatusText(cellInfo.value)}}
       </span>
     </div>

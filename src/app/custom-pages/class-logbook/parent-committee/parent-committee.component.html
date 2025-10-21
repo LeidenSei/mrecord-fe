@@ -1,4 +1,3 @@
-<!-- parent-committee.component.html -->
 <div class="view-wrapper list-page parent-committee">
   <dx-data-grid
     class="grid theme-dependent"
@@ -24,54 +23,114 @@
     <dxo-sorting mode="multiple"></dxo-sorting>
     <dxo-header-filter [visible]="true"></dxo-header-filter>
     <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
-    <dxo-editing
-      mode="popup"
-      [allowUpdating]="true"
-      [allowAdding]="true"
-      [allowDeleting]="true"
-      [useIcons]="true"
-    >
-      <dxo-popup
-        title="Thông tin ban đại diện cha mẹ học sinh"
-        [showTitle]="true"
-        [width]="700"
-        [height]="500"
-      ></dxo-popup>
-      <dxo-form>
-        <dxi-item itemType="group" [colCount]="2">
-          <!-- ✅ SỬA: Dùng parentId với lookup -->
-          <dxi-item dataField="parentId" caption="Phụ huynh" [isRequired]="true"
-            [editorOptions]="{
-              displayExpr: 'fullName',
-              valueExpr: 'id',
-              dataSource: parentSource,
-              searchEnabled: true,
-              placeholder: 'Chọn phụ huynh...'
-            }">
-          </dxi-item>
-          
-          <dxi-item dataField="position" caption="Chức vụ" [isRequired]="true"></dxi-item>
-          
-          <!-- ✅ SỬA: Dùng studentId với lookup -->
-          <dxi-item dataField="studentId" caption="Học sinh" [isRequired]="true"
-            [editorOptions]="{
-              displayExpr: 'fullName',
-              valueExpr: 'id',
-              dataSource: studentSource,
-              searchEnabled: true,
-              placeholder: 'Chọn học sinh...'
-            }">
-          </dxi-item>
-          
-          <dxi-item dataField="relationship" caption="Quan hệ" [isRequired]="true"></dxi-item>
-          
-          <dxi-item dataField="note" caption="Ghi chú" [colSpan]="2"
-            editorType="dxTextArea"
-            [editorOptions]="{ height: 80 }">
-          </dxi-item>
-        </dxi-item>
-      </dxo-form>
-    </dxo-editing>
+    
+  <dxo-editing
+    mode="popup"
+    [allowUpdating]="true"
+    [allowAdding]="true"
+    [allowDeleting]="true"
+    [useIcons]="true"
+  >
+    <dxo-popup
+      [title]="'Thông tin ban đại diện - ' + currentGradeName + ' - ' + currentClassName"
+      [showTitle]="true"
+      [width]="700"
+      [height]="600"
+    ></dxo-popup>
+    <dxo-form [colCount]="2">
+      <dxi-item [colSpan]="2">
+        <dx-radio-group
+          [(value)]="parentInputMode"
+          [items]="[
+            {value: 'existing', text: 'Chọn phụ huynh có sẵn'},
+            {value: 'manual', text: 'Nhập thông tin mới'}
+          ]"
+          valueExpr="value"
+          displayExpr="text"
+          layout="horizontal"
+        ></dx-radio-group>
+      </dxi-item>
+
+      <dxi-item 
+        *ngIf="parentInputMode === 'existing'"
+        dataField="parentId" 
+        caption="Phụ huynh" 
+        [isRequired]="true"
+        editorType="dxSelectBox"
+        [colSpan]="2"
+        [editorOptions]="{
+          displayExpr: 'fullName',
+          valueExpr: 'id',
+          dataSource: parentSource,
+          searchEnabled: true,
+          placeholder: 'Chọn phụ huynh...',
+          showClearButton: true
+        }">
+      </dxi-item>
+
+      <!-- Nhập thông tin mới -->
+      <dxi-item 
+        *ngIf="parentInputMode === 'manual'"
+        dataField="parentName" 
+        caption="Họ và tên" 
+        [isRequired]="true"
+        [colSpan]="2"
+      ></dxi-item>
+
+      <dxi-item 
+        *ngIf="parentInputMode === 'manual'"
+        dataField="parentPhone" 
+        caption="Số điện thoại" 
+        [isRequired]="true"
+      ></dxi-item>
+
+      <dxi-item 
+        *ngIf="parentInputMode === 'manual'"
+        dataField="workplace" 
+        caption="Nơi công tác"
+      ></dxi-item>
+
+      <!-- Chức vụ và quan hệ -->
+      <dxi-item 
+        dataField="position" 
+        caption="Chức vụ" 
+        [isRequired]="true"
+      ></dxi-item>
+
+      <dxi-item 
+        dataField="relationship" 
+        caption="Quan hệ" 
+        [isRequired]="true"
+      ></dxi-item>
+
+      <!-- Học sinh -->
+      <dxi-item 
+        dataField="studentId" 
+        caption="Học sinh" 
+        [isRequired]="true"
+        [colSpan]="2"
+        editorType="dxSelectBox"
+        [editorOptions]="{
+          displayExpr: 'displayText',
+          valueExpr: 'id',
+          dataSource: studentSource,
+          searchEnabled: true,
+          placeholder: 'Chọn học sinh...',
+          showClearButton: true
+        }">
+      </dxi-item>
+
+      <!-- Ghi chú -->
+      <dxi-item 
+        dataField="note" 
+        caption="Ghi chú" 
+        [colSpan]="2"
+        editorType="dxTextArea"
+        [editorOptions]="{ height: 80 }">
+      </dxi-item>
+
+    </dxo-form>
+  </dxo-editing>
     
     <dxo-export
       [enabled]="true"
@@ -89,22 +148,25 @@
         <div class="grid-header">
           <i class="dx-icon-group"></i>
           Danh sách ban đại diện cha mẹ học sinh
-          <span *ngIf="committeeCount > 0" class="count-badge">{{committeeCount}}</span>
+          <span *ngIf="committeeCount > 0">&nbsp;({{committeeCount}})</span>
         </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
         <label>Khối học</label>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="gradeSource"
-          (onItemClick)="gradeChange($event)"
-          [selectedItemKey]="gradeSource[0]"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
+<dx-drop-down-button
+  stylingMode="text"
+  [useSelectMode]="true"
+  [items]="filterClassSource"       
+  keyExpr="id"
+  displayExpr="name"
+  (onItemClick)="classChange($event)"  
+  [selectedItemKey]="filterClassId"
+  [dropDownOptions]="{ width: 'auto' }"
+></dx-drop-down-button>
       </dxi-item>
+
       <dxi-item location="before" locateInMenu="auto">
         <label>Lớp học</label>
       </dxi-item>
@@ -112,14 +174,15 @@
         <dx-drop-down-button
           stylingMode="text"
           [useSelectMode]="true"
-          [items]="filterClassSource"
+          [items]="filterClassSource"       
           keyExpr="id"
           displayExpr="name"
-          (onItemClick)="classChange($event)"
+          (onItemClick)="classChange($event)"  
           [selectedItemKey]="filterClassId"
           [dropDownOptions]="{ width: 'auto' }"
         ></dx-drop-down-button>
       </dxi-item>
+
       <dxi-item location="before" locateInMenu="auto">
         <label>Chức vụ</label>
       </dxi-item>
@@ -174,7 +237,7 @@
     ></dxi-column>
 
     <dxi-column 
-      dataField="phoneNumber" 
+      dataField="parentPhone" 
       [width]="160" 
       caption="Số điện thoại"
       alignment="center"
@@ -200,7 +263,6 @@
       }"
     ></dxi-column>
 
-    <!-- Hidden columns for editing -->
     <dxi-column 
       dataField="parentId" 
       [visible]="false"

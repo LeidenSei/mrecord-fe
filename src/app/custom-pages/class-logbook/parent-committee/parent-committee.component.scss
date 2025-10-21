@@ -54,7 +54,6 @@
   }
 }
 
-// Position styling - simplified without emoji
 .position-president {
   color: #d32f2f;
   font-weight: 600;
@@ -105,7 +104,6 @@
   display: inline-block;
 }
 
-// Phone link styling with DevExtreme icon
 .phone-link {
   color: #1976d2;
   text-decoration: none;
@@ -123,11 +121,51 @@
   }
 }
 
-// General content styling
 .dx-datagrid-content {
   .dx-row {
     &:hover {
       background-color: #f8f9fa;
     }
+  }
+}
+parent-committee {
+  ::ng-deep .dx-popup-content {
+    padding: 20px;
+  }
+
+  ::ng-deep .dx-form-group-caption {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  ::ng-deep .dx-field-item-label-text {
+    font-weight: 500;
+  }
+
+  ::ng-deep .dx-form-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ::ng-deep .dx-field-item-required .dx-field-item-label-text::after {
+    content: ' *';
+    color: #e74c3c;
+    font-weight: bold;
+  }
+
+  ::ng-deep .dx-popup-bottom {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
   }
 }

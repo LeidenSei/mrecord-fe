@@ -1,160 +1,55 @@
 @use "../../../../variables.scss" as *;
 
 :host {
-  --side-panel-toolbar-height: 76px;
-  --primary-blue: #1976d2;
-  --primary-pink: #c2185b;
-  --light-blue: #e3f2fd;
-  --light-pink: #fce4ec;
-  --shadow-light: 0 2px 8px rgba(0,0,0,0.1);
-  --shadow-medium: 0 4px 16px rgba(0,0,0,0.15);
-  --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
-  --border-radius: 12px;
-  --section-gap: 16px;
-  
   width: 100%;
   display: contents;
 }
 
 .view-wrapper {
   position: absolute;
-  padding: 20px;
-  background: #f5f7fa;
-  height: 92vh; 
-  max-width: 100%;
-  overflow-y: auto; 
-  overflow-x: hidden;
+  top: 0; bottom: 0; left: 0; right: 0;
+  padding: 20px; 
+  overflow-y: auto;
 
   &.monthly-plan-page {
     display: flex;
     flex-direction: column;
-    gap: var(--section-gap);
-  }
-}
-
-.month-info-header {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-  border: 1px solid #e9ecef;
-  border-radius: var(--border-radius);
-  padding: 5px;
-  box-shadow: var(--shadow-medium);
-  flex-shrink: 0;
-
-  .month-title {
-    text-align: center;
-
-    h3 {
-      background: linear-gradient(45deg, var(--primary-blue), #42a5f5);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 22px;
-      font-weight: bold;
-      margin: 0 0 8px 0;
-    }
-
-    .date-range {
-      color: #666;
-      font-size: 14px;
-    }
-  }
-
-  .topic-focus-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-
-      label {
-        font-weight: 600;
-        color: var(--primary-blue);
-        font-size: 14px;
-      }
-
-      input {
-        padding: 12px;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 14px;
-
-        &:focus {
-          outline: none;
-          border-color: var(--primary-blue);
-          box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
-        }
-
-        &::placeholder {
-          color: #999;
-        }
-      }
-    }
-  }
-
-  .filter-toolbar {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    padding-top: 15px;
-    border-top: 1px solid #e9ecef;
-
-    .toolbar-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-
-      label {
-        font-weight: 600;
-        color: #333;
-        font-size: 14px;
-      }
-    }
+    gap: 12px;
   }
 }
 
 .main-splitter {
   flex: 1;
   min-height: 0;
-  border-radius: var(--border-radius);
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: var(--shadow-medium);
 
   ::ng-deep {
     as-split {
       height: 100%;
       display: flex;
-      border: none;
-      background: transparent;
     }
 
     as-split-area {
       overflow: hidden;
       display: flex !important;
       flex-direction: column !important;
-      min-height: 0;
-      min-width: 0;
       
       > .as-split-area-content {
         height: 100%;
         width: 100%;
-        overflow: hidden;
         display: flex;
         flex-direction: column;
       }
     }
 
     .as-split-gutter {
-      background: linear-gradient(90deg, #e9ecef, #dee2e6, #e9ecef);
-      position: relative;
+      background: #dee2e6;
       cursor: col-resize;
-      z-index: 10;
+      position: relative;
 
       &:hover {
-        background: linear-gradient(90deg, var(--primary-blue), #42a5f5, var(--primary-blue));
+        background: #0d6efd;
       }
 
       &::before {
@@ -167,502 +62,35 @@
         height: 40px;
         background: repeating-linear-gradient(
           to bottom,
-          #999 0px,
-          #999 4px,
-          transparent 4px,
-          transparent 8px
+          #999 0px, #999 4px,
+          transparent 4px, transparent 8px
         );
         border-radius: 2px;
       }
 
-      &.as-dragged {
-        background: linear-gradient(90deg, #1565c0, var(--primary-blue), #1565c0);
-        
-        &::before {
-          background: repeating-linear-gradient(
-            to bottom,
-            #fff 0px,
-            #fff 4px,
-            transparent 4px,
-            transparent 8px
-          );
-        }
-      }
-    }
-
-    .as-split-gutter-icon {
-      background: none;
-    }
-  }
-}
-
-.section-container {
-  height: 100%;
-  width: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.plan-section {
-  border-top: 4px solid var(--primary-blue);
-
-  .section-header {
-    background: linear-gradient(135deg, var(--light-blue), #bbdefb);
-    border-bottom: 2px solid #90caf9;
-  }
-
-  .section-icon {
-    background: linear-gradient(45deg, var(--primary-blue), #42a5f5);
-  }
-}
-
-.journal-section {
-  border-top: 4px solid var(--primary-pink);
-
-  .section-header {
-    background: linear-gradient(135deg, var(--light-pink), #f8bbd9);
-    border-bottom: 2px solid #f48fb1;
-  }
-
-  .section-icon {
-    background: linear-gradient(45deg, var(--primary-pink), #e91e63);
-  }
-}
-
-.section-header {
-  position: relative;
-  padding: 20px;
-  overflow: hidden;
-  flex-shrink: 0;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100px;
-    height: 100px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-    transform: translate(30px, -30px);
-  }
-
-  .header-content {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .section-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    box-shadow: var(--shadow-light);
-
-    i {
-      font-size: 20px;
-    }
-  }
-
-  .header-text {
-    flex: 1;
-
-    h3 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      color: #333;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      color: #666;
-      opacity: 0.8;
-    }
-  }
-
-  .stats-badge {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: rgba(255,255,255,0.9);
-    padding: 8px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #333;
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-light);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    i {
-      font-size: 14px;
-    }
-  }
-}
-
-.grid-content {
-  padding: 16px;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-
-  .grid {
-    height: 100%;
-    width: 100%;
-    flex: 1;
-    min-height: 0;
-    position: relative;
-    
-    ::ng-deep {
-      .dx-datagrid {
-        border: none;
-        border-radius: 8px;
-        overflow: hidden;
-        height: 100% !important;
-        width: 100% !important;
-      }
-
-      .dx-datagrid-rowsview {
-        height: 100% !important;
-      }
-      
-      .dx-datagrid-content {
-        height: 100% !important;
-      }
-      
-      .dx-scrollable {
-        height: 100% !important;
-      }
-      
-      .dx-scrollable-content {
-        height: 100% !important;
-      }
-
-      .dx-datagrid-header-panel {
-        padding: 0 12px;
-        background: #f8f9fa;
-      }
-
-      .dx-toolbar {
-        margin-bottom: 0;
-        padding: 8px 0;
-        background: transparent;
-      }
-
-      .dx-datagrid-content .dx-row {
-        cursor: pointer;
-
-        &:hover {
-          background-color: rgba(25, 118, 210, 0.05);
-        }
-      }
-
-      .dx-datagrid-headers {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        font-weight: 600;
-      }
-
-      .dx-header-row .dx-datagrid-table .dx-row > td {
-        border-bottom: 2px solid #dee2e6;
-      }
-
-      .dx-button {
-        border-radius: 6px;
-
-        &.dx-button-mode-contained {
-          &.dx-button-default {
-            background: var(--primary-blue);
-            border-color: var(--primary-blue);
-
-            &:hover {
-              background: #1565c0;
-            }
-          }
-        }
-      }
-
-      .dx-dropdownbutton {
-        .dx-button {
-          background: transparent;
-          border: 1px solid #dee2e6;
-          color: #333;
-
-          &:hover {
-            background: #f8f9fa;
-            border-color: var(--primary-blue);
-          }
-        }
+      &:hover::before {
+        background: repeating-linear-gradient(
+          to bottom,
+          #fff 0px, #fff 4px,
+          transparent 4px, transparent 8px
+        );
       }
     }
   }
 }
 
 ::ng-deep {
-  .dx-overlay-wrapper.dx-popup-wrapper {
-    .dx-overlay-content {
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-  }
+  .dx-datagrid {
+    border: none !important;
+    font-size: 14px;
 
-  .dx-popup-normal {
-    border: none;
-    
-    .dx-popup-title {
-      padding: 20px 24px;
-      font-size: 18px;
+    .dx-datagrid-headers {
+      background: #f8f9fa;
       font-weight: 600;
-      border-bottom: none;
-      
-      .dx-closebutton {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        
-        &:hover {
-          background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .dx-icon {
-          font-size: 16px;
-        }
-      }
     }
-    
-    .dx-form {
-      .dx-field-item {
-        padding: 16px 0;
-        
-        .dx-field-item-label {
-          padding: 0 0 10px 0;
-          
-          .dx-field-item-label-text {
-            color: #212529;
-            font-weight: 600;
-            font-size: 15px;
-            
-            &::after {
-              color: #e74c3c;
-              margin-left: 4px;
-            }
-          }
-        }
-        
-        .dx-field-item-content {
-          .dx-texteditor, .dx-textbox, .dx-textarea, .dx-datebox {
-            border-radius: 8px;
-            
-            &.dx-state-focused {
-              border-color: var(--primary-blue);
-              box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
-            }
-            
-            &:hover:not(.dx-state-focused) {
-              border-color: #adb5bd;
-            }
-            
-            input, textarea {
-              font-size: 14px;
-              padding: 12px 14px;
-              color: #212529;
-            }
-            
-            .dx-texteditor-input {
-              padding: 12px 14px;
-            }
-          }
-          
-          .dx-textarea {
-            textarea {
-              resize: vertical;
-              min-height: 100px;
-              line-height: 1.6;
-            }
-          }
-          
-          .dx-datebox {
-            .dx-dropdowneditor-icon {
-              color: var(--primary-blue);
-              font-size: 18px;
-            }
-            
-            .dx-texteditor-buttons-container {
-              .dx-button {
-                &:hover {
-                  background: rgba(25, 118, 210, 0.08);
-                }
-              }
-            }
-          }
-        }
-      }
-      
-      .dx-field-item-required-mark {
-        color: #e74c3c;
-        font-size: 16px;
-      }
-      
-      .dx-field-item-help-text {
-        color: #6c757d;
-        font-size: 13px;
-        margin-top: 6px;
-      }
-    }
-    
-    .dx-popup-bottom {
-      padding: 18px 32px;
-      border-top: 1px solid #e9ecef;
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      
-      .dx-button {
-        border-radius: 8px;
-        font-weight: 600;
-        min-width: 110px;
-        font-size: 14px;
-        
-        &.dx-button-mode-contained {
-          &.dx-button-default {
-            border: none;
-            
-            &:hover {
-              background: linear-gradient(135deg, #1565c0, #1976d2);
-              box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
-            }
-          }
-        }
-        
-        &.dx-button-mode-outlined {
-          border: 2px solid #dee2e6;
-          color: #495057;
-          
-          &:hover {
-            border-color: #adb5bd;
-            background: #f8f9fa;
-          }
-        }
-      }
-    }
-  }
-  
-  .journal-popup {
-    .dx-popup-normal {
-      .dx-popup-title {
-        background: linear-gradient(135deg, var(--primary-pink), #e91e63);
-      }
-      
-      .dx-texteditor, .dx-textbox, .dx-textarea, .dx-datebox {
-        &.dx-state-focused {
-          border-color: var(--primary-pink);
-          box-shadow: 0 0 0 4px rgba(194, 24, 91, 0.1);
-        }
-      }
-      
-      .dx-datebox {
-        .dx-dropdowneditor-icon {
-          color: var(--primary-pink);
-        }
-      }
-      
-      .dx-button-mode-contained.dx-button-default {
-        background: linear-gradient(135deg, var(--primary-pink), #e91e63);
-        
-        &:hover {
-          background: linear-gradient(135deg, #ad1457, #c2185b);
-          box-shadow: 0 4px 12px rgba(194, 24, 91, 0.3);
-        }
-      }
-    }
-  }
-  
-  .dx-calendar {
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    
-    .dx-calendar-cell.dx-calendar-selected-date {
-      background-color: var(--primary-blue);
-      font-weight: 600;
-      
-      &:hover {
-        background-color: #1565c0;
-      }
-    }
-    
-    .dx-calendar-cell.dx-calendar-today {
-      font-weight: 700;
-      color: var(--primary-blue);
-    }
-    
-    .dx-calendar-cell:not(.dx-calendar-selected-date):hover {
-      background-color: rgba(25, 118, 210, 0.1);
-    }
-  }
-  
-  .journal-popup .dx-calendar {
-    .dx-calendar-cell.dx-calendar-selected-date {
-      background-color: var(--primary-pink);
-      
-      &:hover {
-        background-color: #ad1457;
-      }
-    }
-    
-    .dx-calendar-cell.dx-calendar-today {
-      color: var(--primary-pink);
-    }
-    
-    .dx-calendar-cell:not(.dx-calendar-selected-date):hover {
-      background-color: rgba(194, 24, 91, 0.1);
-    }
-  }
-}
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+    .dx-row:hover {
+      background: rgba(13, 110, 253, 0.05);
+    }
   }
 }

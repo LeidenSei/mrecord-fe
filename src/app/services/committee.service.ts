@@ -14,7 +14,7 @@ export interface CommitteeMemberDto {
   positionId: string;
   positionName: string;
   teamNumber?: number;
-  schoolYear: string;
+  schoolYear: number;
   electionRound: number;
   electionDate: Date;
   startDate: Date;
@@ -28,7 +28,7 @@ export interface CreateCommitteeRequest {
   classId: string;
   studentIds: string[];
   positionIds: string[];
-  schoolYear: string;
+  schoolYear: number;
   electionRound: number;
 }
 
@@ -72,7 +72,7 @@ export class CommitteeService extends BaseService {
 
   getListByClass(
     classId: string,
-    schoolYear: string,
+    schoolYear: number,
     electionRound?: number,
     activeOnly?: boolean
   ): Observable<CommitteeMemberDto[]> {
