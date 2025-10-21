@@ -61,55 +61,46 @@ export const navigationTeacherHomeroom = [
       {
         text: 'Ban cán sự lớp',
         path: '/class-logbook/class-committee',
-        icon: 'user',
         selected: false
       },
       {
         text: 'Lưu ý nhân lớp',
         path: '/class-logbook/class-notes',
-        icon: 'edit',
         selected: false
       },
       {
         text: 'Hoa việc tốt',
         path: '/class-logbook/good-deeds',
-        icon: 'taskcomplete',
         selected: false
       },
       {
-        text: 'Danh sách Ban đại diện Cha mẹ học sinh',
+        text: 'Ban đại diện Cha mẹ học sinh',
         path: '/class-logbook/parent-committee',
-        icon: 'user',
         selected: false
       },
       {
         text: 'Kế hoạch chủ nhiệm',
         path: '/class-logbook/homeroom-plan',
-        icon: 'bookmark',
         selected: false
       },
       {
         text: 'Kế hoạch tháng',
         path: '/class-logbook/monthly-plan',
-        icon: 'bookmark',
         selected: false
       },
       {
-        text: 'Bảng tổng hợp kết quả đánh giá giáo dục giữa kỳ (GK)',
+        text: 'Kết quả đánh giá giáo dục giữa kỳ (GK)',
         path: '/class-logbook/midterm-assessment',
-        icon: 'checklist',
         selected: false
       },
       {
-        text: 'Bảng tổng hợp kết quả đánh giá giáo dục cuối kỳ (CK)',
+        text: 'Kết quả đánh giá giáo dục cuối kỳ (CK)',
         path: '/class-logbook/final-assessment',
-        icon: 'checklist',
         selected: false
       },
       {
         text: 'Nhận xét sau khi đánh giá học kỳ I',
         path: '/class-logbook/semester1-comments',
-        icon: 'textdocument',
         selected: false
       },
     ]
@@ -120,21 +111,21 @@ export const navigationTeacherHomeroom = [
     path: '/transcript/teacher-homeroom-comment',
     selected: false,
   },*/
-  {
+  /*{
     text: 'Ký duyệt bộ môn',
     type: 'gvbm',
     icon: 'edit',
     grade: 'c2',
     path: '/transcript/teacher-subject-approval',
     selected: false,
-  },
+  },*/
   /*{
     text: 'Ký duyệt GVCN',
     icon: 'edit',
     path: '/transcript/teacher-homeroom-approval',
     selected: false,
   },*/
-  {
+  /*{
     text: 'Nhập điểm',
     path: '/score-entry',
     icon: 'edit',
@@ -153,8 +144,8 @@ export const navigationTeacherHomeroom = [
         selected: false
       }
     ]
-  },
-  {
+  },*/
+  /*{
     text: 'Học bạ số',
     icon: 'exportpdf',
     path: '',
@@ -173,8 +164,8 @@ export const navigationTeacherHomeroom = [
         selected: false
       },
     ],
-  },
-  {
+  },*/
+  /*{
     text: 'Học bạ số',
     icon: 'exportpdf',
     path: '',
@@ -187,7 +178,7 @@ export const navigationTeacherHomeroom = [
         selected: false
       },
     ],
-  },
+  },*/
 ];
 
 export const navigationTeacher = [
@@ -296,152 +287,49 @@ export const navigationAdmin = [
       {
         text: 'Ban cán sự lớp',
         path: '/class-logbook/class-committee',
-        icon: 'user',
         selected: false
       },
       {
         text: 'Lưu ý nhân lớp',
         path: '/class-logbook/class-notes',
-        icon: 'edit',
         selected: false
       },
       {
         text: 'Hoa việc tốt',
         path: '/class-logbook/good-deeds',
-        icon: 'taskcomplete',
         selected: false
       },
       {
         text: 'Danh sách Ban đại diện Cha mẹ học sinh',
         path: '/class-logbook/parent-committee',
-        icon: 'user',
         selected: false
       },
       {
         text: 'Kế hoạch chủ nhiệm',
         path: '/class-logbook/homeroom-plan',
-        icon: 'bookmark',
         selected: false
       },
       {
         text: 'Kế hoạch tháng',
         path: '/class-logbook/monthly-plan',
-        icon: 'bookmark',
         selected: false
       },
       {
         text: 'Bảng tổng hợp kết quả đánh giá giáo dục giữa kỳ (GK)',
         path: '/class-logbook/midterm-assessment',
-        icon: 'checklist',
         selected: false
       },
       {
         text: 'Bảng tổng hợp kết quả đánh giá giáo dục cuối kỳ (CK)',
         path: '/class-logbook/final-assessment',
-        icon: 'checklist',
         selected: false
       },
       {
         text: 'Nhận xét sau khi đánh giá học kỳ I',
         path: '/class-logbook/semester1-comments',
-        icon: 'textdocument',
         selected: false
       },
     ]
-  },
-  {
-    text: 'Ký duyệt thay bộ môn',
-    grade: 'c2',
-    icon: 'edit',
-    path: '/transcript/principal-subject-approval-v2',
-    selected: false,
-  },
-  {
-    text: 'Nhập điểm',
-    path: '/score-entry',
-    icon: 'edit',
-    selected: false,
-    items: [
-      {
-        text: 'Đánh giá thưởng xuyên tổng hợp',
-        path: '/score-entry/one-period',
-        icon: 'taskcomplete',
-        selected: false
-      },
-      {
-        text: 'Đánh giá định kỳ và nhận xét môn học',
-        path: '/score-entry/semester',
-        icon: 'bookmark',
-        selected: false
-      }
-    ]
-  },
-  {
-    text: 'Khởi tạo học bạ',
-    icon: 'refresh',
-    path: '/transcript/sync-list-c1',
-    grade: 'c2',
-    selected: false,
-  },
-  {
-    text: 'Khởi tạo học bạ',
-    icon: 'refresh',
-    path: '/transcript/sync-list-c1',
-    grade: 'c1',
-    selected: false,
-  },
-  {
-    text: 'Học bạ số',
-    icon: 'pasteplaintext',
-    path: '',
-    grade: 'c2',
-    selected: false,
-    items: [
-      {
-        text: 'Ký thay GV bộ môn',
-        path: '/transcript/principal-sign-subject',
-        selected: false
-      },
-      {
-        text: 'Ký duyệt học bạ',
-        path: '/transcript/sign-list-approve-c1',
-        selected: false
-      },
-      {
-        text: 'Ký phát hành học bạ',
-        path: '/transcript/sign-list-release-c1',
-        selected: false
-      },
-      {
-        text: 'Đóng gói và nộp sở',
-        path: '/transcript/packaged-list',
-        selected: false
-      }
-    ],
-  },
-  {
-    text: 'Học bạ số',
-    icon: 'pasteplaintext',
-    path: '',
-    grade: 'c1',
-    selected: false,
-    items: [
-      {
-        text: 'Ký duyệt học bạ',
-        path: '/transcript/sign-list-approve-c1',
-        selected: false
-      },
-      {
-        text: 'Ký phát hành học bạ',
-        path: '/transcript/sign-list-release-c1',
-        selected: false
-      },
-      {
-        text: 'Đóng gói và nộp sở',
-        path: '/transcript/packaged-list',
-        selected: false
-      }
-    ],
   },
 ];
 
