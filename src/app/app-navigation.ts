@@ -296,7 +296,7 @@ export const navigationAdmin = [
         selected: false
       },
       {
-        text: 'Danh sách Ban đại diện Cha mẹ học sinh',
+        text: 'Danh sách ban đại diện cha mẹ học sinh',
         path: '/class-logbook/parent-committee',
         selected: false
       },

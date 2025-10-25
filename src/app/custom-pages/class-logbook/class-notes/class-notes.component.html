@@ -1,10 +1,11 @@
 <div class="view-wrapper list-page class-notes">
   <dx-data-grid
     class="grid theme-dependent"
+  keyExpr="id"
     [rowAlternationEnabled]="true"
     noDataText=""
     columnResizingMode="widget"
-    [dataSource]="datas"
+     [dataSource]="datas"
     [allowColumnReordering]="true"
     [showBorders]="true"
     [showColumnLines]="true"
@@ -23,104 +24,231 @@
     <dxo-sorting mode="multiple"></dxo-sorting>
     <dxo-header-filter [visible]="true"></dxo-header-filter>
     <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
-    <dxo-editing
-      mode="popup"
-      [allowUpdating]="true"
-      [allowAdding]="true"
-      [allowDeleting]="true"
-      [useIcons]="true"
-    >
-      <dxo-popup
-        title="Lưu ý khi nhận lớp"
-        [showTitle]="true"
-        [width]="700"
-        [height]="600"
-      ></dxo-popup>
-      <dxo-form>
-        <dxi-item itemType="group" [colCount]="2">
-          <dxi-item dataField="date" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="category" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="title" [isRequired]="true" [colSpan]="2"></dxi-item>
-          <dxi-item dataField="priority" [isRequired]="true"></dxi-item>
-          <dxi-item dataField="status"></dxi-item>
-          <dxi-item dataField="studentName" [colSpan]="2"></dxi-item>
-          <dxi-item dataField="content" [colSpan]="2" 
-            editorType="dxTextArea" 
-            [editorOptions]="{ height: 150 }">
-          </dxi-item>
-          <dxi-item dataField="actionRequired" [colSpan]="2"
-            editorType="dxTextArea" 
-            [editorOptions]="{ height: 100 }">
-          </dxi-item>
-          <dxi-item dataField="createdBy"></dxi-item>
-          <dxi-item dataField="followUpDate"></dxi-item>
-        </dxi-item>
-      </dxo-form>
-    </dxo-editing>
     
+<dxo-editing
+  mode="popup"
+  [allowUpdating]="true"
+  [allowAdding]="true"
+  [allowDeleting]="true"
+  [useIcons]="true"
+>
+  <dxo-popup
+    title="Lưu ý khi nhận lớp"
+    [showTitle]="true"
+    [width]="700"
+    [height]="'auto'"
+    [maxHeight]="'90vh'"
+  ></dxo-popup>
+    <dxo-texts
+      saveRowChanges="Lưu"
+      cancelRowChanges="Hủy"
+      deleteRow="Xóa"
+      confirmDeleteMessage="Bạn có chắc muốn xóa ghi chú này?"
+    ></dxo-texts>
+  <dxo-form [colCount]="2" [labelLocation]="'top'">
+    <!-- Ngày ghi -->
+    <dxi-item 
+      dataField="date" 
+      [isRequired]="true" 
+      editorType="dxDateBox"
+      [editorOptions]="{
+        displayFormat: 'dd/MM/yyyy',
+        dateSerializationFormat: 'yyyy-MM-dd'
+      }">
+      <dxo-label text="Ngày ghi"></dxo-label>
+    </dxi-item>
+    
+    <!-- ⭐ CATEGORY - Cách đúng -->
+    <dxi-item 
+      dataField="category" 
+      [isRequired]="true" 
+      editorType="dxSelectBox"
+      [editorOptions]="{
+        dataSource: categorySource,
+        displayExpr: 'name',
+        valueExpr: 'value',
+        searchEnabled: true,
+        placeholder: 'Chọn phân loại'
+      }">
+      <dxo-label text="Phân loại"></dxo-label>
+    </dxi-item>
+    
+    <!-- Tiêu đề -->
+    <dxi-item 
+      dataField="title" 
+      [isRequired]="true" 
+      [colSpan]="2"
+      [editorOptions]="{
+        placeholder: 'Nhập tiêu đề ghi chú'
+      }">
+      <dxo-label text="Tiêu đề"></dxo-label>
+    </dxi-item>
+    
+    <!-- Mức độ ưu tiên -->
+    <dxi-item 
+      dataField="priority" 
+      [isRequired]="true" 
+      editorType="dxSelectBox"
+      [editorOptions]="{
+        dataSource: prioritySource,
+        displayExpr: 'name',
+        valueExpr: 'value'
+      }">
+      <dxo-label text="Mức độ ưu tiên"></dxo-label>
+    </dxi-item>
+    
+    <!-- Trạng thái -->
+    <dxi-item 
+      dataField="status" 
+      editorType="dxSelectBox"
+      [editorOptions]="{
+        dataSource: statusSource,
+        displayExpr: 'name',
+        valueExpr: 'value'
+      }">
+      <dxo-label text="Trạng thái"></dxo-label>
+    </dxi-item>
+    
+    <!-- Học sinh liên quan -->
+    <dxi-item 
+      dataField="studentName" 
+      [colSpan]="2" 
+      editorType="dxSelectBox"
+      [editorOptions]="{
+        dataSource: studentSource,
+        displayExpr: 'fullName',
+        valueExpr: 'fullName',
+        searchEnabled: true,
+        placeholder: 'Chọn học sinh (không bắt buộc)'
+      }">
+      <dxo-label text="Học sinh liên quan"></dxo-label>
+    </dxi-item>
+    
+    <!-- Nội dung chi tiết -->
+    <dxi-item 
+      dataField="content" 
+      [colSpan]="2" 
+      editorType="dxTextArea" 
+      [editorOptions]="{
+        height: 150,
+        minHeight: 100,
+        placeholder: 'Mô tả chi tiết về vấn đề'
+      }">
+      <dxo-label text="Nội dung chi tiết"></dxo-label>
+    </dxi-item>
+    
+    <!-- Hành động cần thiết -->
+    <dxi-item 
+      dataField="actionRequired" 
+      [colSpan]="2"
+      editorType="dxTextArea" 
+      [editorOptions]="{
+        height: 100,
+        placeholder: 'Các hành động cần thực hiện'
+      }">
+      <dxo-label text="Hành động cần thiết"></dxo-label>
+    </dxi-item>
+    
+    <!-- Người tạo -->
+    <dxi-item 
+      dataField="createdBy" 
+      [disabled]="true">
+      <dxo-label text="Người tạo"></dxo-label>
+    </dxi-item>
+    
+    <!-- Theo dõi đến -->
+    <dxi-item 
+      dataField="followUpDate" 
+      editorType="dxDateBox"
+      [editorOptions]="{
+        displayFormat: 'dd/MM/yyyy',
+        dateSerializationFormat: 'yyyy-MM-dd',
+        placeholder: 'Chọn ngày theo dõi'
+      }">
+      <dxo-label text="Theo dõi đến"></dxo-label>
+    </dxi-item>
+  </dxo-form>
+</dxo-editing>
+
+    <!-- Phần còn lại giữ nguyên -->
     <dxo-export
       [enabled]="true"
       [texts]="exportTexts"
       showText="always"
       [allowExportSelectedData]="false"
       [formats]="['xlsx']"
-    >
-    </dxo-export>
-    
+    ></dxo-export>
     <dxo-toolbar>
       <dxi-item name="addRowButton"></dxi-item>
       <dxi-item name="exportButton"></dxi-item>
       <dxi-item location="before">
-        <div class="grid-header">
-          <i class="dx-icon-edit" style="font-size: 16px"></i>
-          Lưu ý khi nhận lớp <span *ngIf="notesCount > 0">&nbsp;({{notesCount}})</span>
+        <div class="d-flex align-items-center gap-2">
+          <i class="dx-icon-edit"></i>
+          <span class="fw-semibold">Lưu ý khi nhận lớp</span>
+          <span *ngIf="notesCount > 0" class="badge bg-secondary">{{notesCount}}</span>
+        </div>
+      </dxi-item>
+  
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <label class="mb-0 me-2">Khối học</label>
         </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
-        <label>Khối học</label>
+        <div *dxTemplate>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="gradeSource"
+            (onItemClick)="gradeChange($event)"
+            [selectedItemKey]="selectedGrade"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
+      </dxi-item>
+      
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <label class="mb-0 me-2">Lớp học</label>
+        </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="gradeSource"
-          (onItemClick)="gradeChange($event)"
-          [selectedItemKey]="gradeSource[0]"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
+        <div *dxTemplate>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="filterClassSource"
+            keyExpr="id"
+            displayExpr="name"
+            (onItemClick)="classChange($event)"
+            [selectedItemKey]="filterClassId"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
+      </dxi-item>
+      
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <label class="mb-0 me-2">Mức độ ưu tiên</label>
+        </div>
       </dxi-item>
       <dxi-item location="before" locateInMenu="auto">
-        <label>Lớp học</label>
-      </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="filterClassSource"
-          keyExpr="id"
-          displayExpr="name"
-          (onItemClick)="classChange($event)"
-          [selectedItemKey]="filterClassId"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
-      </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
-        <label>Mức độ ưu tiên</label>
-      </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="priorityFilterSource"
-          keyExpr="value"
-          displayExpr="name"
-          (onItemClick)="priorityFilterChange($event)"
-          [selectedItemKey]="selectedPriorityFilter"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
+        <div *dxTemplate>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="priorityFilterSource"
+            keyExpr="value"
+            displayExpr="name"
+            (onItemClick)="priorityFilterChange($event)"
+            [selectedItemKey]="selectedPriorityFilter"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
       </dxi-item>
     </dxo-toolbar>
 
+    <!-- Columns giữ nguyên -->
     <dxi-column
       fixedPosition="left" 
       dataField="stt" 
@@ -157,7 +285,6 @@
       dataField="title" 
       [width]="250" 
       caption="Tiêu đề"
-      cellTemplate="cellTitle"
     ></dxi-column>
     
     <dxi-column 
@@ -198,7 +325,6 @@
       dataField="content" 
       caption="Nội dung chi tiết"
       [allowFiltering]="false"
-      cellTemplate="cellContent"
     ></dxi-column>
     
     <dxi-column 
@@ -207,39 +333,48 @@
       caption="Người tạo"
     ></dxi-column>
 
+    <dxi-column 
+      dataField="category" 
+      [width]="150" 
+      caption="Phân loại"
+      [lookup]="{
+        dataSource: categorySource,
+        displayExpr: 'name',
+        valueExpr: 'value'
+      }"
+    ></dxi-column>
+
     <dxi-column type="buttons" [width]="100" fixedPosition="right">
       <dxi-button name="edit"></dxi-button>
       <dxi-button name="delete"></dxi-button>
     </dxi-column>
 
-    <!-- Templates -->
-    
     <div *dxTemplate="let cellInfo of 'cellPriority'">
-      <span [ngClass]="getPriorityClass(cellInfo.value)">
+      <span class="badge rounded-pill" [ngClass]="{
+        'bg-danger': cellInfo.value === 'high',
+        'bg-warning text-dark': cellInfo.value === 'medium',
+        'bg-success': cellInfo.value === 'low'
+      }" style="font-size: 11px; padding: 4px 10px;">
         {{getPriorityText(cellInfo.value)}}
       </span>
     </div>
 
-    <div *dxTemplate="let cellInfo of 'cellStatus'">
-      <span [ngClass]="getStatusClass(cellInfo.value)">
-        {{getStatusText(cellInfo.value)}}
-      </span>
-    </div>
-
-    <div *dxTemplate="let cellInfo of 'cellTitle'">
-      <span class="note-title" [title]="cellInfo.value">
-        {{cellInfo.value}}
-      </span>
-    </div>
-
-    <div *dxTemplate="let cellInfo of 'cellContent'">
-      <span class="note-content" [title]="cellInfo.value">
-        {{cellInfo.value}}
-      </span>
-    </div>
+  <div *dxTemplate="let cellInfo of 'cellStatus'">
+    <span class="badge rounded-pill" [ngClass]="{
+      'bg-primary': cellInfo.value === 'new',
+      'bg-warning text-dark': cellInfo.value === 'progress',
+      'bg-success': cellInfo.value === 'resolved',
+      'bg-info text-dark': cellInfo.value === 'monitoring'
+    }" style="font-size: 11px; padding: 4px 10px;">
+      {{getStatusText(cellInfo.value)}}
+    </span>
+  </div>
 
     <div *dxTemplate="let cellInfo of 'cellFollowUp'">
-      <span [ngClass]="getFollowUpClass(cellInfo.value)">
+      <span [ngClass]="{
+        'text-danger fw-bold': isOverdue(cellInfo.value),
+        'text-warning fw-semibold': isSoon(cellInfo.value)
+      }">
         {{cellInfo.value | date: 'dd/MM/yyyy'}}
       </span>
     </div>

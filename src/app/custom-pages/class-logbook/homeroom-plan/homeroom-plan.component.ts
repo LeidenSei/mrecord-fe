@@ -306,8 +306,8 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
 
   deletePlan(plan: KeHoachChuNhiem): void {
     const confirmed = confirm(`Bạn có chắc chắn muốn xóa kế hoạch ${plan.className} - Học kỳ ${plan.semester}?`);
-    if (confirmed) {
-      this.keHoachService.delete(plan.id!, { id: plan.id! })
+    if (confirmed && plan.id) {
+      this.keHoachService.deletePlan(plan.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -322,6 +322,13 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
     }
   }
 
+  getCardTitle(semester: number): string {
+    if (semester === 2) {
+      return 'Bổ sung kế hoạch chủ nhiệm học kỳ 2';
+    }
+    return 'Kế hoạch chủ nhiệm học kỳ 1';
+  }
+  
   savePlan(): void {
     this.unflattenTempToPlan();
     

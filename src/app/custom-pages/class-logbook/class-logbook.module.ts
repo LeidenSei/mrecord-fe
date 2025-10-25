@@ -60,7 +60,7 @@ import { AgGridAngular } from 'ag-grid-angular';
     DxTabPanelModule,
     DxNumberBoxModule,
     DxDrawerModule,
-    DxRadioGroupModule
+    DxRadioGroupModule,
   ]
 })
 export class ClassLogbookModule { }

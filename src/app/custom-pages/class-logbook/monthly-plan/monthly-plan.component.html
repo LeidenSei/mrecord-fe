@@ -1,9 +1,7 @@
 <div class="view-wrapper monthly-plan-page">
   
-  <!-- HEADER FILTER ĐƠN GIẢN -->
   <div class="card border-0 shadow-sm mb-3">
     <div class="card-body">
-      <!-- Title -->
       <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
         <div class="d-flex align-items-center gap-3">
           <i class="dx-icon-event text-primary" style="font-size: 24px;"></i>
@@ -19,7 +17,6 @@
         </span>
       </div>
 
-      <!-- Filters -->
       <div class="d-flex gap-3 align-items-center flex-wrap">
         <div class="d-flex align-items-center gap-2">
           <label class="mb-0 small fw-medium">Khối học:</label>
@@ -95,13 +92,18 @@
     </div>
   </div>
 
-  <!-- SPLIT PANELS GIỮ NGUYÊN -->
-  <as-split direction="horizontal" class="main-splitter" [gutterSize]="8" unit="percent">
+  <as-split 
+    direction="horizontal" 
+    class="main-splitter" 
+    [gutterSize]="8" 
+    unit="percent"
+    (dragEnd)="onSplitDragEnd($event)">
     
-    <!-- LEFT PANEL - KẾ HOẠCH -->
-    <as-split-area [size]="50" [minSize]="30" [maxSize]="70">
+    <as-split-area 
+      [size]="splitSizes[0]" 
+      [minSize]="30" 
+      [maxSize]="70">
       <div class="card border-0 shadow-sm h-100 d-flex flex-column">
-        <!-- Header -->
         <div class="card-header bg-primary bg-gradient text-white">
           <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
@@ -117,7 +119,6 @@
           </div>
         </div>
 
-        <!-- Grid Content -->
         <div class="card-body p-3 flex-grow-1 overflow-hidden">
           <dx-data-grid
             #planGrid
@@ -132,34 +133,68 @@
             (onRowRemoving)="onPlanRowRemoving($event)">
             
             <dxo-scrolling mode="virtual"></dxo-scrolling>
-            <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true" [allowDeleting]="true">
-              <dxo-popup title="📋 Kế hoạch tháng" [width]="700" [height]="500"></dxo-popup>
-              <dxo-form [labelLocation]="'top'">
-                <dxi-item itemType="group" [colCount]="2">
-                  <dxi-item dataField="timeFrom" [isRequired]="true">
-                    <dxo-label text="Từ ngày"></dxo-label>
-                  </dxi-item>
-                  <dxi-item dataField="timeTo" [isRequired]="true">
-                    <dxo-label text="Đến ngày"></dxo-label>
+            
+            <dxo-editing 
+              mode="popup" 
+              [allowUpdating]="true" 
+              [allowAdding]="true" 
+              [allowDeleting]="true"
+              [confirmDelete]="true"
+              [texts]="{
+                saveRowChanges: 'Lưu',
+                cancelRowChanges: 'Hủy',
+                deleteRow: 'Xóa',
+                editRow: 'Sửa',
+                addRow: 'Thêm mới',
+                confirmDeleteMessage: 'Bạn có chắc chắn muốn xóa kế hoạch này?',
+                confirmDeleteTitle: 'Xác nhận xóa'
+              }">
+              <dxo-popup 
+                title="📋 KẾ HOẠCH THÁNG" 
+                [width]="750" 
+                [height]="'auto'"
+                [showCloseButton]="true"
+                [dragEnabled]="true">
+              </dxo-popup>
+              <dxo-form [labelLocation]="'top'" [colCount]="1" cssClass="custom-form">
+                <dxi-item itemType="group" caption="⏰ Thời gian thực hiện" cssClass="time-group">
+                  <dxi-item itemType="group" [colCount]="2" cssClass="date-row">
+                    <dxi-item dataField="timeFrom" [isRequired]="true">
+                      <dxo-label text="Từ ngày" [showColon]="false"></dxo-label>
+                      <dxi-validation-rule type="required" message="Vui lòng chọn ngày bắt đầu"></dxi-validation-rule>
+                    </dxi-item>
+                    <dxi-item dataField="timeTo" [isRequired]="true">
+                      <dxo-label text="Đến ngày" [showColon]="false"></dxo-label>
+                      <dxi-validation-rule type="required" message="Vui lòng chọn ngày kết thúc"></dxi-validation-rule>
+                    </dxi-item>
                   </dxi-item>
                 </dxi-item>
-                <dxi-item dataField="content" [isRequired]="true">
-                  <dxo-label text="Nội dung"></dxo-label>
+                
+                <dxi-item itemType="group" caption="📝 Nội dung chi tiết" cssClass="content-group">
+                  <dxi-item dataField="content" [isRequired]="true" editorType="dxTextArea" 
+                    [editorOptions]="{height: 120, placeholder: 'Nhập nội dung kế hoạch...'}">
+                    <dxo-label text="Nội dung" [showColon]="false"></dxo-label>
+                    <dxi-validation-rule type="required" message="Vui lòng nhập nội dung"></dxi-validation-rule>
+                  </dxi-item>
                 </dxi-item>
-                <dxi-item dataField="evaluation">
-                  <dxo-label text="Đánh giá"></dxo-label>
+                
+                <dxi-item itemType="group" caption="⭐ Đánh giá kết quả" cssClass="evaluation-group">
+                  <dxi-item dataField="evaluation" editorType="dxTextArea" 
+                    [editorOptions]="{height: 100, placeholder: 'Nhập đánh giá (nếu có)...'}">
+                    <dxo-label text="Đánh giá" [showColon]="false"></dxo-label>
+                  </dxi-item>
                 </dxi-item>
               </dxo-form>
             </dxo-editing>
-            
+
             <dxo-toolbar>
               <dxi-item name="addRowButton"></dxi-item>
               <dxi-item name="exportButton"></dxi-item>
             </dxo-toolbar>
 
             <dxi-column dataField="stt" caption="STT" [width]="60" alignment="center" [allowEditing]="false"></dxi-column>
-            <dxi-column dataField="timeFrom" caption="Từ" dataType="date" format="dd/MM/yyyy" [width]="100"></dxi-column>
-            <dxi-column dataField="timeTo" caption="Đến" dataType="date" format="dd/MM/yyyy" [width]="100"></dxi-column>
+            <dxi-column dataField="timeFrom" caption="Từ" dataType="date" format="dd/MM/yyyy" [width]="150"></dxi-column>
+            <dxi-column dataField="timeTo" caption="Đến" dataType="date" format="dd/MM/yyyy" [width]="150"></dxi-column>
             <dxi-column dataField="content" caption="Nội dung"></dxi-column>
             <dxi-column dataField="evaluation" caption="Đánh giá" [width]="150"></dxi-column>
             <dxi-column type="buttons" [width]="100">
@@ -171,10 +206,11 @@
       </div>
     </as-split-area>
 
-    <!-- RIGHT PANEL - NHẬT KÝ -->
-    <as-split-area [size]="50" [minSize]="30" [maxSize]="70">
+    <as-split-area 
+      [size]="splitSizes[1]" 
+      [minSize]="30" 
+      [maxSize]="70">
       <div class="card border-0 shadow-sm h-100 d-flex flex-column">
-        <!-- Header -->
         <div class="card-header bg-danger bg-gradient text-white">
           <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
@@ -190,7 +226,6 @@
           </div>
         </div>
 
-        <!-- Grid Content -->
         <div class="card-body p-3 flex-grow-1 overflow-hidden">
           <dx-data-grid
             #journalGrid
@@ -205,14 +240,41 @@
             (onRowRemoving)="onJournalRowRemoving($event)">
             
             <dxo-scrolling mode="virtual"></dxo-scrolling>
-            <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true" [allowDeleting]="true">
-              <dxo-popup title="📖 Nhật ký chủ nhiệm" [width]="700" [height]="400"></dxo-popup>
-              <dxo-form [labelLocation]="'top'">
-                <dxi-item dataField="date" [isRequired]="true">
-                  <dxo-label text="Ngày"></dxo-label>
-                </dxi-item>
-                <dxi-item dataField="content" [isRequired]="true">
-                  <dxo-label text="Nội dung"></dxo-label>
+            
+            <dxo-editing 
+              mode="popup" 
+              [allowUpdating]="true" 
+              [allowAdding]="true" 
+              [allowDeleting]="true"
+              [confirmDelete]="true"
+              [texts]="{
+                saveRowChanges: 'Lưu',
+                cancelRowChanges: 'Hủy',
+                deleteRow: 'Xóa',
+                editRow: 'Sửa',
+                addRow: 'Thêm mới',
+                confirmDeleteMessage: 'Bạn có chắc chắn muốn xóa nhật ký này?',
+                confirmDeleteTitle: 'Xác nhận xóa'
+              }">
+              <dxo-popup 
+                title="📖 NHẬT KÝ CHỦ NHIỆM" 
+                [width]="700" 
+                [height]="'auto'"
+                [showCloseButton]="true"
+                [dragEnabled]="true">
+              </dxo-popup>
+              <dxo-form [labelLocation]="'top'" [colCount]="1" cssClass="custom-form">
+                <dxi-item itemType="group" caption="📅 Thông tin nhật ký" cssClass="journal-group">
+                  <dxi-item dataField="date" [isRequired]="true">
+                    <dxo-label text="Ngày ghi nhận" [showColon]="false"></dxo-label>
+                    <dxi-validation-rule type="required" message="Vui lòng chọn ngày"></dxi-validation-rule>
+                  </dxi-item>
+                  
+                  <dxi-item dataField="content" [isRequired]="true" editorType="dxTextArea" 
+                    [editorOptions]="{height: 150, placeholder: 'Nhập nội dung nhật ký...'}">
+                    <dxo-label text="Nội dung chi tiết" [showColon]="false"></dxo-label>
+                    <dxi-validation-rule type="required" message="Vui lòng nhập nội dung"></dxi-validation-rule>
+                  </dxi-item>
                 </dxi-item>
               </dxo-form>
             </dxo-editing>

@@ -45,7 +45,7 @@ const routes: Routes = [
     path: 'parent-committee',
     component: ParentCommitteeComponent,
     data: { 
-      breadcrumb: 'Danh sách Ban đại diện Cha mẹ học sinh',
+      breadcrumb: 'Danh sách ban đại diện cha mẹ học sinh',
       breadcrumbIcon: 'user'
     }
   },

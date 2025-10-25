@@ -8,7 +8,7 @@
 .view-wrapper {
   position: absolute;
   top: 0; bottom: 0; left: 0; right: 0;
-  padding: 20px; 
+  padding: 20px;
   overflow-y: auto;
 
   &.monthly-plan-page {
@@ -34,7 +34,7 @@
       overflow: hidden;
       display: flex !important;
       flex-direction: column !important;
-      
+
       > .as-split-area-content {
         height: 100%;
         width: 100%;
@@ -92,5 +92,205 @@
     .dx-row:hover {
       background: rgba(13, 110, 253, 0.05);
     }
+  }
+
+  // ========= CUSTOM MODAL STYLING =========
+  .dx-popup-wrapper {
+    .dx-popup-title {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white !important;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 18px 24px !important;
+      border-radius: 12px 12px 0 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .dx-popup-content {
+      padding: 24px !important;
+      background: #f8f9fa;
+    }
+  }
+
+  // Form Groups Styling
+  .custom-form {
+    .dx-field-item-label-text {
+      font-weight: 600;
+      color: #495057;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .dx-group-item {
+      margin-bottom: 20px;
+      
+      > .dx-field-item-content {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+      }
+    }
+
+    // Group Captions
+    .dx-form-group-caption {
+      font-weight: 700;
+      font-size: 14px;
+      color: #2c3e50;
+      padding: 0 0 12px 0 !important;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #e9ecef;
+      background: transparent !important;
+    }
+
+    // Time Group
+    .time-group {
+      .dx-field-item-content {
+        border-left: 4px solid #0d6efd;
+      }
+      .dx-form-group-caption {
+        color: #0d6efd;
+      }
+    }
+
+    // Content Group
+    .content-group {
+      .dx-field-item-content {
+        border-left: 4px solid #198754;
+      }
+      .dx-form-group-caption {
+        color: #198754;
+      }
+    }
+
+    // Evaluation Group
+    .evaluation-group {
+      .dx-field-item-content {
+        border-left: 4px solid #ffc107;
+      }
+      .dx-form-group-caption {
+        color: #f59f00;
+      }
+    }
+
+    // Journal Group
+    .journal-group {
+      .dx-field-item-content {
+        border-left: 4px solid #dc3545;
+      }
+      .dx-form-group-caption {
+        color: #dc3545;
+      }
+    }
+
+    // Date Row
+    .date-row {
+      gap: 16px;
+      
+      .dx-field-item {
+        margin-bottom: 0 !important;
+      }
+    }
+
+    // Input Fields
+    .dx-texteditor {
+      border-radius: 6px;
+      border: 1px solid #dee2e6;
+      transition: all 0.3s ease;
+
+      &.dx-state-focused {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+      }
+
+      &.dx-state-hover:not(.dx-state-focused) {
+        border-color: #adb5bd;
+      }
+
+      .dx-texteditor-input {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+    }
+
+    // TextArea
+    .dx-textarea {
+      .dx-texteditor-input {
+        min-height: 100px;
+        line-height: 1.6;
+        font-family: inherit;
+      }
+    }
+
+    // Date Picker
+    .dx-datebox {
+      .dx-texteditor-input {
+        padding-left: 40px;
+      }
+    }
+
+    // Validation
+    .dx-invalid {
+      border-color: #dc3545 !important;
+      
+      &.dx-state-focused {
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+      }
+    }
+
+    .dx-invalid-message {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+  }
+
+  // Popup Buttons
+  .dx-popup-bottom {
+    padding: 16px 24px !important;
+    background: white;
+    border-top: 1px solid #e9ecef;
+    border-radius: 0 0 12px 12px;
+
+    .dx-button {
+      border-radius: 6px;
+      font-weight: 600;
+      padding: 10px 24px;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+
+      &.dx-button-success {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+      }
+
+      &.dx-button-normal {
+        background: white;
+        border: 2px solid #dee2e6;
+        color: #6c757d;
+        
+        &:hover {
+          background: #f8f9fa;
+          border-color: #adb5bd;
+        }
+      }
+    }
+  }
+
+  // Overlay
+  .dx-overlay-content {
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
   }
 }

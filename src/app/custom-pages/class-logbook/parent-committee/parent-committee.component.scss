@@ -34,138 +34,17 @@
       @include header();
       display: flex;
       align-items: center;
-      gap: 8px;
 
       i {
         font-size: 18px;
-        color: var(--accent-color);
-      }
-
-      .count-badge {
-        background: var(--accent-color);
-        color: white;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        margin-left: 8px;
+        margin-right: 8px;
       }
     }
   }
 }
 
-.position-president {
-  color: #d32f2f;
-  font-weight: 600;
-  background-color: #ffebee;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  display: inline-block;
-}
-
-.position-vice-president {
-  color: #f57c00;
-  font-weight: 600;
-  background-color: #fff3e0;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  display: inline-block;
-}
-
-.position-secretary {
-  color: #1976d2;
+::ng-deep .badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
   font-weight: 500;
-  background-color: #e3f2fd;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  display: inline-block;
-}
-
-.position-treasurer {
-  color: #388e3c;
-  font-weight: 500;
-  background-color: #e8f5e8;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  display: inline-block;
-}
-
-.position-member {
-  color: #7b1fa2;
-  font-weight: 500;
-  background-color: #f3e5f5;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  display: inline-block;
-}
-
-.phone-link {
-  color: #1976d2;
-  text-decoration: none;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  i {
-    font-size: 14px;
-  }
-}
-
-.dx-datagrid-content {
-  .dx-row {
-    &:hover {
-      background-color: #f8f9fa;
-    }
-  }
-}
-parent-committee {
-  ::ng-deep .dx-popup-content {
-    padding: 20px;
-  }
-
-  ::ng-deep .dx-form-group-caption {
-    font-size: 15px;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #e0e0e0;
-  }
-
-  ::ng-deep .dx-field-item-label-text {
-    font-weight: 500;
-  }
-
-  ::ng-deep .dx-form-group {
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  ::ng-deep .dx-field-item-required .dx-field-item-label-text::after {
-    content: ' *';
-    color: #e74c3c;
-    font-weight: bold;
-  }
-
-  ::ng-deep .dx-popup-bottom {
-    padding: 15px 20px;
-    background: #f8f9fa;
-    border-top: 1px solid #e0e0e0;
-  }
 }

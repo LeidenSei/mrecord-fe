@@ -18,12 +18,11 @@ import { saveAs } from 'file-saver-es';
 export class ParentCommitteeComponent implements OnInit {
   datas: ParentCommitteeDto[] = [];
   committeeCount = 0;
-
-  gradeSource = [];
+  filterGrade: string = 'Tất cả'; 
+  gradeSource: string[] = ['Tất cả'];
   classSource = [];
   filterClassSource: any[] = [];
   filterClassId: any = null;
-  filterGrade: any = 0;
   schoolYearId: number = 2025;
   
   positionFilterSource = [
@@ -65,6 +64,8 @@ export class ParentCommitteeComponent implements OnInit {
   currentClassName: string = '';
   currentGradeName: string = '';
   allClasses: any[] = [];
+  isEditMode = false;
+  
   constructor(
     public screen: ScreenService,
     public generalService: GeneralService,
@@ -75,42 +76,59 @@ export class ParentCommitteeComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-      const user = await this.authService.getUser();
-      this.isAdmin = user.data.role === 2;
+    const user = await this.authService.getUser();
+    this.isAdmin = user.data.role === 2;
 
-      forkJoin([
-        this.generalService.getListGradeOfSchool(user.data.schoolId),
-        this.generalService.getListClassByTeacher(user.data.schoolId, user.data.personId),
-        this.generalService.getListClassBySchool(user.data.schoolId)
-      ]).subscribe(([gradeSource, classSource, schoolClassSource]) => {
-        this.allClasses = (user.data.role === 2 || user.data.isBGH) ? schoolClassSource : classSource;
-        this.classSource = [...this.allClasses];
-        
-        let filterGradeIds = classSource.map(en => en.grade);
-        
-        // Transform gradeSource thành array of objects
-        const grades = (user.data.role === 2 || user.data.isBGH) 
-          ? gradeSource 
-          : gradeSource.filter(en => filterGradeIds.includes(en));
-        
-        this.gradeSource = grades.map(grade => ({
-          value: grade,
-          text: `Khối ${grade}`
-        }));
+    forkJoin([
+      this.generalService.getListGradeOfSchool(user.data.schoolId),
+      this.generalService.getListClassByTeacher(user.data.schoolId, user.data.personId),
+      this.generalService.getListClassBySchool(user.data.schoolId)
+    ]).subscribe(([gradeSource, classSource, schoolClassSource]) => {
+      console.log('classSource:', classSource);
+      console.log('schoolClassSource:', schoolClassSource);
+      
+      // Fallback nếu classSource rỗng
+      let rawClasses: any[];
+      if (user.data.role === 2 || user.data.isBGH || classSource.length === 0) {
+        rawClasses = schoolClassSource;
+      } else {
+        rawClasses = classSource;
+      }
+      
+      // Map classes thành format chuẩn có id
+      this.allClasses = rawClasses.map((cls: any) => ({
+        id: cls.id,
+        name: cls.name || cls.tenLop || cls.shortName,
+        grade: cls.grade
+      }));
+      
+      this.classSource = [...this.allClasses];
+      console.log('allClasses:', this.allClasses);
+      
+      // Lấy danh sách khối THỰC SỰ có lớp trong allClasses
+      const actualGrades = [...new Set(this.allClasses.map(c => c.grade))].sort();
+      console.log('actualGrades:', actualGrades);
+      
+      // Map thành string với "Tất cả" ở đầu
+      this.gradeSource = ['Tất cả', ...actualGrades.map(grade => `Khối ${grade}`)];
+      console.log('gradeSource:', this.gradeSource);
+      
+      // Khởi tạo filterClassSource với "Tất cả lớp" và tất cả các lớp
+      this.filterClassSource = [
+        { id: null, name: 'Tất cả lớp' },
+        ...this.allClasses
+      ];
+      console.log('filterClassSource:', this.filterClassSource);
 
-        this.filterGrade = this.gradeSource[0]?.value; // Lấy value thay vì cả object
-        
-        this.filterClassSource = this.allClasses.filter(en => 
-          !this.filterGrade || en.grade === this.filterGrade
-        );
-
-        if (this.filterClassSource.length > 0) {
-          this.filterClassId = this.filterClassSource[0].id;
-          this.updateCurrentClassInfo();
-          this.loadCommitteeData();
-          this.loadStudentAndParentData();
-        }
-      });
+      // Mặc định chọn lớp đầu tiên (sau "Tất cả lớp")
+      if (this.filterClassSource.length > 1) {
+        this.filterClassId = this.filterClassSource[1].id;
+        console.log('filterClassId:', this.filterClassId);
+        this.updateCurrentClassInfo();
+        this.loadCommitteeData();
+        this.loadStudentAndParentData();
+      }
+    });
   }
 
   updateCurrentClassInfo(): void {
@@ -190,54 +208,63 @@ export class ParentCommitteeComponent implements OnInit {
     );
   }
 
-gradeChange($event: any): void {
-    console.log('=== GRADE CHANGE ===');
-    
-    this.filterGrade = $event.itemData.value;
-    
-    if (!Number.isNaN(this.filterGrade) && this.filterGrade !== 0) {
-      this.filterClassSource = this.classSource.filter(en => 
-        en.grade === +this.filterGrade
-      );
-    } else {
-      this.filterClassSource = this.classSource;
-    }
-    
-    console.log('filterClassSource:', this.filterClassSource);
-    
-    this.selectedPositionFilter = '';
+  getGradeNumber(gradeText: string): number | undefined {
+    if (gradeText === 'Tất cả') return undefined;
+    const match = gradeText.match(/\d+/);
+    return match ? parseInt(match[0]) : undefined;
+  }
 
-    // Reset về null trước
-    this.filterClassId = null;
+  gradeChange($event: any): void {
+    this.filterGrade = $event.itemData;
     
-    // Force Angular detect changes
-    this.cdr.detectChanges();
+    if (this.filterGrade === 'Tất cả') {
+      // Hiển thị tất cả lớp
+      this.filterClassSource = [
+        { id: null, name: 'Tất cả lớp' },
+        ...this.allClasses
+      ];
+    } else {
+      // Lọc lớp theo khối được chọn
+      const gradeNumber = this.getGradeNumber(this.filterGrade);
+      
+      if (gradeNumber !== undefined) {
+        const filteredClasses = this.allClasses.filter(c => c.grade === gradeNumber);
+        
+        this.filterClassSource = [
+          { id: null, name: 'Tất cả lớp' },
+          ...filteredClasses
+        ];
+
+        // Auto chọn lớp đầu tiên nếu có
+        if (filteredClasses.length > 0) {
+          this.filterClassId = filteredClasses[0].id;
+          this.updateCurrentClassInfo();
+          this.loadCommitteeData();
+          this.loadStudentAndParentData();
+        } else {
+          this.filterClassId = null;
+          this.datas = [];
+          this.committeeCount = 0;
+          this.notificationService.showNotification(Constant.INFO, 'Không có lớp nào trong khối này');
+        }
+      }
+    }
+  }
+
+  classChange($event): void {
+    this.filterClassId = $event.itemData.id;
     
-    // Rồi mới set giá trị mới
-    if (this.filterClassSource.length > 0) {
-      this.filterClassId = this.filterClassSource[0].id;
-      
-      console.log('Set filterClassId =', this.filterClassId);
-      
-      // Force Angular detect changes lần nữa
-      this.cdr.detectChanges();
-      
+    if (this.filterClassId) {
       this.updateCurrentClassInfo();
       this.loadCommitteeData();
       this.loadStudentAndParentData();
     } else {
+      // Chọn "Tất cả lớp"
       this.datas = [];
       this.committeeCount = 0;
+      this.studentSource = [];
+      this.parentSource = [];
     }
-    
-    console.log('===================');
-}
-
-  classChange($event): void {
-    this.filterClassId = $event.itemData.id;
-    this.updateCurrentClassInfo();
-    this.loadCommitteeData();
-    this.loadStudentAndParentData();
   }
 
   positionFilterChange(event: any): void {
@@ -266,18 +293,36 @@ gradeChange($event: any): void {
     });
     event.cancel = true;
   }
+  
+  onEditingStart(event: any): void {
+    this.isEditMode = true;
+  }
+
+  onInitNewRow(event: any): void {
+    this.isEditMode = false;
+    this.parentInputMode = 'existing';
+  }
 
   onRowUpdating(event: any): void {
+    const recordId = typeof event.key === 'string' ? event.key : event.key?.id;
+    
+    if (!recordId) {
+      this.notificationService.showNotification(Constant.ERROR, 'Không tìm thấy ID bản ghi');
+      event.cancel = true;
+      return;
+    }
+
     const request: ParentCommitteeUpdateRequest = {
-      id: event.key,
+      id: recordId,
       position: event.newData.position !== undefined ? event.newData.position : event.oldData.position,
       relationship: event.newData.relationship !== undefined ? event.newData.relationship : event.oldData.relationship,
+      workplace: event.newData.workplace !== undefined ? event.newData.workplace : event.oldData.workplace,
       note: event.newData.note !== undefined ? event.newData.note : event.oldData.note
     };
 
     this.parentCommitteeService.update(request).subscribe(
       res => {
-        if (res.errorCode === 0) {
+        if (res.code === 0) {
           this.notificationService.showNotification(Constant.SUCCESS, res.message);
           this.loadCommitteeData();
         } else {
@@ -287,6 +332,33 @@ gradeChange($event: any): void {
       },
       error => {
         this.notificationService.showNotification(Constant.ERROR, 'Có lỗi xảy ra khi cập nhật');
+        console.error(error);
+        event.cancel = true;
+      }
+    );
+  }
+
+  onRowRemoving(event: any): void {
+    const recordId = typeof event.key === 'string' ? event.key : event.key?.id;
+    
+    if (!recordId) {
+      this.notificationService.showNotification(Constant.ERROR, 'Không tìm thấy ID bản ghi');
+      event.cancel = true;
+      return;
+    }
+
+    this.parentCommitteeService.remove(recordId).subscribe(
+      res => {
+        if (res.code === 0) {
+          this.notificationService.showNotification(Constant.SUCCESS, res.message);
+          this.loadCommitteeData();
+        } else {
+          this.notificationService.showNotification(Constant.ERROR, res.message);
+          event.cancel = true;
+        }
+      },
+      error => {
+        this.notificationService.showNotification(Constant.ERROR, 'Có lỗi xảy ra khi xóa');
         console.error(error);
         event.cancel = true;
       }
@@ -327,42 +399,23 @@ gradeChange($event: any): void {
       note: event.data.note || ''
     };
 
-    this.parentCommitteeService.create(request).subscribe(
-      res => {
-        if (res.errorCode === 0) {
-          this.notificationService.showNotification(Constant.SUCCESS, res.message);
-          this.loadCommitteeData();
-        } else {
-          this.notificationService.showNotification(Constant.ERROR, res.message);
+      this.parentCommitteeService.create(request).subscribe(
+        res => {
+          if (res.code === 0) {  // ← Sửa từ errorCode thành code
+            this.notificationService.showNotification(Constant.SUCCESS, res.message);
+            this.loadCommitteeData();
+          } else {
+            this.notificationService.showNotification(Constant.ERROR, res.message);
+            event.cancel = true;
+          }
+        },
+        error => {
+          this.notificationService.showNotification(Constant.ERROR, 'Có lỗi xảy ra khi thêm mới');
+          console.error(error);
           event.cancel = true;
         }
-      },
-      error => {
-        this.notificationService.showNotification(Constant.ERROR, 'Có lỗi xảy ra khi thêm mới');
-        console.error(error);
-        event.cancel = true;
-      }
-    );
-  }
-
-  onRowRemoving(event: any): void {
-    this.parentCommitteeService.remove(event.key).subscribe(
-      res => {
-        if (res.errorCode === 0) {
-          this.notificationService.showNotification(Constant.SUCCESS, res.message);
-          this.loadCommitteeData();
-        } else {
-          this.notificationService.showNotification(Constant.ERROR, res.message);
-          event.cancel = true;
-        }
-      },
-      error => {
-        this.notificationService.showNotification(Constant.ERROR, 'Có lỗi xảy ra khi xóa');
-        console.error(error);
-        event.cancel = true;
-      }
-    );
-  }
+      );
+    }
 
   getPositionText(position: string): string {
     const pos = this.positionSource.find(p => p.value === position);

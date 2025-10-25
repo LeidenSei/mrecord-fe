@@ -274,11 +274,12 @@ export class ClassCommitteeComponent implements OnInit {
         this.studentSource = students.map((student: any) => ({
           id: student.id,
           code: student.code || '',
-          fullName: this.getFullName(student),
+          fullName: student.fullName || this.getFullName(student), 
           firstName: student.firstName,
           middleName: student.middleName,
           lastName: student.lastName,
           classId: student.classId,
+          className: student.className,
           schoolId: student.schoolId,
           avatar: student.avatar,
           sex: student.sex,
@@ -305,7 +306,8 @@ export class ClassCommitteeComponent implements OnInit {
   }
 
   getSchoolYearDisplay(year: number): string {
-    return `${year - 1}-${year}`;
+    if (!year) return 'Tất cả';
+    return `${year}-${year + 1}`;
   }
 
   get selectedSchoolYearText(): string {

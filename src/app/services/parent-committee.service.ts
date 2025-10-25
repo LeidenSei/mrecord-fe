@@ -36,12 +36,14 @@ export interface ParentCommitteeUpdateRequest {
   position: string;
   relationship: string;
   note?: string;
+  workplace: string
 }
 
 export interface ParentCommitteeResponse {
   errorCode: number;
   message: string;
   data?: any;
+  code:any
 }
 
 @Injectable({

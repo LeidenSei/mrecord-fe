@@ -50,7 +50,6 @@ export interface PaginatedResult<T> {
 })
 export class KeHoachChuNhiemService extends BaseService {
 
-  // Lấy kế hoạch theo lớp và học kỳ
   getByClassSemester(classId: string, semester: number, schoolYear: number): Observable<KeHoachChuNhiem> {
     return this.get('/KeHoachChuNhiem/GetByClassSemester', { 
       classId, 
@@ -63,7 +62,6 @@ export class KeHoachChuNhiemService extends BaseService {
     return this.get('/KeHoachChuNhiem', { id });
   }
 
-  // Lấy danh sách theo trường với filter
   getListBySchool(
     schoolId: string,
     schoolYear: number,
@@ -97,8 +95,8 @@ export class KeHoachChuNhiemService extends BaseService {
     return this.put('/KeHoachChuNhiem', data);
   }
 
-  delete(id: string, p0: { id: string; }): Observable<any> {
-    return this.delete('/KeHoachChuNhiem', { id });
+  deletePlan(id: string): Observable<any> {
+    return super.delete(`/KeHoachChuNhiem/${id}`, null);
   }
 
   save(data: KeHoachChuNhiem): Observable<KeHoachChuNhiem> {
