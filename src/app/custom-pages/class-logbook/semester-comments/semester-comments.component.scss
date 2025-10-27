@@ -1,0 +1,59 @@
+@use "../../../../variables.scss" as *;
+
+:host {
+  --side-panel-toolbar-height: 76px;
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  flex-direction: row;
+
+  .grid {
+    ::ng-deep & {
+      .dx-datagrid-header-panel {
+        padding: 0 var(--content-padding);
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: var(--toolbar-margin-bottom) 0;
+        
+        label {
+          font-weight: 500;
+          color: #424242;
+          margin-right: 8px;
+        }
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+      }
+    }
+
+    .grid-header {
+      @include header();
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      
+      i {
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+.priority-high::before { content: "🔴 "; }
+.priority-medium::before { content: "🟡 "; }
+.priority-low::before { content: "🟢 "; }
+
+.followup-overdue { font-weight: 600; }
+.followup-soon { font-weight: 600; }

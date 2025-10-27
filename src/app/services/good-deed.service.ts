@@ -80,11 +80,8 @@ export class GoodDeedService extends BaseService {
     return this.post('/GoodDeed/Update', data);
   }
 
-  /**
-   * Xóa hoa việc tốt
-   */
   delete(id: string): Observable<any> {
-    return this.get('/GoodDeed/Delete', { id: id });
+      return super.delete(`/GoodDeed/Delete?id=${id}`, id);
   }
 
   /**

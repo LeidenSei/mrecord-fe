@@ -10,7 +10,6 @@ import { HomeroomPlanComponent } from './homeroom-plan/homeroom-plan.component';
 import { MonthlyPlanComponent } from './monthly-plan/monthly-plan.component';
 import { MidtermAssessmentComponent } from './midterm-assessment/midterm-assessment.component';
 import { FinalAssessmentComponent } from './final-assessment/final-assessment.component';
-import { Semester1CommentsComponent } from './semester1-comments/semester1-comments.component';
 
 import { DxDataGridModule } from 'devextreme-angular/ui/data-grid';
 import { DxFormModule } from 'devextreme-angular/ui/form';
@@ -23,6 +22,8 @@ import { DxCheckBoxModule, DxDrawerModule, DxDropDownButtonModule, DxListModule,
 import { FormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import { AgGridAngular } from 'ag-grid-angular';
+import { SemesterCommentsComponent } from './semester-comments/semester-comments.component';
+import { StudentTrackingComponent } from './student-tracking/student-tracking.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { AgGridAngular } from 'ag-grid-angular';
     MonthlyPlanComponent,
     MidtermAssessmentComponent,
     FinalAssessmentComponent,
-    Semester1CommentsComponent,
+    SemesterCommentsComponent,
+    StudentTrackingComponent,
   ],
  imports: [
     CommonModule,

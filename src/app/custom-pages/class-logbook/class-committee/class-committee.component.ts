@@ -565,13 +565,6 @@ export class ClassCommitteeComponent implements OnInit {
   private mapCommitteeData(data: any[]): CommitteeMemberDto[] {
     return data.map(item => {
       const positionName = item.positionName || this.getPositionText(item.positionId);
-      console.log('Position mapping:', {
-        positionId: item.positionId,
-        positionNameFromAPI: item.positionName,
-        positionNameComputed: positionName,
-        studentRoles: this.studentRoles
-      });
-      
       return {
         id: item.id,
         studentId: item.studentId,

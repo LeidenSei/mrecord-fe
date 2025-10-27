@@ -179,16 +179,20 @@ export class ClassNotesComponent implements OnInit {
 
   loadNotes() {
     if (!this.currentClassId) return;
-    
-    const type = this.selectedPriorityFilter === 'all' ? undefined : this.selectedPriorityFilter;
+    const priority = this.selectedPriorityFilter === 'all' ? undefined : this.selectedPriorityFilter;
     
     this.classCommentService.getListByClass(
       this.currentClassId, 
       this.currentSchoolYear,
-      type
+      undefined,
+      priority 
     ).subscribe({
       next: (data) => {
-        this.datas = data.map((item: any, index: number) => ({
+        const filteredData = data.filter((item: any) => 
+          item.loai !== 'NHAN_XET_CUOI_KY'
+        );
+        
+        this.datas = filteredData.map((item: any, index: number) => ({
           id: item.id,
           stt: index + 1,
           date: item.ngaY_GHI ? new Date(item.ngaY_GHI) : null,

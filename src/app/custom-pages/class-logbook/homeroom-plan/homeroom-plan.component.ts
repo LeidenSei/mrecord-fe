@@ -20,11 +20,11 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
   popupVisible = false;
   isEditMode = false;
   currentPlan: KeHoachChuNhiem = this.getEmptyPlan();
-  
+  schoolYearSource: number[] = [];
+  schoolYearDisplaySource: Array<{value: number, text: string}> = [];
+
   collapsedCards: { [key: string]: boolean } = {};
   tempFormData: any = {};
-  
-  schoolYearSource: number[] = [];
   selectedSchoolYear = 0;
   
   semesterSource = [
@@ -110,6 +110,19 @@ export class HomeroomPlanComponent implements OnInit, OnDestroy {
       currentYear - 1,
       currentYear - 2
     ];
+    this.schoolYearDisplaySource = this.schoolYearSource.map(year => ({
+      value: year,
+      text: `${year} - ${year + 1}`
+    }));
+  }
+
+  getSchoolYearDisplay(year: number): string {
+    return `${year} - ${year + 1}`;
+  }
+
+  schoolYearChange(e: any): void {
+    this.selectedSchoolYear = e.itemData;
+    this.loadPlanData();
   }
 
   private setupFilters(classSource: any[], schoolClassSource: any[]) {

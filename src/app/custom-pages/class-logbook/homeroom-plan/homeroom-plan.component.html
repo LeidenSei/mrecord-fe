@@ -18,17 +18,23 @@
     </div>
   </div>
 
-  <!-- FILTER ĐƠN GIẢN HÓA - GIỐNG FORM TẠO -->
   <div class="filters-container">
     <div class="filter-item">
-      <label>Năm học</label>
-      <dx-select-box
-        [dataSource]="schoolYearSource"
-        [(value)]="selectedSchoolYear"
-        (onValueChanged)="onFilterChange()"
-        [width]="150"
-      ></dx-select-box>
-    </div>
+        <label>Năm học</label>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="schoolYearSource"
+            (onItemClick)="schoolYearChange($event)"
+            [text]="getSchoolYearDisplay(selectedSchoolYear)"
+            [dropDownOptions]="{ width: 'auto' }"
+            itemTemplate="yearTemplate"
+          >
+            <div *dxTemplate="let year of 'yearTemplate'">
+              {{getSchoolYearDisplay(year)}}
+            </div>
+          </dx-drop-down-button>
+      </div>
 
     <div class="filter-item">
       <label>Học kỳ</label>
@@ -268,38 +274,62 @@
           </div>
         </div>
 
-        <!-- STEP 1: CƠ BẢN -->
+        <!-- STEP 1: THÔNG TIN CƠ BẢN -->
         <div *ngIf="currentStep === 1" style="padding: 20px 0;">
           <h3 style="margin-bottom: 20px;">📋 Thông tin cơ bản</h3>
           
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Năm học *</label>
-            <input 
-              type="number" 
-              [(ngModel)]="tempFormData.schoolYear"
-              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-            />
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+              Năm học <span style="color: red;">*</span>
+            </label>
+            <dx-select-box
+              [(value)]="tempFormData.schoolYear"
+              [dataSource]="schoolYearDisplaySource"
+              displayExpr="text"
+              valueExpr="value"
+              [searchEnabled]="false"
+              placeholder="Chọn năm học"
+              [showClearButton]="false"
+              [width]="'100%'"
+              [stylingMode]="'outlined'"
+              [height]="44"
+            ></dx-select-box>
           </div>
-          
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Học kỳ *</label>
-            <select 
-              [(ngModel)]="tempFormData.semester"
-              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-            >
-              <option [value]="1">Học kỳ I</option>
-              <option [value]="2">Học kỳ II</option>
-            </select>
+
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+              Học kỳ <span style="color: red;">*</span>
+            </label>
+            <dx-select-box
+              [(value)]="tempFormData.semester"
+              [dataSource]="semesterSource"
+              displayExpr="name"
+              valueExpr="value"
+              [searchEnabled]="false"
+              placeholder="Chọn học kỳ"
+              [showClearButton]="false"
+              [width]="'100%'"
+              [stylingMode]="'outlined'"
+              [height]="44"
+            ></dx-select-box>
           </div>
-          
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Lớp *</label>
-            <select 
-              [(ngModel)]="tempFormData.classId"
-              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-            >
-              <option *ngFor="let cls of classSource" [value]="cls.id">{{cls.name}}</option>
-            </select>
+
+          <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+              Lớp học <span style="color: red;">*</span>
+            </label>
+            <dx-select-box
+              [(value)]="tempFormData.classId"
+              [dataSource]="classSource"
+              displayExpr="name"
+              valueExpr="id"
+              [searchEnabled]="true"
+              placeholder="Chọn lớp"
+              [showClearButton]="false"
+              [width]="'100%'"
+              [stylingMode]="'outlined'"
+              [height]="44"
+            ></dx-select-box>
           </div>
         </div>
 

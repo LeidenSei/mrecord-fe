@@ -26,14 +26,30 @@ export class ClassCommentService extends BaseService {
       dateCreated: dateCreated 
     });
   }
-  getListByClass(classId: string, schoolYear: number, type?: string): Observable<any> {
+
+  getListByClass(
+    classId: string, 
+    schoolYear: number, 
+    type?: string, 
+    priority?: string,
+    semester?: number 
+  ): Observable<any> {
     let params: any = {
       ClassId: classId,
       SchoolYear: schoolYear.toString()
     };
+    
     if (type) {
       params.Type = type;
     }
+    
+    if (priority) {
+      params.Priority = priority;
+    }
+    if (semester !== undefined && semester !== null) {
+      params.Semester = semester.toString();
+    }
+    
     return this.get(`${this.apiUrl}/ListByClass`, params);
   }
 

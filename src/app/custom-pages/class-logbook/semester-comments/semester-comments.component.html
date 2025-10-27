@@ -1,0 +1,236 @@
+<div class="view-wrapper list-page semester-comments">
+  <dx-data-grid
+    class="grid theme-dependent"
+    keyExpr="id"
+    [rowAlternationEnabled]="true"
+    noDataText=""
+    [dataSource]="datas"
+    [allowColumnReordering]="true"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [columnMinWidth]="50"
+    [columnAutoWidth]="true"
+    [columnResizingMode]="'nextColumn'"
+    [allowColumnResizing]="true"
+    (onExporting)="onExporting($event)"
+    (onRowUpdating)="onRowUpdating($event)"
+    (onRowInserting)="onRowInserting($event)"
+    (onRowRemoving)="onRowRemoving($event)"
+  >
+    <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+    <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+    
+    <dxo-editing
+      mode="popup"
+      [allowUpdating]="true"
+      [allowAdding]="true"
+      [allowDeleting]="true"
+      [useIcons]="true"
+    >
+      <dxo-popup
+        title="Nhận xét cuối kỳ"
+        [showTitle]="true"
+        [width]="700"
+        [height]="'auto'"
+        [maxHeight]="'90vh'"
+      ></dxo-popup>
+      <dxo-texts
+        saveRowChanges="Lưu"
+        cancelRowChanges="Hủy"
+        deleteRow="Xóa"
+        confirmDeleteMessage="Bạn có chắc muốn xóa nhận xét này?"
+      ></dxo-texts>
+      
+      <dxo-form [colCount]="2" [labelLocation]="'top'">
+        <!-- Học kỳ -->
+        <dxi-item 
+          dataField="semester" 
+          editorType="dxSelectBox"
+          [editorOptions]="{
+            dataSource: semesterSource,
+            displayExpr: 'name',
+            valueExpr: 'value',
+            placeholder: 'Chọn học kỳ'
+          }">
+          <dxo-label text="Học kỳ"></dxo-label>
+        </dxi-item>
+        
+        <!-- Ngày ghi -->
+        <dxi-item 
+          dataField="date" 
+          [isRequired]="true" 
+          editorType="dxDateBox"
+          [editorOptions]="{
+            displayFormat: 'dd/MM/yyyy',
+            dateSerializationFormat: 'yyyy-MM-dd'
+          }">
+          <dxo-label text="Ngày ghi"></dxo-label>
+        </dxi-item>
+        
+        <!-- Tiêu đề -->
+        <dxi-item 
+          dataField="title" 
+          [isRequired]="true" 
+          [colSpan]="2"
+          [editorOptions]="{
+            placeholder: 'VD: Nhận xét học kỳ I lớp 10A1'
+          }">
+          <dxo-label text="Tiêu đề"></dxo-label>
+        </dxi-item>
+        
+        <!-- Nội dung nhận xét -->
+        <dxi-item 
+          dataField="content" 
+          [colSpan]="2" 
+          editorType="dxTextArea" 
+          [editorOptions]="{
+            height: 200,
+            minHeight: 100,
+            placeholder: 'Nhận xét chung về tình hình học tập, rèn luyện của lớp...'
+          }">
+          <dxo-label text="Nội dung nhận xét"></dxo-label>
+        </dxi-item>
+        
+        <!-- Người tạo -->
+        <dxi-item 
+          dataField="createdBy" 
+          [disabled]="true">
+          <dxo-label text="Người tạo"></dxo-label>
+        </dxi-item>
+      </dxo-form>
+    </dxo-editing>
+
+    <dxo-export
+      [enabled]="true"
+      [texts]="exportTexts"
+      showText="always"
+      [allowExportSelectedData]="false"
+      [formats]="['xlsx']"
+    ></dxo-export>
+    
+    <dxo-toolbar>
+      <dxi-item name="addRowButton"></dxi-item>
+      <dxi-item name="exportButton"></dxi-item>
+      
+      <dxi-item location="before">
+        <div class="d-flex align-items-center gap-2">
+          <i class="dx-icon-comment"></i>
+          <span class="fw-semibold">Nhận xét cuối kỳ</span>
+        </div>
+      </dxi-item>
+      
+      <!-- Filter lớp -->
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <label class="mb-0 me-2">Lớp học</label>
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="filterClassSource"
+            keyExpr="id"
+            displayExpr="name"
+            (onItemClick)="classChange($event)"
+            [selectedItemKey]="filterClassId"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
+      </dxi-item>
+      
+      <!-- Filter học kỳ -->
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <label class="mb-0 me-2">Học kỳ</label>
+        </div>
+      </dxi-item>
+      <dxi-item location="before" locateInMenu="auto">
+        <div *dxTemplate>
+          <dx-drop-down-button
+            stylingMode="text"
+            [useSelectMode]="true"
+            [items]="semesterSource"
+            keyExpr="value"
+            displayExpr="name"
+            (onItemClick)="semesterChange($event)"
+            [selectedItemKey]="selectedSemester"
+            [dropDownOptions]="{ width: 'auto' }"
+          ></dx-drop-down-button>
+        </div>
+      </dxi-item>
+    </dxo-toolbar>
+
+    <!-- Columns -->
+    <dxi-column
+      fixedPosition="left"
+      dataField="stt" 
+      caption="STT"
+      [width]="60"
+      alignment="center"
+      [allowFiltering]="false"
+      [allowEditing]="false"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="semester" 
+      caption="Học kỳ"
+      [width]="120"
+      alignment="center"
+      cellTemplate="cellSemester"
+      [lookup]="{
+        dataSource: semesterSource,
+        displayExpr: 'name',
+        valueExpr: 'value'
+      }"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="date" 
+      caption="Ngày ghi"
+      [width]="110"
+      dataType="date"
+      format="dd/MM/yyyy"
+      alignment="center"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="title" 
+      caption="Tiêu đề"
+      [width]="250"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="content" 
+      caption="Nội dung nhận xét"
+      [allowFiltering]="false"
+    ></dxi-column>
+    
+    <dxi-column 
+      dataField="createdBy" 
+      caption="Người tạo"
+      [width]="150"
+    ></dxi-column>
+
+    <dxi-column type="buttons" [width]="100" fixedPosition="right">
+      <dxi-button name="edit"></dxi-button>
+      <dxi-button name="delete"></dxi-button>
+    </dxi-column>
+
+    <!-- Template cho Học kỳ -->
+    <div *dxTemplate="let cellInfo of 'cellSemester'">
+      <span class="badge rounded-pill" [ngClass]="{
+        'bg-primary': cellInfo.value === 1,
+        'bg-success': cellInfo.value === 2,
+        'bg-info': cellInfo.value === 0
+      }" style="font-size: 11px; padding: 4px 10px;">
+        {{getSemesterText(cellInfo.value) || 'Chưa xác định'}}
+      </span>
+    </div>
+  </dx-data-grid>
+</div>

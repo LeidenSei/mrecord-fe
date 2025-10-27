@@ -9,7 +9,8 @@ import { HomeroomPlanComponent } from './homeroom-plan/homeroom-plan.component';
 import { MonthlyPlanComponent } from './monthly-plan/monthly-plan.component';
 import { MidtermAssessmentComponent } from './midterm-assessment/midterm-assessment.component';
 import { FinalAssessmentComponent } from './final-assessment/final-assessment.component';
-import { Semester1CommentsComponent } from './semester1-comments/semester1-comments.component';
+import { SemesterCommentsComponent } from './semester-comments/semester-comments.component';
+import { StudentTrackingComponent } from './student-tracking/student-tracking.component';
 
 const routes: Routes = [
   {
@@ -82,10 +83,18 @@ const routes: Routes = [
     }
   },
   {
-    path: 'semester1-comments',
-    component: Semester1CommentsComponent,
+    path: 'semester-comments',
+    component: SemesterCommentsComponent,
     data: { 
-      breadcrumb: 'Nhận xét sau khi đánh giá học kỳ I',
+      breadcrumb: 'Nhận xét tình hình lớp học',
+      breadcrumbIcon: 'textdocument'
+    }
+  },
+  {
+    path: 'student-tracking',
+    component: StudentTrackingComponent,
+    data: { 
+      breadcrumb: 'Theo dõi học sinh',
       breadcrumbIcon: 'textdocument'
     }
   },

@@ -99,8 +99,13 @@ export const navigationTeacherHomeroom = [
         selected: false
       },
       {
-        text: 'Nhận xét sau khi đánh giá học kỳ I',
-        path: '/class-logbook/semester1-comments',
+        text: 'Nhận xét tình hình lớp học',
+        path: '/class-logbook/semester-comments',
+        selected: false
+      },
+      {
+        text: 'Theo dõi học sinh',
+        path: '/class-logbook/student-tracking',
         selected: false
       },
     ]
@@ -321,8 +326,13 @@ export const navigationAdmin = [
         selected: false
       },
       {
-        text: 'Nhận xét sau khi đánh giá học kỳ I',
-        path: '/class-logbook/semester1-comments',
+        text: 'Nhận xét tình hình lớp học',
+        path: '/class-logbook/semester-comments',
+        selected: false
+      },
+      {
+        text: 'Theo dõi học sinh',
+        path: '/class-logbook/student-tracking',
         selected: false
       },
     ]
