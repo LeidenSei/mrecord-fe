@@ -38,17 +38,20 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
   isSaving = false;
   private saveTimeout: any;
   private destroy$ = new Subject<void>();
+  
   get startDate(): string {
-      return '01';
-    }
-    
-  get endDate(): string {
-      const lastDay = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
-      return lastDay.toString().padStart(2, '0');
+    return '01';
   }
+  
+  get endDate(): string {
+    const lastDay = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
+    return lastDay.toString().padStart(2, '0');
+  }
+  
   get monthPadded(): string {
     return this.selectedMonth.toString().padStart(2, '0');
   }
+  
   monthSource = [
     { id: 1, name: 'Tháng 1', value: 1 },
     { id: 2, name: 'Tháng 2', value: 2 },
@@ -64,12 +67,7 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
     { id: 12, name: 'Tháng 12', value: 12 }
   ];
 
-  yearSource = [
-    { id: 2023, name: '2023', value: 2023 },
-    { id: 2024, name: '2024', value: 2024 },
-    { id: 2025, name: '2025', value: 2025 },
-    { id: 2026, name: '2026', value: 2026 }
-  ];
+  yearSource: Array<{id: number, name: string, value: number}> = [];
 
   exportTexts = {
     exportTo: 'Xuất ra',
@@ -82,7 +80,25 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
     private classService: ClassService,
     private generalService: GeneralService,
     private authService: AuthService
-  ) {}
+  ) {
+    this.setupYears();
+  }
+
+  private setupYears(): void {
+    const currentYear = new Date().getFullYear();
+    const years = [
+      currentYear + 1,
+      currentYear,
+      currentYear - 1,
+      currentYear - 2
+    ];
+    
+    this.yearSource = years.map(year => ({
+      id: year,
+      name: `${year} - ${year + 1}`,
+      value: year
+    }));
+  }
 
   async ngOnInit() {
     this.loadSplitSizes();

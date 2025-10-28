@@ -439,6 +439,6 @@ export class ParentCommitteeComponent implements OnInit {
   }
 
   get schoolYearDisplay(): string {
-    return `${this.schoolYearId - 1}-${this.schoolYearId}`;
+    return `${this.schoolYearId} - ${this.schoolYearId + 1}`;
   }
 }
