@@ -37,7 +37,7 @@ export const navigationPGD = [
       }
     ]
   },
-]
+];
 
 export const navigationTeacherHomeroom = [
   {
@@ -53,6 +53,12 @@ export const navigationTeacherHomeroom = [
     selected: false,
   },
   {
+    text: 'Thẻ học sinh',
+    icon: 'card',
+    path: '/teacher/student-card',
+    selected: false,
+  },
+  {
     text: 'Sổ chủ nhiệm',
     icon: 'textdocument',
     path: '/class-logbook',
@@ -64,7 +70,7 @@ export const navigationTeacherHomeroom = [
         selected: false
       },
       {
-        text: 'Lưu ý nhân lớp',
+        text: 'Lưu ý nhận lớp',
         path: '/class-logbook/class-notes',
         selected: false
       },
@@ -280,6 +286,12 @@ export const navigationAdmin = [
     selected: false,
   },
   {
+    text: 'Thẻ học sinh',
+    icon: 'card',
+    path: '/teacher/student-card',
+    selected: false,
+  },
+  {
     text: 'Sổ chủ nhiệm',
     icon: 'textdocument',
     path: '/class-logbook',
@@ -291,7 +303,7 @@ export const navigationAdmin = [
         selected: false
       },
       {
-        text: 'Lưu ý nhân lớp',
+        text: 'Lưu ý nhận lớp',
         path: '/class-logbook/class-notes',
         selected: false
       },

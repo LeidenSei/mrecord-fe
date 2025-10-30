@@ -67,6 +67,7 @@ import {RoundPipe, RoundPipeModule} from "../../pipes/round.pipe";
 import { StatisticContentComponent } from './statistic-content/statistic-content.component';
 import { TeachingPlanComponent } from './teaching-plan/teaching-plan.component';
 import { ApprovalTeachingPlanComponent } from './approval-teaching-plan/approval-teaching-plan.component';
+import { StudentCardComponent } from './student-card/student-card.component';
 @NgModule({
   declarations: [
 
@@ -89,7 +90,8 @@ import { ApprovalTeachingPlanComponent } from './approval-teaching-plan/approval
        TeacherExamPaperAutoComponent,
        StatisticContentComponent,
        TeachingPlanComponent,
-       ApprovalTeachingPlanComponent
+       ApprovalTeachingPlanComponent,
+       StudentCardComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,192 @@
+<div class="view-wrapper student-card-page">
+  <div class="dx-card">
+    <div class="row g-0">
+      <div class="col-md-3 border-end">
+        <div class="student-list-panel">
+          <div class="panel-header">
+            <div class="grid-header">
+              <i class="dx-icon-group" style="font-size: 16px"></i>
+              Danh sách học sinh
+              <span *ngIf="studentCount > 0" class="badge bg-primary ms-2">{{studentCount}}</span>
+            </div>
+          </div>
+
+          <div class="filter-section p-3">
+            <div class="mb-3">
+              <label class="form-label">Khối học</label>
+              <dx-drop-down-button
+                stylingMode="outlined"
+                [useSelectMode]="true"
+                [items]="gradeSource"
+                (onItemClick)="gradeChange($event)"
+                [selectedItemKey]="gradeSource[0]"
+                [dropDownOptions]="{ width: 'auto' }"
+                [width]="'100%'"
+              ></dx-drop-down-button>
+            </div>
+            
+            <div class="mb-2">
+              <label class="form-label">Lớp học</label>
+              <dx-drop-down-button
+                stylingMode="outlined"
+                [useSelectMode]="true"
+                [items]="filterClassSource"
+                keyExpr="id"
+                displayExpr="name"
+                (onItemClick)="classChange($event)"
+                [selectedItemKey]="filterClassId"
+                [dropDownOptions]="{ width: 'auto' }"
+                [width]="'100%'"
+              ></dx-drop-down-button>
+            </div>
+          </div>
+          
+          <dx-scroll-view
+            height="calc(100vh - 280px)"
+            [showScrollbar]="'onScroll'"
+          >
+            <div class="student-list">
+                <div
+                *ngFor="let student of studentList; trackBy: trackByStudentId"
+                class="student-item"
+                [class.active]="selectedStudent?.id === student.id"
+                (click)="selectStudent(student)"
+                >
+                <div class="student-avatar">
+                <img 
+                    [src]="student.avatar" 
+                    [alt]="student.fullName"
+                >
+                </div>
+                <div class="student-info">
+                  <div class="student-name">{{ student.fullName }}</div>
+                  <div class="student-code text-muted">{{ student.code }}</div>
+                </div>
+              </div>
+             
+              <div *ngIf="studentList.length === 0" class="text-center text-muted p-4">
+                <i class="dx-icon-group" style="font-size: 48px; opacity: 0.3;"></i>
+                <p class="mt-2"><small>Không có học sinh</small></p>
+              </div>
+            </div>
+          </dx-scroll-view>
+        </div>
+      </div>
+     
+      <div class="col-md-9">
+        <div class="card-panel">
+          <div class="panel-header no-print">
+            <dx-toolbar>
+              <dxi-item location="before">
+                <div class="grid-header">
+                  <i class="dx-icon-card" style="font-size: 16px"></i>
+                  Thẻ học sinh
+                </div>
+              </dxi-item>
+              
+              <dxi-item location="after" widget="dxButton">
+                <dxo-options
+                  text="In tất cả"
+                  icon="exportpdf"
+                  type="default"
+                  [disabled]="studentList.length === 0"
+                  [onClick]="handlePrintAll"
+                  stylingMode="contained"
+                >
+                </dxo-options>
+              </dxi-item>
+              
+              <dxi-item location="after" widget="dxButton">
+                <dxo-options
+                  text="In thẻ (PDF)"
+                  icon="exportpdf"
+                  type="success"
+                  [disabled]="!selectedStudent"
+                  [onClick]="handlePrintCard"
+                  stylingMode="contained"
+                >
+                </dxo-options>
+              </dxi-item>
+            </dx-toolbar>
+          </div>
+          <dx-scroll-view
+            *ngIf="selectedStudent"
+            height="calc(100vh - 80px)"
+            [showScrollbar]="'onScroll'"
+          >
+            <div class="card-preview p-4">
+              <div class="student-card">
+                <div class="card-front">
+                  <div class="card-title">
+                    <div class="school-info-header">
+                      <h4>{{ schoolInfo.name || 'TRƯỜNG HỌC' }}</h4>
+                      <p class="school-details">508/3F khu phố Thạnh Bình, Phường Thuận An, Thành phố Hồ Chí Minh</p>
+                    </div>
+                  </div>
+
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-4">
+                        <div class="student-photo">
+                          <img 
+                            [src]="selectedStudent.avatar" 
+                            [alt]="selectedStudent.fullName"
+                          >
+                        </div>
+                      </div>
+                      <div class="col-8">
+                        <div class="student-info-header">
+                          <h3>THẺ HỌC SINH</h3>
+                          <p class="academic-year">Năm học: {{ currentSchoolYear }} - {{ currentSchoolYear + 1 }}</p>
+                        </div>
+                        
+                        <div class="info-row">
+                          <label>Họ và tên:</label>
+                          <span class="info-value">{{ selectedStudent.fullName }}</span>
+                        </div>
+                        <div class="info-row">
+                          <label>Mã học sinh:</label>
+                          <span class="info-value">{{ selectedStudent.code }}</span>
+                        </div>
+                        <div class="info-row">
+                          <label>Lớp:</label>
+                          <span class="info-value">{{ selectedStudent.className }}</span>
+                        </div>
+                        <div class="info-row-split">
+                          <div class="info-item">
+                            <label>Ngày sinh:</label>
+                            <span class="info-value">{{ formatDate(selectedStudent.dateOfBirth) }}</span>
+                          </div>
+                          <div class="info-item">
+                            <label>Giới tính:</label>
+                            <span class="info-value">{{ getGenderText(selectedStudent.sex) }}</span>
+                          </div>
+                        </div>
+                        
+                        <div class="signature-section-inline">
+                          <div class="signature-box">
+                            <p class="signature-title">{{ schoolInfo.masterPosition || 'Hiệu trưởng' }}</p>
+                            <div class="signature-space"></div>
+                            <p class="master-name">{{ schoolInfo.masterName }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </dx-scroll-view>
+
+          <div class="no-selection" *ngIf="!selectedStudent">
+            <div class="text-center text-muted p-5">
+              <i class="dx-icon-card" style="font-size: 80px; opacity: 0.2;"></i>
+              <h4 class="mt-3">Chọn học sinh để xem thẻ</h4>
+              <p>Vui lòng chọn một học sinh từ danh sách bên trái</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -30,7 +30,7 @@ const routes: Routes = [
     path: 'class-notes',
     component: ClassNotesComponent,
     data: { 
-      breadcrumb: 'Lưu ý nhân lớp',
+      breadcrumb: 'Lưu ý nhận lớp',
       breadcrumbIcon: 'edit'
     }
   },

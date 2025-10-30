@@ -21,6 +21,7 @@ import {TeacherExamPaperAutoComponent} from "./teacher-exam-paper-auto/teacher-e
 import {StatisticContentComponent} from "./statistic-content/statistic-content.component";
 import {TeachingPlanComponent} from "./teaching-plan/teaching-plan.component";
 import {ApprovalTeachingPlanComponent} from "./approval-teaching-plan/approval-teaching-plan.component";
+import {StudentCardComponent} from "./student-card/student-card.component";
 
 @NgModule({
   imports: [RouterModule.forChild([
@@ -33,27 +34,22 @@ import {ApprovalTeachingPlanComponent} from "./approval-teaching-plan/approval-t
     {path: 'lesson-player/:courseId/:lessonId', component: LessonPlayerComponent},
     {path: 'lesson-player/:courseId/:lessonId/:type', component: LessonPlayerComponent},
     {path: 'lesson-player/:courseId/:lessonId/:type/:from', component: LessonPlayerComponent},
-
     {path: 'approval-course', component: ApprovalCourseComponent},
     {path: 'approval-teaching-plan', component: ApprovalTeachingPlanComponent},
     {path: 'homework', component: TeacherHomeworkComponent},
     {path: 'meeting', component: MeetingOnlineComponent},
-
     {path: 'approval-course/:courseId/:courseTitle', component: ApproveLessonComponent},
     {path: 'exam_paper_manual', component: TeacherExamPaperComponent},
     {path: 'exam_paper_auto', component: TeacherExamPaperAutoComponent},
-
     {path: 'subject-course', component: SubjectCourseComponent},
-
     {path: 'student-class', component: StudentClassComponent},
+    {path: 'student-card', component: StudentCardComponent},
     {path: 'score-student', component: StudentLessonMarkComponent},
     {path: 'lesson-score-view', component: StudentLessonScoreComponent},
     {path: 'lesson-class-score', component: StudentLessonClassScoreComponent},
-
     {path: 'shared-course/:shareStatus', component: SharedCourseComponent},
     {path: 'statistic', component: StatisticContentComponent},
   ])],
   exports: [RouterModule]
 })
-
 export class TeacherRoutingModule {}
