@@ -188,7 +188,7 @@ export class StudentCardComponent implements OnInit {
           code: student.Code || student.code || student.maHocSinh,
           fullName: student.FullName || student.fullName || student.hoTen,
           dateOfBirth: student.DateOfBirth || student.dateOfBirth || student.ngaySinh,
-          sex: student.Sex || student.sex || student.gioiTinh,
+          sex: student.Sex ?? student.sex ?? student.gioiTinh,
           address: student.Address || student.address || student.diaChi,
           className: currentClassName || student.ClassName || student.className || '',
           avatar: this.buildAvatarUrl(student.Avatar || student.avatar)
@@ -493,9 +493,7 @@ export class StudentCardComponent implements OnInit {
   }
 
   getGenderText(sex: any): string {
-    if (sex === 1 || sex === '1') return 'Nam';
-    if (sex === 2 || sex === '2' || sex === 0 || sex === '0') return 'Nữ';
-    return '';
+    return sex === 1 ? 'Nam' : sex === 0 ? 'Nữ' : '';
   }
   handleExportPDF = () => {
     this.exportToPDF();
