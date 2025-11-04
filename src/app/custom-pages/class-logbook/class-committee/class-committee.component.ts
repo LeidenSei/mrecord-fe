@@ -324,7 +324,7 @@ export class ClassCommitteeComponent implements OnInit {
       this.filterClassId,
       this.selectedSchoolYear,  
       this.selectedElectionRound > 0 ? this.selectedElectionRound : undefined,
-      undefined
+      true 
     ).pipe(
       tap(data => {
         const mappedData = this.mapCommitteeData(data);

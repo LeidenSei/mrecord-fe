@@ -154,34 +154,40 @@ export class SemesterCommentsComponent implements OnInit {
     this.loadData();
   }
   onRowInserting(e: any) {
-    e.cancel = true;
-    
-    if (!e.data.title) {
-      notify('Vui lòng nhập tiêu đề', 'warning', 2000);
-      return;
-    }
-    
-    const payload = {
-      ClassId: this.currentClassId,
-      MA_NAM_HOC: this.currentSchoolYear,
-      LOAI: 'NHAN_XET_CUOI_KY',
-      HOC_KY: e.data.semester || null,
-      NGAY_GHI: e.data.date || new Date().toISOString(),
-      TIEU_DE: e.data.title,
-      NOI_DUNG: e.data.content || ''
-    };
-    
-    this.classCommentService.create(payload).subscribe({
-      next: (response) => {
-        notify(response.message || 'Tạo nhận xét thành công', 'success', 2000);
-        e.component.cancelEditData();
-        this.loadData();
-      },
-      error: (err) => {
-        const errorMessage = err.error?.message || 'Có lỗi xảy ra khi tạo nhận xét';
-        notify(errorMessage, 'error', 3000);
+      e.cancel = true;
+      
+      if (!e.data.title) {
+        notify('Vui lòng nhập tiêu đề', 'warning', 2000);
+        return;
       }
-    });
+      
+      // ⭐ FIX: Convert "all" thành null
+      let semesterValue = e.data.semester;
+      if (semesterValue === 'all' || semesterValue === undefined) {
+        semesterValue = null;
+      }
+      
+      const payload = {
+        ClassId: this.currentClassId,
+        MA_NAM_HOC: this.currentSchoolYear,
+        LOAI: 'NHAN_XET_CUOI_KY',
+        HOC_KY: semesterValue,  // ✅ Gửi null hoặc number (1, 2)
+        NGAY_GHI: e.data.date || new Date().toISOString(),
+        TIEU_DE: e.data.title,
+        NOI_DUNG: e.data.content || ''
+      };
+      
+      this.classCommentService.create(payload).subscribe({
+        next: (response) => {
+          notify(response.message || 'Tạo nhận xét thành công', 'success', 2000);
+          e.component.cancelEditData();
+          this.loadData();
+        },
+        error: (err) => {
+          const errorMessage = err.error?.message || 'Có lỗi xảy ra khi tạo nhận xét';
+          notify(errorMessage, 'error', 3000);
+        }
+      });
   }
 
   onRowUpdating(e: any) {

@@ -43,7 +43,9 @@ export class StudentCardComponent implements OnInit {
     districtName: '',
     provinceName: '',
     masterName: '',
-    masterPosition: ''
+    masterPosition: '',
+    signUrl: '',
+    dauPhatHanhUrl: ''
   };
   
   private apiBaseUrl: string = '';
@@ -65,6 +67,30 @@ export class StudentCardComponent implements OnInit {
       this.apiBaseUrl = 'https://' + this.apiBaseUrl;
     }
   }
+  
+  private buildImageUrl(imagePath: string): string {
+    if (!imagePath) {
+      return '';
+    }
+    
+    // Nếu đã là URL đầy đủ
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    
+    // Nếu là đường dẫn Media
+    if (imagePath.startsWith('/Media') || imagePath.startsWith('Media')) {
+      const baseUrl = this.mediaBaseUrl.endsWith('/') 
+        ? this.mediaBaseUrl.slice(0, -1) 
+        : this.mediaBaseUrl;
+      
+      const path = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+      return `${baseUrl}${path}`;
+    }
+    
+    return imagePath;
+  }
+
   private async fetchImageAsBlob(url: string): Promise<string> {
     try {
       if (url.startsWith('data:') || url.startsWith('assets/') || url.startsWith('blob:')) {
@@ -88,6 +114,7 @@ export class StudentCardComponent implements OnInit {
       return 'assets/images/default-avatar.png';
     }
   }
+  
   async ngOnInit() {
     const user = await this.authService.getUser();
     this.currentSchoolId = user.data.schoolId;
@@ -448,11 +475,15 @@ export class StudentCardComponent implements OnInit {
           name: school.name || school.Name || '',
           address: school.address || school.Address || '',
           phone: school.phone || school.Phone || '',
-          wardName: school.wardName || school.WardName || '',
-          districtName: school.districtName || school.DistrictName || '',
-          provinceName: school.provinceName || school.ProvinceName || '',
+          
+          // Chỉ lấy các trường mới
+          communeNewName: school.communeNewName || school.CommuneNewName || '',
+          provinceNewName: school.provinceNewName || school.ProvinceNewName || '',
+          
           masterName: school.masterName || school.MasterName || '',
-          masterPosition: school.masterPosition || school.MasterPosition || ''
+          masterPosition: school.masterPosition || school.MasterPosition || '',
+          signUrl: this.buildImageUrl(school.signUrl || school.SignUrl || ''),
+          dauPhatHanhUrl: this.buildImageUrl(school.dauPhatHanhUrl || school.DauPhatHanhUrl || '')
         };
       },
       error: (err) => {
@@ -464,20 +495,19 @@ export class StudentCardComponent implements OnInit {
   getFullAddress(): string {
     const parts = [];
     
+    // 1. Địa chỉ chi tiết
     if (this.schoolInfo.address) {
       parts.push(this.schoolInfo.address);
     }
     
-    if (this.schoolInfo.wardName) {
-      parts.push(this.schoolInfo.wardName);
+    // 2. Phường/Xã (chỉ lấy nếu có)
+    if (this.schoolInfo.communeNewName) {
+      parts.push(this.schoolInfo.communeNewName);
     }
     
-    if (this.schoolInfo.districtName) {
-      parts.push(this.schoolInfo.districtName);
-    }
-    
-    if (this.schoolInfo.provinceName) {
-      parts.push(this.schoolInfo.provinceName);
+    // 3. Tỉnh/Thành phố (chỉ lấy nếu có)
+    if (this.schoolInfo.provinceNewName) {
+      parts.push(this.schoolInfo.provinceNewName);
     }
     
     return parts.join(', ');
@@ -495,6 +525,7 @@ export class StudentCardComponent implements OnInit {
   getGenderText(sex: any): string {
     return sex === 1 ? 'Nam' : sex === 0 ? 'Nữ' : '';
   }
+  
   handleExportPDF = () => {
     this.exportToPDF();
   };

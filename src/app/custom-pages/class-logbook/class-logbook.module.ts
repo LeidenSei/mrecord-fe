@@ -8,8 +8,6 @@ import { GoodDeedsComponent } from './good-deeds/good-deeds.component';
 import { ParentCommitteeComponent } from './parent-committee/parent-committee.component';
 import { HomeroomPlanComponent } from './homeroom-plan/homeroom-plan.component';
 import { MonthlyPlanComponent } from './monthly-plan/monthly-plan.component';
-import { MidtermAssessmentComponent } from './midterm-assessment/midterm-assessment.component';
-import { FinalAssessmentComponent } from './final-assessment/final-assessment.component';
 
 import { DxDataGridModule } from 'devextreme-angular/ui/data-grid';
 import { DxFormModule } from 'devextreme-angular/ui/form';
@@ -24,6 +22,7 @@ import { AngularSplitModule } from 'angular-split';
 import { AgGridAngular } from 'ag-grid-angular';
 import { SemesterCommentsComponent } from './semester-comments/semester-comments.component';
 import { StudentTrackingComponent } from './student-tracking/student-tracking.component';
+import { AssessmentComponent } from './assessment/assessment.component';
 
 @NgModule({
   declarations: [
@@ -33,8 +32,7 @@ import { StudentTrackingComponent } from './student-tracking/student-tracking.co
     ParentCommitteeComponent,
     HomeroomPlanComponent,
     MonthlyPlanComponent,
-    MidtermAssessmentComponent,
-    FinalAssessmentComponent,
+    AssessmentComponent,
     SemesterCommentsComponent,
     StudentTrackingComponent,
   ],

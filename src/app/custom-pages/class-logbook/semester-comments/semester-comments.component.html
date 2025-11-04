@@ -51,14 +51,18 @@
           dataField="semester" 
           editorType="dxSelectBox"
           [editorOptions]="{
-            dataSource: semesterSource,
+            dataSource: [
+              { value: null, name: 'Không xác định' },
+              { value: 1, name: 'Học kỳ I' },
+              { value: 2, name: 'Học kỳ II' }
+            ],
             displayExpr: 'name',
             valueExpr: 'value',
             placeholder: 'Chọn học kỳ'
           }">
           <dxo-label text="Học kỳ"></dxo-label>
         </dxi-item>
-        
+                
         <!-- Ngày ghi -->
         <dxi-item 
           dataField="date" 

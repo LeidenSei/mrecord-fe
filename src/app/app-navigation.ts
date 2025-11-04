@@ -95,13 +95,8 @@ export const navigationTeacherHomeroom = [
         selected: false
       },
       {
-        text: 'Kết quả đánh giá giáo dục giữa kỳ (GK)',
-        path: '/class-logbook/midterm-assessment',
-        selected: false
-      },
-      {
-        text: 'Kết quả đánh giá giáo dục cuối kỳ (CK)',
-        path: '/class-logbook/final-assessment',
+        text: 'Kết quả đánh giá giáo dục GK/CK',
+        path: '/class-logbook/assessment',
         selected: false
       },
       {
@@ -328,13 +323,8 @@ export const navigationAdmin = [
         selected: false
       },
       {
-        text: 'Bảng tổng hợp kết quả đánh giá giáo dục giữa kỳ (GK)',
-        path: '/class-logbook/midterm-assessment',
-        selected: false
-      },
-      {
-        text: 'Bảng tổng hợp kết quả đánh giá giáo dục cuối kỳ (CK)',
-        path: '/class-logbook/final-assessment',
+        text: 'Bảng tổng hợp kết quả đánh giá giáo dục GK/CK',
+        path: '/class-logbook/assessment',
         selected: false
       },
       {

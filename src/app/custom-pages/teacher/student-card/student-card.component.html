@@ -119,8 +119,8 @@
                 <div class="card-front">
                   <div class="card-title">
                     <div class="school-info-header">
-                      <h4>{{ schoolInfo.name || 'TRƯỜNG HỌC' }}</h4>
-                      <p class="school-details">508/3F khu phố Thạnh Bình, Phường Thuận An, Thành phố Hồ Chí Minh</p>
+                      <h4>TRƯỜNG {{ schoolInfo.name || 'TRƯỜNG HỌC' }}</h4>
+                      <p class="school-details">{{getFullAddress()}}</p>
                     </div>
                   </div>
 
@@ -166,7 +166,14 @@
                         <div class="signature-section-inline">
                           <div class="signature-box">
                             <p class="signature-title">{{ schoolInfo.masterPosition || 'Hiệu trưởng' }}</p>
-                            <div class="signature-space"></div>
+                            <div class="signature-space">
+                              <img 
+                                *ngIf="schoolInfo.signUrl" 
+                                [src]="schoolInfo.signUrl" 
+                                alt="Chữ ký"
+                                class="signature-image"
+                              >
+                            </div>
                             <p class="master-name">{{ schoolInfo.masterName }}</p>
                           </div>
                         </div>

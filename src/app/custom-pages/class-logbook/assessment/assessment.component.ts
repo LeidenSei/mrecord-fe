@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ColDef, GridOptions } from 'ag-grid-community';
 
 @Component({
-  selector: 'app-midterm-assessment',
-  templateUrl: './midterm-assessment.component.html',
-  styleUrls: ['./midterm-assessment.component.scss']
+  selector: 'app-assessment',
+  templateUrl: './assessment.component.html',
+  styleUrls: ['./assessment.component.scss']
 })
-export class MidtermAssessmentComponent implements OnInit {
+export class AssessmentComponent implements OnInit {
   gradeSource = ['Tất cả', 'Khối 1', 'Khối 2', 'Khối 3', 'Khối 4', 'Khối 5'];
   filterClassSource = [
     { id: 0, name: 'Tất cả' },
@@ -16,7 +16,7 @@ export class MidtermAssessmentComponent implements OnInit {
     { id: 4, name: '2B' }
   ];
   filterClassId = 0;
-  totalStudents = 48; // Tổng số học sinh
+  totalStudents = 48; 
   exportTexts = {
     exportAll: 'Xuất dữ liệu excel',
     exportSelectedRows: 'Xuất các dòng đã chọn',

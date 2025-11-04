@@ -7,10 +7,9 @@ import { GoodDeedsComponent } from './good-deeds/good-deeds.component';
 import { ParentCommitteeComponent } from './parent-committee/parent-committee.component';
 import { HomeroomPlanComponent } from './homeroom-plan/homeroom-plan.component';
 import { MonthlyPlanComponent } from './monthly-plan/monthly-plan.component';
-import { MidtermAssessmentComponent } from './midterm-assessment/midterm-assessment.component';
-import { FinalAssessmentComponent } from './final-assessment/final-assessment.component';
 import { SemesterCommentsComponent } from './semester-comments/semester-comments.component';
 import { StudentTrackingComponent } from './student-tracking/student-tracking.component';
+import { AssessmentComponent } from './assessment/assessment.component';
 
 const routes: Routes = [
   {
@@ -67,18 +66,10 @@ const routes: Routes = [
     }
   },
   {
-    path: 'midterm-assessment',
-    component: MidtermAssessmentComponent,
+    path: 'assessment',
+    component: AssessmentComponent,
     data: { 
-      breadcrumb: 'Bảng tổng hợp kết quả đánh giá giáo dục giữa kỳ (GK)',
-      breadcrumbIcon: 'checklist'
-    }
-  },
-  {
-    path: 'final-assessment',
-    component: FinalAssessmentComponent,
-    data: { 
-      breadcrumb: 'Bảng tổng hợp kết quả đánh giá giáo dục cuối kỳ (CK)',
+      breadcrumb: 'Bảng tổng hợp kết quả đánh giá giáo dục GK/CK',
       breadcrumbIcon: 'checklist'
     }
   },
