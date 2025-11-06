@@ -1,0 +1,153 @@
+<div class="view-wrapper list-page pt-2">
+  <dx-toolbar class="theme-dependent" [class.scrolled]="true">
+    <dxi-item location="before">
+      <div class="header-text">
+        <i class="dx-icon-home" style="font-size: 20px"></i>
+        Hồ sơ nhà trường
+      </div>
+    </dxi-item>
+  </dx-toolbar>
+
+  <div class="dx-card pt-2 responsive-paddings">
+    <div class="filter-section">
+      <dx-select-box
+        [dataSource]="loaiHoSoList"
+        displayExpr="name"
+        valueExpr="id"
+        [(value)]="selectedLoaiHoSo"
+        placeholder="Tất cả loại hồ sơ"
+        [width]="250"
+        [showClearButton]="true"
+        (onValueChanged)="loadHoSoData()"
+      ></dx-select-box>
+    </div>
+
+    <dx-data-grid
+      #hoSoGrid
+      [dataSource]="hoSoDataSource"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [columnAutoWidth]="true"
+      keyExpr="id"
+      (onToolbarPreparing)="onHoSoToolbarPreparing($event)"
+    >
+      <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
+      <dxo-paging [pageSize]="20"></dxo-paging>
+
+      <dxi-column dataField="stt" caption="STT" [width]="60" alignment="center"></dxi-column>
+      <dxi-column dataField="code" caption="Mã hồ sơ" [width]="200"></dxi-column>
+      <dxi-column dataField="name" caption="Tên hồ sơ" [minWidth]="250"></dxi-column>
+      <dxi-column dataField="loaiHoSoText" caption="Loại hồ sơ" [width]="180"></dxi-column>
+      <dxi-column dataField="description" caption="Mô tả" [minWidth]="200"></dxi-column>
+      <dxi-column dataField="accountName" caption="Người tạo" [width]="150"></dxi-column>
+      <dxi-column dataField="dateCreated" caption="Ngày tạo" dataType="datetime" format="dd/MM/yyyy HH:mm" [width]="180"></dxi-column>
+      <dxi-column dataField="view" caption="Lượt xem" [width]="100" alignment="center"></dxi-column>
+
+      <dxi-column caption="Thao tác" [width]="150" alignment="center" cellTemplate="hoSoActionButtons" [allowFiltering]="false"></dxi-column>
+      
+      <div *dxTemplate="let cellInfo of 'hoSoActionButtons'">
+        <dx-button 
+          icon="download" 
+          hint="Tải xuống" 
+          stylingMode="text"
+          (onClick)="onDownload(cellInfo)">
+        </dx-button>
+        <dx-button 
+          icon="edit" 
+          hint="Sửa" 
+          stylingMode="text"
+          (onClick)="onEditHoSo(cellInfo)">
+        </dx-button>
+        <dx-button 
+          icon="trash" 
+          hint="Xóa" 
+          stylingMode="text"
+          (onClick)="onDeleteHoSo(cellInfo)">
+        </dx-button>
+      </div>
+    </dx-data-grid>
+  </div>
+</div>
+
+<dx-popup
+  [(visible)]="hoSoPopupVisible"
+  [showTitle]="true"
+  [title]="hoSoPopupTitle"
+  [width]="600"
+  [height]="'auto'"
+  [closeOnOutsideClick]="false"
+>
+  <div *dxTemplate="let data of 'content'">
+    <dx-form #hoSoFormComponent [formData]="hoSoFormData" labelLocation="top">
+      
+      <dxi-item dataField="name" editorType="dxTextBox">
+        <dxo-label text="Tên hồ sơ"></dxo-label>
+        <dxi-validation-rule type="required" message="Tên hồ sơ không được để trống"></dxi-validation-rule>
+      </dxi-item>
+
+      <dxi-item dataField="loaiHoSo" editorType="dxSelectBox" [editorOptions]="{
+        dataSource: loaiHoSoList,
+        displayExpr: 'name',
+        valueExpr: 'id',
+        placeholder: 'Chọn loại hồ sơ'
+      }">
+        <dxo-label text="Loại hồ sơ"></dxo-label>
+        <dxi-validation-rule type="required" message="Vui lòng chọn loại hồ sơ"></dxi-validation-rule>
+      </dxi-item>
+
+      <dxi-item dataField="description" editorType="dxTextArea" [editorOptions]="{ height: 100, placeholder: 'Nhập mô tả...' }">
+        <dxo-label text="Mô tả"></dxo-label>
+      </dxi-item>
+
+      <dxi-item [template]="'fileUploadTemplate'">
+        <dxo-label text="Tải file lên"></dxo-label>
+      </dxi-item>
+      <div *dxTemplate="let data of 'fileUploadTemplate'">
+        <dx-file-uploader
+          name="formFile"
+          [uploadUrl]="uploadUrl"
+          [uploadHeaders]="uploadHeaders"
+          [allowedFileExtensions]="allowedFileExtensions"
+          uploadMode="instantly"
+          [maxFileSize]="50000000"
+          [showFileList]="true"
+          (onUploaded)="onFileUploaded($event)"
+          (onUploadError)="onFileUploadError($event)"
+          (onBeforeSend)="onUploadFileStarted($event)"
+          labelText="Chọn file (Word, PDF, Excel, PowerPoint)"
+        ></dx-file-uploader>
+        <div *ngIf="hoSoFormData.fileName" class="file-info">
+          <i class="dx-icon-file"></i>
+          <span>{{ hoSoFormData.fileName }}</span>
+        </div>
+      </div>
+
+      <dxi-item [template]="'buttonsTemplate'"></dxi-item>
+      <div *dxTemplate="let data of 'buttonsTemplate'" class="form-buttons">
+        <dx-button 
+          text="Lưu" 
+          type="success" 
+          icon="save" 
+          (onClick)="onSaveHoSo()" 
+          [disabled]="!hoSoFormData.fileUrl && !isEditHoSoMode">
+        </dx-button>
+        <dx-button 
+          text="Hủy" 
+          type="normal" 
+          icon="close" 
+          (onClick)="hoSoPopupVisible = false" 
+          stylingMode="outlined">
+        </dx-button>
+      </div>
+    </dx-form>
+  </div>
+</dx-popup>
+
+<dx-load-panel
+  [visible]="loading"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  shadingColor="rgba(0,0,0,0.4)"
+  message="Đang tải dữ liệu..."
+></dx-load-panel>

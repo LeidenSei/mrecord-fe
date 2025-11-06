@@ -173,7 +173,7 @@ const routes: Routes = [
             (m) => m.ScoreEntryModule,
           ),
       },
-       {
+      {
         path: 'class-logbook',
         data: { 
           breadcrumb: 'Sổ chủ nhiệm',
@@ -183,6 +183,18 @@ const routes: Routes = [
         loadChildren: () =>
           import('./custom-pages/class-logbook/class-logbook.module').then(
             (m) => m.ClassLogbookModule,
+          ),
+      },
+      {
+      path: 'education-records',
+        data: { 
+          breadcrumb: 'Hồ sơ giáo dục',
+          breadcrumbIcon: 'textdocument'
+        },
+        canActivate: [AuthGuardService],
+        loadChildren: () =>
+          import('./custom-pages/education-records/education-records.module').then(
+            (m) => m.EducationRecordsModule,
           ),
       },
       {

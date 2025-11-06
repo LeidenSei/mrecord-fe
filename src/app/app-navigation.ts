@@ -111,6 +111,24 @@ export const navigationTeacherHomeroom = [
       },
     ]
   },
+    {
+    text: 'Hồ sơ giáo dục',
+    icon: 'textdocument',
+    path: '/education-records',
+    selected: false,
+    items: [
+      {
+        text: 'Hồ sơ nhà trường',
+        path: '/education-records/school-records',
+        selected: true
+      },
+      {
+        text: 'Hồ sơ Tổ chuyên môn',
+        path: '/education-records/subject-group-records',
+        selected: false
+      }
+    ]
+  },
   /*{
     text: 'Nhận xét GVCN',
     icon: 'textdocument',
@@ -337,6 +355,24 @@ export const navigationAdmin = [
         path: '/class-logbook/student-tracking',
         selected: false
       },
+    ]
+  },
+    {
+    text: 'Hồ sơ giáo dục',
+    icon: 'textdocument',
+    path: '/education-records',
+    selected: false,
+    items: [
+      {
+        text: 'Hồ sơ nhà trường',
+        path: '/education-records/school-records',
+        selected: true
+      },
+      {
+        text: 'Hồ sơ Tổ chuyên môn',
+        path: '/education-records/subject-group-records',
+        selected: false
+      }
     ]
   },
 ];
