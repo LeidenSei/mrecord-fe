@@ -53,18 +53,18 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
   }
   
   monthSource = [
-    { id: 1, name: 'Tháng 1', value: 1 },
-    { id: 2, name: 'Tháng 2', value: 2 },
-    { id: 3, name: 'Tháng 3', value: 3 },
-    { id: 4, name: 'Tháng 4', value: 4 },
-    { id: 5, name: 'Tháng 5', value: 5 },
-    { id: 6, name: 'Tháng 6', value: 6 },
-    { id: 7, name: 'Tháng 7', value: 7 },
-    { id: 8, name: 'Tháng 8', value: 8 },
-    { id: 9, name: 'Tháng 9', value: 9 },
+    { id: 9,  name: 'Tháng 9',  value: 9 },
     { id: 10, name: 'Tháng 10', value: 10 },
     { id: 11, name: 'Tháng 11', value: 11 },
-    { id: 12, name: 'Tháng 12', value: 12 }
+    { id: 12, name: 'Tháng 12', value: 12 },
+    { id: 1,  name: 'Tháng 1',  value: 1 },
+    { id: 2,  name: 'Tháng 2',  value: 2 },
+    { id: 3,  name: 'Tháng 3',  value: 3 },
+    { id: 4,  name: 'Tháng 4',  value: 4 },
+    { id: 5,  name: 'Tháng 5',  value: 5 },
+    { id: 6,  name: 'Tháng 6',  value: 6 },
+    { id: 7,  name: 'Tháng 7',  value: 7 },
+    { id: 8,  name: 'Tháng 8',  value: 8 },
   ];
 
   yearSource: Array<{id: number, name: string, value: number}> = [];
@@ -83,21 +83,47 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
   ) {
     this.setupYears();
   }
+  
+  get displayYear(): number {
+    // Tháng 9,10,11,12 → dùng selectedYear
+    // Tháng 1,2,3,4,5,6,7,8 → dùng selectedYear + 1
+    return this.selectedMonth >= 9 ? this.selectedYear : this.selectedYear + 1;
+  }
+
+  get displayYearPrev(): number {
+    // Dùng cho phần đầu nếu tháng hiện tại là 1-8
+    return this.selectedYear;
+  }
 
   private setupYears(): void {
-    const currentYear = new Date().getFullYear();
-    const years = [
-      currentYear + 1,
-      currentYear,
-      currentYear - 1,
-      currentYear - 2
-    ];
-    
-    this.yearSource = years.map(year => ({
-      id: year,
-      name: `${year} - ${year + 1}`,
-      value: year
-    }));
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1; // 1-12
+
+    // XÁC ĐỊNH NĂM HỌC HIỆN TẠI
+    let schoolYearStart: number;
+    if (currentMonth >= 9) {
+      schoolYearStart = currentYear;           // 9,10,11,12 → năm học 2025-2026
+    } else {
+      schoolYearStart = currentYear - 1;       // 1→8 → năm học 2024-2025
+    }
+
+    // Tạo danh sách 5 năm học gần nhất (mới nhất ở trên)
+    this.yearSource = [];
+    for (let i = 0; i < 5; i++) {
+      const year = schoolYearStart - i;
+      this.yearSource.push({
+        id: year,
+        name: `${year} - ${year + 1}`,
+        value: year
+      });
+    }
+
+    // TỰ ĐỘNG CHỌN NĂM HIỆN TẠI
+    this.selectedYear = schoolYearStart;
+
+    // TỰ ĐỘNG CHỌN THÁNG HIỆN TẠI (theo năm học)
+    this.selectedMonth = currentMonth;
   }
 
   async ngOnInit() {

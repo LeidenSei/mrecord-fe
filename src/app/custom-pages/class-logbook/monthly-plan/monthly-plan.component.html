@@ -8,7 +8,20 @@
           <div>
             <h4 class="mb-1 fw-semibold">Kế hoạch tháng {{selectedMonth}}</h4>
             <small class="text-muted">
-              {{startDate}}/{{monthPadded}}/{{selectedYear}} - {{endDate}}/{{monthPadded}}/{{selectedYear}}
+              <!-- Nếu đang ở tháng 9-12 -->
+              <ng-container *ngIf="selectedMonth >= 9">
+                01/{{monthPadded}}/{{selectedYear}} - {{endDate}}/{{monthPadded}}/{{selectedYear}}
+              </ng-container>
+
+              <!-- Nếu đang ở tháng 1-8 -->
+              <ng-container *ngIf="selectedMonth < 9">
+                01/{{monthPadded}}/{{selectedYear + 1}} - {{endDate}}/{{monthPadded}}/{{selectedYear + 1}}
+              </ng-container>
+
+              <!-- Hiển thị đầy đủ năm học -->
+              <span class="ms-2 fw-medium text-primary">
+                (Năm học {{selectedYear}}-{{selectedYear + 1}})
+              </span>
             </small>
           </div>
         </div>
@@ -73,7 +86,7 @@
         </div>
       </div>
 
-      <div class="row g-3 mt-2">
+      <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label small fw-medium text-primary">Chủ đề:</label>
           <input type="text" class="form-control form-control-sm" 
@@ -126,13 +139,15 @@
             [dataSource]="monthlyPlanData"
             [showBorders]="true"
             [rowAlternationEnabled]="true"
-            [columnAutoWidth]="true"
+            [columnAutoWidth]="false"
+            [wordWrapEnabled]="true"
             (onExporting)="onPlanExporting($event)"
             (onRowUpdating)="onPlanRowUpdating($event)"
             (onRowInserting)="onPlanRowInserting($event)"
             (onRowRemoving)="onPlanRowRemoving($event)">
-            
-            <dxo-scrolling mode="virtual"></dxo-scrolling>
+
+            <dxo-scrolling mode="virtual" columnRenderingMode="virtual"></dxo-scrolling>
+            <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
             
             <dxo-editing 
               mode="popup" 
@@ -193,14 +208,20 @@
             </dxo-toolbar>
 
             <dxi-column dataField="stt" caption="STT" [width]="60" alignment="center" [allowEditing]="false"></dxi-column>
-            <dxi-column dataField="timeFrom" caption="Từ" dataType="date" format="dd/MM/yyyy" [width]="150"></dxi-column>
-            <dxi-column dataField="timeTo" caption="Đến" dataType="date" format="dd/MM/yyyy" [width]="150"></dxi-column>
-            <dxi-column dataField="content" caption="Nội dung"></dxi-column>
-            <dxi-column dataField="evaluation" caption="Đánh giá" [width]="150"></dxi-column>
-            <dxi-column type="buttons" [width]="100">
+            <dxi-column dataField="timeFrom" caption="Từ" dataType="date" format="dd/MM/yyyy" [width]="110"></dxi-column>
+            <dxi-column dataField="timeTo" caption="Đến" dataType="date" format="dd/MM/yyyy" [width]="110"></dxi-column>
+            <dxi-column dataField="content" caption="Nội dung" cellTemplate="contentTemplate"></dxi-column>
+            <dxi-column dataField="evaluation" caption="Đánh giá" cellTemplate="evaluationTemplate" [width]="200"></dxi-column>
+            <dxi-column type="buttons" [width]="80" [fixed]="true" fixedPosition="right">
               <dxi-button name="edit"></dxi-button>
               <dxi-button name="delete"></dxi-button>
             </dxi-column>
+            <div *dxTemplate="let data of 'contentTemplate'">
+              <div class="content-cell">{{ data.value }}</div>
+            </div>
+            <div *dxTemplate="let data of 'evaluationTemplate'">
+              <div class="content-cell">{{ data.value }}</div>
+            </div>
           </dx-data-grid>
         </div>
       </div>
@@ -233,13 +254,15 @@
             [dataSource]="teacherJournalData"
             [showBorders]="true"
             [rowAlternationEnabled]="true"
-            [columnAutoWidth]="true"
+            [columnAutoWidth]="false"
+            [wordWrapEnabled]="true"
             (onExporting)="onJournalExporting($event)"
             (onRowUpdating)="onJournalRowUpdating($event)"
             (onRowInserting)="onJournalRowInserting($event)"
             (onRowRemoving)="onJournalRowRemoving($event)">
-            
-            <dxo-scrolling mode="virtual"></dxo-scrolling>
+
+            <dxo-scrolling mode="virtual" columnRenderingMode="virtual"></dxo-scrolling>
+            <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
             
             <dxo-editing 
               mode="popup" 
@@ -286,11 +309,14 @@
 
             <dxi-column dataField="stt" caption="STT" [width]="60" alignment="center" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="date" caption="Thời gian" dataType="date" format="dd/MM/yyyy" [width]="120"></dxi-column>
-            <dxi-column dataField="content" caption="Nội dung nhật kí"></dxi-column>
-            <dxi-column type="buttons" [width]="100">
+            <dxi-column dataField="content" caption="Nội dung nhật kí" cellTemplate="journalContentTemplate"></dxi-column>
+            <dxi-column type="buttons" [width]="110" [fixed]="true" fixedPosition="right">
               <dxi-button name="edit"></dxi-button>
               <dxi-button name="delete"></dxi-button>
             </dxi-column>
+            <div *dxTemplate="let data of 'journalContentTemplate'">
+              <div class="content-cell">{{ data.value }}</div>
+            </div>
           </dx-data-grid>
         </div>
       </div>

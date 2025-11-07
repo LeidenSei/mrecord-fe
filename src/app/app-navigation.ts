@@ -63,6 +63,7 @@ export const navigationTeacherHomeroom = [
     icon: 'textdocument',
     path: '/class-logbook',
     selected: false,
+    grade: 'c1',
     items: [
       {
         text: 'Ban cán sự lớp',
@@ -111,7 +112,27 @@ export const navigationTeacherHomeroom = [
       },
     ]
   },
-    {
+  {
+    text: 'Sổ điểm',
+    icon: 'chart',
+    path: '/grade-book',
+    selected: false,
+    items: [
+      {
+        text: 'Sổ điểm bộ môn',
+        path: '/grade-book/personal/subject-book',
+        icon: 'user',
+        selected: false,
+      },
+      {
+        text: 'Sổ điểm theo lớp',
+        path: '/grade-book/class',
+        icon: 'group',
+        selected: false,
+      }
+    ]
+  },
+  {
     text: 'Hồ sơ giáo dục',
     icon: 'textdocument',
     path: '/education-records',
@@ -217,6 +238,26 @@ export const navigationTeacher = [
     selected: false,
   },
   {
+    text: 'Sổ điểm',
+    icon: 'chart',
+    path: '/grade-book',
+    selected: false,
+    items: [
+      {
+        text: 'Sổ điểm bộ môn',
+        path: '/grade-book/personal/subject-book',
+        icon: 'user',
+        selected: false,
+      },
+      {
+        text: 'Sổ điểm theo lớp',
+        path: '/grade-book/class',
+        icon: 'group',
+        selected: false,
+      }
+    ]
+  },
+  {
     text: 'Ký duyệt bộ môn',
     type: 'gvbm',
     icon: 'edit',
@@ -309,6 +350,7 @@ export const navigationAdmin = [
     icon: 'textdocument',
     path: '/class-logbook',
     selected: false,
+    grade: 'c1', 
     items: [
       {
         text: 'Ban cán sự lớp',
@@ -357,7 +399,27 @@ export const navigationAdmin = [
       },
     ]
   },
-    {
+  {
+    text: 'Sổ điểm',
+    icon: 'chart',
+    path: '/grade-book',
+    selected: false,
+    items: [
+      {
+        text: 'Sổ điểm bộ môn',
+        path: '/grade-book/personal/subject-book',
+        icon: 'user',
+        selected: false,
+      },
+      {
+        text: 'Sổ điểm theo lớp',
+        path: '/grade-book/class',
+        icon: 'group',
+        selected: false,
+      }
+    ]
+  },
+  {
     text: 'Hồ sơ giáo dục',
     icon: 'textdocument',
     path: '/education-records',

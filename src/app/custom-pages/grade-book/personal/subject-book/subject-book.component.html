@@ -1,0 +1,143 @@
+<div class="subject-book-full-container">
+  <div class="header">
+    <h2>Xuất Sổ Điểm Bộ Môn</h2>
+    <p class="subtitle">Bao gồm: Bìa + Hướng dẫn + Bìa lót + Các sheet điểm</p>
+  </div>
+  <div class="teacher-info-section card">
+    <h3>Thông tin giáo viên</h3>
+    <div class="row" *ngIf="isAdmin">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Chọn giáo viên: <span class="text-danger">*</span></label>
+          <select class="form-control" 
+                  [(ngModel)]="selectedTeacherId"
+                  (change)="onTeacherChange()"
+                  [disabled]="isLoadingTeachers">
+            <option value="">-- Chọn giáo viên --</option>
+            <option *ngFor="let teacher of teachers" [value]="teacher.id">
+              {{ teacher.fullName }} ({{ teacher.code }})
+            </option>
+          </select>
+          <small class="form-text text-muted" *ngIf="isLoadingTeachers">
+            <i class="fas fa-spinner fa-spin"></i> Đang tải danh sách giáo viên...
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Chọn môn học: <span class="text-danger">*</span></label>
+          <select class="form-control" 
+                  [(ngModel)]="selectedSubjectId"
+                  (change)="onSubjectChange()"
+                  [disabled]="isLoadingSubjects || (isAdmin && !selectedTeacherId)">
+            <option value="">-- Chọn môn học --</option>
+            <option *ngFor="let subject of subjects" [value]="subject.id">
+              {{ subject.name }} ({{ subject.code }})
+            </option>
+          </select>
+          <small class="form-text text-muted" *ngIf="isLoadingSubjects">
+            <i class="fas fa-spinner fa-spin"></i> Đang tải danh sách môn học...
+          </small>
+          <small class="form-text text-muted text-warning" *ngIf="isAdmin && !selectedTeacherId">
+            ⚠️ Vui lòng chọn giáo viên trước
+          </small>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label>Học kỳ: <span class="text-danger">*</span></label>
+          <select class="form-control" 
+                  [(ngModel)]="selectedTerm"
+                  (change)="onTermChange()">
+            <option [value]="1">HỌC KỲ I</option>
+            <option [value]="2">HỌC KỲ II</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label>Năm học:</label>
+          <input type="number" 
+                 class="form-control" 
+                 [(ngModel)]="selectedSchoolYear" 
+                 placeholder="Mặc định: năm hiện tại">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="classes-section card" *ngIf="classes.length > 0 || isLoading">
+    <div class="section-header">
+      <h3>Danh sách lớp giảng dạy</h3>
+    </div>
+    <div class="text-center py-4" *ngIf="isLoading">
+      <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+      <p class="mt-2">Đang tải dữ liệu...</p>
+    </div>
+    <div class="classes-list" *ngIf="!isLoading">
+      <div class="class-item" *ngFor="let classData of classes; let i = index">
+        <div class="class-header">
+          <span class="class-number">{{ i + 1 }}</span>
+          <span class="class-name-display">{{ classData.tenLop }}</span>
+          <span class="student-count">{{ classData.students.length }} HS</span>
+          <button class="btn btn-danger btn-sm" (click)="removeClass(i)">
+            <i class="fas fa-trash"></i> Xóa
+          </button>
+        </div>
+        <div class="students-preview" *ngIf="classData.students.length > 0">
+          <div class="preview-item" *ngFor="let student of classData.students.slice(0, 5)">
+            <span class="stt">{{ student.stt }}</span>
+            <span class="name">{{ student.hoTen }}</span>
+            <span class="dob">{{ student.ngaySinh }}</span>
+          </div>
+          <div class="more-students" *ngIf="classData.students.length > 5">
+            ... và {{ classData.students.length - 5 }} học sinh khác
+          </div>
+        </div>
+
+        <div class="no-students" *ngIf="classData.students.length === 0">
+          Chưa có học sinh
+        </div>
+      </div>
+    </div>
+
+    <div class="total-info" *ngIf="!isLoading">
+      Tổng: <strong>{{ classes.length }} lớp</strong>, <strong>{{ getTotalStudents() }} học sinh</strong>
+    </div>
+  </div>
+  <div class="file-structure-section card" *ngIf="classes.length > 0 && !isLoading">
+    <h3>Cấu trúc file Excel</h3>
+    <div class="file-structure">
+      <div class="sheet-item">
+        <i class="fas fa-file sheet-icon"></i>
+        <span class="sheet-name">1. Bia</span>
+        <span class="sheet-desc">Trang bìa</span>
+      </div>
+      <div class="sheet-item">
+        <i class="fas fa-book sheet-icon"></i>
+        <span class="sheet-name">2. Huong Dan</span>
+        <span class="sheet-desc">Hướng dẫn</span>
+      </div>
+      <div class="sheet-item">
+        <i class="fas fa-file sheet-icon"></i>
+        <span class="sheet-name">3. Bia Lot</span>
+        <span class="sheet-desc">Bìa lót</span>
+      </div>
+      <div class="sheet-item" *ngFor="let classData of classes; let i = index">
+        <i class="fas fa-table sheet-icon score-sheet"></i>
+        <span class="sheet-name">{{ i + 4 }}. {{ teacherInfo.monHoc }}_{{ classData.tenLop }}_{{ teacherInfo.hocKy.replace(' ', '') }}</span>
+        <span class="sheet-desc">Sheet điểm</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-section" *ngIf="classes.length > 0 && !isLoading">
+    <button class="btn btn-primary btn-lg export-btn" 
+            (click)="exportComplete()">
+      <i class="fas fa-file-excel"></i>
+      Xuất File Excel
+    </button>
+  </div>
+</div>

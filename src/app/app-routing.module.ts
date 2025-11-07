@@ -186,6 +186,18 @@ const routes: Routes = [
           ),
       },
       {
+      path: 'grade-book',
+      data: { 
+        breadcrumb: 'Sổ điểm',
+        breadcrumbIcon: 'chart'
+      },
+      canActivate: [AuthGuardService],
+      loadChildren: () =>
+        import('./custom-pages/grade-book/grade-book.module').then(
+          (m) => m.GradeBookModule,
+        ),
+    },
+      {
       path: 'education-records',
         data: { 
           breadcrumb: 'Hồ sơ giáo dục',
