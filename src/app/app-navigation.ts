@@ -113,6 +113,95 @@ export const navigationTeacherHomeroom = [
     ]
   },
   {
+    text: 'Sổ chủ nhiệm',
+    icon: 'textdocument',
+    path: '/class-logbook-c2',
+    selected: false,
+    grade: 'c2',
+    items: [
+      {
+        text: 'Danh sách học sinh',
+        path: '/class-logbook-c2/student-list',
+        selected: false
+      },
+      {
+        text: 'Ds giáo viên bộ môn',
+        path: '/class-logbook-c2/subject-teachers',
+        selected: false
+      },
+      {
+        text: 'Quy định phong cách HS',
+        path: '/class-logbook-c2/student-style-regulations',
+        selected: false
+      },
+      {
+        text: 'Quản lý HS theo tổ',
+        path: '/class-logbook-c2/group-management',
+        selected: false
+      },
+      {
+        text: 'Sơ đồ lớp học',
+        path: '/class-logbook-c2/classroom-diagram',
+        selected: false
+      },
+      {
+        text: 'Ban đại diện cha mẹ HS',
+        path: '/class-logbook-c2/parent-committee',
+        selected: false
+      },
+      {
+        text: 'Kế hoạch giáo dục',
+        path: '/class-logbook-c2/education-plan',
+        selected: false
+      },
+      {
+        text: 'Kế hoạch chủ nhiệm',
+        path: '/class-logbook-c2/homeroom-plan',
+        selected: false
+      },
+      {
+        text: 'Kế hoạch tháng',
+        path: '/class-logbook-c2/monthly-plan',
+        selected: false
+      },
+      {
+        text: 'Theo dõi biểu hiện HS',
+        path: '/class-logbook-c2/student-behavior-tracking',
+        selected: false
+      },
+      {
+        text: 'Kết quả R.Luyện theo tháng',
+        path: '/class-logbook-c2/monthly-training-results',
+        selected: false
+      },
+      {
+        text: 'Các hoạt động đã thực hiện',
+        path: '/class-logbook-c2/activities-completed',
+        selected: false
+      },
+      {
+        text: 'Nội dung các buổi họp',
+        path: '/class-logbook-c2/meeting-contents',
+        selected: false
+      },
+      {
+        text: 'Tổng kết cuối năm',
+        path: '/class-logbook-c2/year-end-summary',
+        selected: false
+      },
+      {
+        text: 'Hiệu trưởng nhận xét',
+        path: '/class-logbook-c2/principal-comments',
+        selected: false
+      },
+      {
+        text: 'In sổ chủ nhiệm',
+        path: '/class-logbook-c2/print',
+        selected: false
+      }
+    ]
+  },
+  {
     text: 'Sổ điểm',
     icon: 'chart',
     path: '/grade-book',
@@ -350,7 +439,7 @@ export const navigationAdmin = [
     icon: 'textdocument',
     path: '/class-logbook',
     selected: false,
-    grade: 'c1', 
+    grade: 'c1',
     items: [
       {
         text: 'Ban cán sự lớp',
@@ -397,6 +486,95 @@ export const navigationAdmin = [
         path: '/class-logbook/student-tracking',
         selected: false
       },
+    ]
+  },
+  {
+    text: 'Sổ chủ nhiệm',
+    icon: 'textdocument',
+    path: '/class-logbook-c2',
+    selected: false,
+    grade: 'c2',
+    items: [
+      {
+        text: 'Danh sách học sinh',
+        path: '/class-logbook-c2/student-list',
+        selected: false
+      },
+      {
+        text: 'Ds giáo viên bộ môn',
+        path: '/class-logbook-c2/subject-teachers',
+        selected: false
+      },
+      {
+        text: 'Quy định phong cách HS',
+        path: '/class-logbook-c2/student-style-regulations',
+        selected: false
+      },
+      {
+        text: 'Quản lý HS theo tổ',
+        path: '/class-logbook-c2/group-management',
+        selected: false
+      },
+      {
+        text: 'Sơ đồ lớp học',
+        path: '/class-logbook-c2/classroom-diagram',
+        selected: false
+      },
+      {
+        text: 'Ban đại diện cha mẹ HS',
+        path: '/class-logbook-c2/parent-committee',
+        selected: false
+      },
+      {
+        text: 'Kế hoạch giáo dục',
+        path: '/class-logbook-c2/education-plan',
+        selected: false
+      },
+      {
+        text: 'Kế hoạch chủ nhiệm',
+        path: '/class-logbook-c2/homeroom-plan',
+        selected: false
+      },
+      {
+        text: 'Kế hoạch tháng',
+        path: '/class-logbook-c2/monthly-plan',
+        selected: false
+      },
+      {
+        text: 'Theo dõi biểu hiện HS',
+        path: '/class-logbook-c2/student-behavior-tracking',
+        selected: false
+      },
+      {
+        text: 'Kết quả R.Luyện theo tháng',
+        path: '/class-logbook-c2/monthly-training-results',
+        selected: false
+      },
+      {
+        text: 'Các hoạt động đã thực hiện',
+        path: '/class-logbook-c2/activities-completed',
+        selected: false
+      },
+      {
+        text: 'Nội dung các buổi họp',
+        path: '/class-logbook-c2/meeting-contents',
+        selected: false
+      },
+      {
+        text: 'Tổng kết cuối năm',
+        path: '/class-logbook-c2/year-end-summary',
+        selected: false
+      },
+      {
+        text: 'Hiệu trưởng nhận xét',
+        path: '/class-logbook-c2/principal-comments',
+        selected: false
+      },
+      {
+        text: 'In sổ chủ nhiệm',
+        path: '/class-logbook-c2/print',
+        selected: false
+      }
     ]
   },
   {
