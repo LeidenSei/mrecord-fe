@@ -1,0 +1,231 @@
+<div class="class-book-container">
+  <div class="header">
+    <h2>Xuất Sổ Gọi Tên và Ghi Điểm</h2>
+    <p class="subtitle">Bao gồm: Bìa + Hướng dẫn + Sơ yếu lý lịch + Điểm danh + Ghi điểm + Tổng kết</p>
+  </div>
+
+  <!-- Phần chọn thông tin -->
+  <div class="selection-section card">
+    <h3>Thông tin xuất file</h3>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Chọn lớp học: <span class="text-danger">*</span></label>
+          <select class="form-control" 
+                  [(ngModel)]="selectedClassId"
+                  (change)="onClassChange()"
+                  [disabled]="isLoadingClasses">
+            <option value="">-- Chọn lớp học --</option>
+            <option *ngFor="let cls of classes" [value]="cls.id">
+              {{ cls.name }} - GVCN: {{ cls.homeroomTeacherName }} ({{ cls.studentCount }} HS)
+            </option>
+          </select>
+          <small class="form-text text-muted" *ngIf="isLoadingClasses">
+            <i class="fas fa-spinner fa-spin"></i> Đang tải danh sách lớp...
+          </small>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="form-group">
+          <label>Học kỳ: <span class="text-danger">*</span></label>
+          <select class="form-control" 
+                  [(ngModel)]="selectedTerm"
+                  (change)="onTermChange()"
+                  [disabled]="!selectedClassId">
+            <option [value]="1">HỌC KỲ I</option>
+            <option [value]="2">HỌC KỲ II</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="form-group">
+          <label>Năm học:</label>
+          <input type="number" 
+                 class="form-control" 
+                 [(ngModel)]="selectedSchoolYear" 
+                 (change)="onSchoolYearChange()"
+                 [disabled]="!selectedClassId"
+                 placeholder="Mặc định: năm hiện tại">
+          <small class="form-text text-muted">
+            Để trống sẽ lấy năm học hiện tại
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-3" *ngIf="selectedClassId">
+      <div class="col-md-12 text-center">
+        <button class="btn btn-primary" 
+                (click)="loadPreview()"
+                [disabled]="isLoadingPreview">
+          <i class="fas fa-eye" *ngIf="!isLoadingPreview"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="isLoadingPreview"></i>
+          {{ isLoadingPreview ? 'Đang tải...' : 'Xem trước dữ liệu' }}
+        </button>
+        
+        <button class="btn btn-secondary ml-2" 
+                (click)="reset()">
+          <i class="fas fa-redo"></i>
+          Làm mới
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phần preview dữ liệu -->
+  <div class="preview-section card" *ngIf="previewData && !isLoadingPreview">
+    <div class="section-header">
+      <h3>Thông tin sổ gọi tên</h3>
+    </div>
+
+    <!-- Thông tin giáo viên và trường -->
+    <div class="teacher-info">
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Trường:</strong> {{ previewData.teacherInfo.truong }}</p>
+          <p><strong>Huyện/Quận:</strong> {{ previewData.teacherInfo.huyenQuan }}</p>
+          <p><strong>Tỉnh/Thành phố:</strong> {{ previewData.teacherInfo.tinhTP }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Giáo viên chủ nhiệm:</strong> {{ previewData.teacherInfo.hoTenGV }}</p>
+          <p><strong>Lớp:</strong> {{ previewData.classInfo.tenLop }}</p>
+          <p><strong>Sĩ số:</strong> {{ previewData.classInfo.siSo }}</p>
+          <p><strong>Năm học:</strong> {{ previewData.teacherInfo.namHoc }}</p>
+          <p><strong>Học kỳ:</strong> {{ previewData.semesterInfo.hocKy }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danh sách học sinh -->
+    <div class="students-section">
+      <h4>Danh sách học sinh ({{ previewData.students.length }} học sinh)</h4>
+      
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th width="50">STT</th>
+              <th width="100">Mã HS</th>
+              <th width="200">Họ và tên</th>
+              <th width="100">Ngày sinh</th>
+              <th width="80">Giới tính</th>
+              <th width="200">Phụ huynh</th>
+              <th width="150">Điện thoại</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let student of previewData.students">
+              <td class="text-center">{{ formatStt(student.stt) }}</td>
+              <td>{{ student.maHocSinh }}</td>
+              <td><strong>{{ student.hoTen }}</strong></td>
+              <td class="text-center">{{ student.ngaySinh }}</td>
+              <td class="text-center">{{ student.gioiTinh }}</td>
+              <td>
+                <div *ngIf="student.parentInfo">
+                  <div *ngIf="student.parentInfo.hoTenCha">
+                    <strong>Cha:</strong> {{ student.parentInfo.hoTenCha }}
+                  </div>
+                  <div *ngIf="student.parentInfo.hoTenMe">
+                    <strong>Mẹ:</strong> {{ student.parentInfo.hoTenMe }}
+                  </div>
+                </div>
+                <span *ngIf="!student.parentInfo" class="text-muted">Chưa có thông tin</span>
+              </td>
+              <td>
+                <div *ngIf="student.parentInfo">
+                  <div *ngIf="student.parentInfo.dienThoaiCha">
+                    {{ student.parentInfo.dienThoaiCha }}
+                  </div>
+                  <div *ngIf="student.parentInfo.dienThoaiMe">
+                    {{ student.parentInfo.dienThoaiMe }}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- File structure -->
+    <div class="file-structure mt-4">
+      <h4>Cấu trúc file Excel sẽ xuất</h4>
+      <div class="sheet-list">
+        <div class="sheet-item">
+          <i class="fas fa-file sheet-icon"></i>
+          <span>1. Bia - Trang bìa</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-book sheet-icon"></i>
+          <span>2. Huong_Dan - Hướng dẫn sử dụng</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-file sheet-icon"></i>
+          <span>3. Bia_Lot - Bìa lót</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-id-card sheet-icon"></i>
+          <span>4. So_Yeu_Ly_Lich - Sơ yếu lý lịch học sinh</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-calendar-check sheet-icon"></i>
+          <span>5. Diem_Danh_HK{{ previewData.semesterInfo.hocKy }} - Điểm danh</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-file sheet-icon"></i>
+          <span>6. BiaPhanGhiDiem_HK{{ previewData.semesterInfo.hocKy }} - Bìa phần ghi điểm</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-table sheet-icon"></i>
+          <span>7. Diem_HK{{ previewData.semesterInfo.hocKy }}_MonNX - Điểm môn nhận xét</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-table sheet-icon"></i>
+          <span>8. Diem_HK{{ previewData.semesterInfo.hocKy }}_MonTinhDiem - Điểm môn tính điểm</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-chart-bar sheet-icon"></i>
+          <span>9. DiemTongKet_HKII - Tổng kết học kỳ II</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-chart-line sheet-icon"></i>
+          <span>10. TongHopCaNam - Tổng hợp cả năm</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-star sheet-icon"></i>
+          <span>11. DanhGiaXepLoai - Đánh giá xếp loại</span>
+        </div>
+        <div class="sheet-item">
+          <i class="fas fa-comment sheet-icon"></i>
+          <span>12. NhanXetCuaHT_CaNam - Nhận xét Hiệu trưởng</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export button -->
+    <div class="export-actions text-center mt-4">
+      <button class="btn btn-success btn-lg" 
+              (click)="exportClassBook()"
+              [disabled]="isExporting">
+        <i class="fas fa-file-excel" *ngIf="!isExporting"></i>
+        <i class="fas fa-spinner fa-spin" *ngIf="isExporting"></i>
+        {{ isExporting ? 'Đang xuất file...' : 'Xuất File Excel' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div class="text-center py-5" *ngIf="isLoadingPreview">
+    <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+    <p class="mt-3">Đang tải dữ liệu...</p>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state text-center py-5" *ngIf="!previewData && !isLoadingPreview && selectedClassId">
+    <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+    <p>Vui lòng nhấn "Xem trước dữ liệu" để load thông tin</p>
+  </div>
+</div>

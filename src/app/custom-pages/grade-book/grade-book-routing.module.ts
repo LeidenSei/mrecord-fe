@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SubjectBookComponent } from './personal/subject-book/subject-book.component';
+import { ClassBookComponent } from './class/class-book/class-book.component';
 
 const routes: Routes = [
   {
@@ -22,13 +23,7 @@ const routes: Routes = [
   },
   {
     path: 'class',
-    children: [
-      {
-        path: '',
-        redirectTo: '/common/home',
-        pathMatch: 'full'
-      }
-    ]
+     component: ClassBookComponent,
   },
   {
     path: '',

@@ -1,14 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { 
-  TeacherSubjectBookService, 
-  TeacherInfo, 
-  ClassData, 
-  TeacherSubject,
-  SubjectBookExportData,
-  Teacher
-} from 'src/app/services/teacher-subject-book.service';
-import { SubjectBookExportFullService } from 'src/app/services/subject-book-export.service';
+import { ClassData, SubjectBookExportFullService, TeacherInfo } from 'src/app/services/subject-book-export.service';
 import { AuthService, IUser } from 'src/app/services/auth.service';
+import { TeacherSubject, Teacher, SchoolBookService, SubjectBookExportData } from 'src/app/services/school-book-service.service';
 
 @Component({
   selector: 'app-subject-book',
@@ -61,7 +54,7 @@ export class SubjectBookComponent implements OnInit {
   isLoadingTeachers = false;
 
   constructor(
-    private teacherSubjectBookService: TeacherSubjectBookService,
+    private schoolBookService: SchoolBookService, // ← Đổi tên service
     private exportService: SubjectBookExportFullService,
     private authService: AuthService
   ) {}
@@ -106,7 +99,7 @@ export class SubjectBookComponent implements OnInit {
   loadTeachers(): void {
     this.isLoadingTeachers = true;
     
-    this.teacherSubjectBookService.getTeachers()
+    this.schoolBookService.getTeachers() // ← Dùng service mới
       .subscribe({
         next: (teachers) => {
           this.teachers = teachers;
@@ -137,7 +130,7 @@ export class SubjectBookComponent implements OnInit {
     // Nếu là admin và đã chọn giáo viên -> truyền teacherId
     const teacherId = this.isAdmin ? this.selectedTeacherId : undefined;
     
-    this.teacherSubjectBookService.getTeacherSubjects(teacherId)
+    this.schoolBookService.getTeacherSubjects(teacherId) // ← Dùng service mới
       .subscribe({
         next: (subjects) => {
           this.subjects = subjects;
@@ -203,7 +196,7 @@ export class SubjectBookComponent implements OnInit {
     // Nếu là admin và đã chọn giáo viên -> truyền teacherId
     const teacherId = this.isAdmin && this.selectedTeacherId ? this.selectedTeacherId : undefined;
     
-    this.teacherSubjectBookService.getExportInfo(
+    this.schoolBookService.getSubjectBookData( // ← Đổi tên method
       this.selectedSubjectId,
       this.selectedSchoolYear,
       this.selectedTerm,

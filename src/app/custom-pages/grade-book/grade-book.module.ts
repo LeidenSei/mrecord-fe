@@ -4,10 +4,12 @@ import { DxDataGridModule, DxFormModule, DxButtonModule, DxSelectBoxModule, DxTe
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SubjectBookComponent } from './personal/subject-book/subject-book.component';
 import { GradeBookRoutingModule } from './grade-book-routing.module';
+import { ClassBookComponent } from './class/class-book/class-book.component';
 
 @NgModule({
   declarations: [
     SubjectBookComponent,
+    ClassBookComponent,
   ],
   imports: [
     CommonModule,

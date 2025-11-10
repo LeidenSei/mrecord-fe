@@ -16,14 +16,14 @@ export interface ClassData {
 
 export interface TeacherInfo {
   truong: string;
-  phuongXa?: string;
+  phuongXa: string;
+  huyenQuan?: string;  
   tinhTP: string;
   hoTenGV: string;
-  monHoc: string;
-  hocKy: string;
+  monHoc?: string;     
+  hocKy?: string;    
   namHoc: string;
 }
-
 @Injectable({
   providedIn: 'root'
 })
