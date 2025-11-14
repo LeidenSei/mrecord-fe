@@ -1,0 +1,269 @@
+<div style="padding: 20px; height: 90vh; display: flex; flex-direction: column;">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex gap-2 align-items-center">
+      <dx-select-box
+        [dataSource]="classSource"
+        displayExpr="name"
+        valueExpr="id"
+        [(value)]="classId"
+        (onValueChanged)="onClassChange()"
+        placeholder="Chọn lớp học"
+        [searchEnabled]="true"
+        style="width:260px">
+      </dx-select-box>
+
+      <dx-number-box
+        [(value)]="schoolYear"
+        placeholder="Năm học"
+        [showSpinButtons]="true"
+        (valueChanged)="onClassChange()"
+        [width]="120">
+      </dx-number-box>
+
+      <dx-select-box
+        [dataSource]="[{value:1,text:'Học kỳ 1'},{value:2,text:'Học kỳ 2'}]"
+        displayExpr="text"
+        valueExpr="value"
+        [(value)]="term"
+        (onValueChanged)="onClassChange()"
+        placeholder="Học kỳ"
+        [width]="140">
+      </dx-select-box>
+
+      <dx-button text="Áp dụng" type="default" icon="refresh" (onClick)="onClassChange()"></dx-button>
+    </div>
+
+    <dx-button text="Lưu" icon="save" type="default" (onClick)="save()" stylingMode="contained"></dx-button>
+  </div>
+
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='tinhhinh'" (click)="switch('tinhhinh')">
+        Tình hình lớp
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='renluyen'" (click)="switch('renluyen')">
+        Chất lượng chung của lớp - Rèn luyện
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='hoctap'" (click)="switch('hoctap')">
+        Chất lượng chung của lớp - Học tập
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='sohs'" (click)="switch('sohs')">
+        Số học sinh chưa tiến bộ
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab==='dacdiem'" (click)="switch('dacdiem')">
+        Đặc điểm nổi trội khác của lớp
+      </a>
+    </li>
+  </ul>
+
+  <div class="tab-content border border-top-0" style="flex: 1; overflow-y: auto; min-height: 0; padding: 16px;">
+    <div *ngIf="activeTab==='tinhhinh'">
+      <form [formGroup]="form">
+        <div formArrayName="tinhhinh" class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <thead class="table-primary">
+              <tr>
+                <th style="width:40px">STT</th>
+                <th>Thời điểm</th>
+                <th style="width:120px">Tổng số</th>
+                <th style="width:100px">Nữ</th>
+                <th style="width:140px">Đội viên/Đoàn viên</th>
+                <th style="width:110px">Lưu ban</th>
+                <th style="width:110px">Trái tuyến</th>
+                <th style="width:110px">Thương binh</th>
+                <th style="width:100px">Liệt sĩ</th>
+                <th style="width:140px">Cán bộ công nhân</th>
+                <th style="width:110px">Đặc biệt</th>
+                <th style="width:200px">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of tinhhinhArray.controls; let i = index" [formGroupName]="i">
+                <td class="align-middle text-center">{{ i + 1 }}</td>
+                <td class="align-middle">{{ row.get('label')?.value }}</td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="tongSo" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="nu" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="doiVienDoanVien" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="luuBan" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="traiTuyen" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="thuongBinh" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="lietSi" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="canBoCongNhan" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="dacBiet" />
+                </td>
+                <td>
+                  <textarea class="form-control form-control-sm" rows="1" formControlName="ghiChu"></textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="activeTab==='renluyen'">
+      <form [formGroup]="form">
+        <div formArrayName="renluyen" class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <thead class="table-primary text-center">
+              <tr>
+                <th style="width:40px">STT</th>
+                <th style="min-width:140px">Thời điểm</th>
+                <th style="width:120px">Tốt</th>
+                <th style="width:120px">Khá</th>
+                <th style="width:120px">Đạt</th>
+                <th style="width:120px">Chưa đạt</th>
+                <th style="min-width:200px">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of renluyenArray.controls; let i = index" [formGroupName]="i">
+                <td class="align-middle text-center">{{ i + 1 }}</td>
+                <td class="align-middle">{{ row.get('label')?.value }}</td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="tot" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="kha" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="dat" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="chuaDat" />
+                </td>
+                <td>
+                  <textarea class="form-control form-control-sm" rows="1" formControlName="ghiChu"></textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="activeTab==='hoctap'">
+      <form [formGroup]="form">
+        <div formArrayName="hoctap" class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <thead class="table-primary text-center">
+              <tr>
+                <th style="width:40px">STT</th>
+                <th style="min-width:140px">Thời điểm</th>
+                <th style="width:120px">Tốt</th>
+                <th style="width:120px">Khá</th>
+                <th style="width:120px">Đạt</th>
+                <th style="width:120px">Chưa đạt</th>
+                <th style="min-width:200px">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of hoctapArray.controls; let i = index" [formGroupName]="i">
+                <td class="align-middle text-center">{{ i + 1 }}</td>
+                <td class="align-middle">{{ row.get('label')?.value }}</td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="tot" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="kha" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="dat" />
+                </td>
+                <td>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="chuaDat" />
+                </td>
+                <td>
+                  <textarea class="form-control form-control-sm" rows="1" formControlName="ghiChu"></textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="activeTab==='sohs'">
+      <form [formGroup]="form">
+        <div formArrayName="sohs" class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <thead class="table-primary text-center">
+              <tr>
+                <th style="width:40px">STT</th>
+                <th style="min-width:160px">Giới tính</th>
+                <th style="width:130px">Đầu năm</th>
+                <th style="width:130px">Giữa kỳ I</th>
+                <th style="width:130px">Học kỳ I</th>
+                <th style="width:130px">Giữa kỳ II</th>
+                <th style="width:130px">Cả năm</th>
+                <th style="min-width:200px">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of sohsArray.controls; let i = index" [formGroupName]="i">
+                <td class="align-middle text-center">{{ i + 1 }}</td>
+                <td class="align-middle">{{ row.get('label')?.value }}</td>
+                <td>
+                  <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="dauNam" />
+                </td>
+                <td>
+                  <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="giuaKy1" />
+                </td>
+                <td>
+                  <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="hocKy1" />
+                </td>
+                <td>
+                  <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="giuaKy2" />
+                </td>
+                <td>
+                  <input type="number" min="0" step="1" class="form-control form-control-sm" formControlName="caNam" />
+                </td>
+                <td>
+                  <textarea class="form-control form-control-sm" rows="1" formControlName="ghiChu"></textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="activeTab==='dacdiem'">
+      <form [formGroup]="form">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Đặc điểm nổi trội khác của lớp</label>
+          <quill-editor
+            formControlName="dacdiem"
+            [modules]="{ toolbar: toolbar }"
+            style="min-height: 300px;">
+          </quill-editor>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

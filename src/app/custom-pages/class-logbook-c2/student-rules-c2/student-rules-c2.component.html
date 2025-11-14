@@ -1,0 +1,89 @@
+<div style="padding: 20px; height: 90vh; display: flex; flex-direction: column;">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Quy định và tiêu chuẩn</h5>
+        <dx-button
+            text="Lưu"
+            icon="save"
+            type="default"
+            (onClick)="save()"
+            stylingMode="contained">
+        </dx-button>
+    </div>
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link"
+            [class.active]="activeTab==='rules'"
+            (click)="switch('rules')">
+            Quy định về phong cách học sinh
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+            [class.active]="activeTab==='criteria'"
+            (click)="switch('criteria')">
+            Chuẩn đánh giá lớp tiên tiến
+            </a>
+        </li>
+    </ul>
+
+    <!-- Content -->
+    <div class="tab-content border border-top-0" style="flex: 1; overflow-y: auto; min-height: 0;">
+        <!-- Tab 1: Quill editor -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='rules'">
+            <form [formGroup]="form">
+                <quill-editor
+                    formControlName="rules"
+                    [modules]="{ toolbar: toolbar }">
+                </quill-editor>
+            </form>
+        </div>
+
+        <!-- Tab 2: Chuẩn đánh giá lớp tiên tiến -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='criteria'">
+            <form [formGroup]="form">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tiêu chuẩn I</label>
+                    <textarea class="form-control" rows="2" formControlName="criteria1"
+                        placeholder="Nhập không quá 150 ký tự" maxlength="150"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tiêu chuẩn II</label>
+                    <textarea class="form-control" rows="2" formControlName="criteria2"
+                        placeholder="Nhập không quá 250 ký tự" maxlength="250"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tiêu chuẩn III</label>
+                    <textarea class="form-control" rows="2" formControlName="criteria3"
+                        placeholder="Nhập không quá 150 ký tự" maxlength="150"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tiêu chuẩn IV</label>
+                    <textarea class="form-control" rows="2" formControlName="criteria4"
+                        placeholder="Xếp loại trong các đợt thi đua đạt từ loại khá trở lên."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tiêu chuẩn V</label>
+                    <textarea class="form-control" rows="3" formControlName="criteria5"
+                        placeholder="Có phong trào hoạt động tập thể được xếp loại khá của trường..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tiêu chuẩn VI</label>
+                    <textarea class="form-control" rows="2" formControlName="criteria6"
+                        placeholder="Chi đội/chi đoàn đạt loại tốt"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tiêu chuẩn VII</label>
+                    <textarea class="form-control" rows="10" formControlName="criteria7"
+                        placeholder="Bạn đại diện cha mẹ học sinh lớp đạt loại tốt..."></textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

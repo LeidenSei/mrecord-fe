@@ -1,7 +1,6 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { DxDataGridComponent } from 'devextreme-angular';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import notify from 'devextreme/ui/notify';
-import { KeHoachItem, KeHoachThang, MonthlyPlanService, NhatKyItem } from 'src/app/services/monthly-plan.service';
+import { KeHoachThang, MonthlyPlanService, ThongKeThangItem } from 'src/app/services/monthly-plan.service';
 import { ClassService } from 'src/app/services/class.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AuthService } from 'src/app/services';
@@ -9,20 +8,16 @@ import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-monthly-plan',
-  templateUrl: './monthly-plan.component.html',
-  styleUrls: ['./monthly-plan.component.scss']
+  selector: 'app-monthly-plan-c2',
+  templateUrl: './monthly-plan-c2.component.html',
+  styleUrls: ['./monthly-plan-c2.component.scss']
 })
-export class MonthlyPlanComponent implements OnInit, OnDestroy {
-  @ViewChild('planGrid', { static: false }) planGrid: DxDataGridComponent;
-  @ViewChild('journalGrid', { static: false }) journalGrid: DxDataGridComponent;
-  splitSizes: number[] = [50, 50];
-  monthlyPlanData: KeHoachItem[] = [];
-  teacherJournalData: NhatKyItem[] = [];
-  planCount = 0;
-  journalCount = 0;
-  monthlyTopic = '';
-  monthlyFocus = '';
+export class MonthlyPlanC2Component implements OnInit, OnDestroy {
+  keHoachHoatDong = '';
+  danhGiaHocTap = '';
+  danhGiaRenLuyen = '';
+  thongKeThang: ThongKeThangItem[] = [];
+  
   selectedMonth = new Date().getMonth() + 1;
   selectedYear = new Date().getFullYear();
   currentKeHoachId: string | undefined;
@@ -30,27 +25,33 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
   currentClassName: string = '';
   currentSchoolId: string = '';
   currentSchoolYear: number = new Date().getFullYear();
+  
   gradeSource = [];
   classSource = [];
   filterClassSource = [];
   filterClassId: any;
   isLoading = false;
   isSaving = false;
+  
   private saveTimeout: any;
   private destroy$ = new Subject<void>();
   
-  get startDate(): string {
-    return '01';
-  }
-  
-  get endDate(): string {
-    const lastDay = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
-    return lastDay.toString().padStart(2, '0');
-  }
-  
-  get monthPadded(): string {
-    return this.selectedMonth.toString().padStart(2, '0');
-  }
+  // Quill editor config
+  quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ 'header': 1 }, { 'header': 2 }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'align': [] }],
+      ['clean'],
+      ['link']
+    ]
+  };
   
   monthSource = [
     { id: 9,  name: 'Tháng 9',  value: 9 },
@@ -69,11 +70,22 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
 
   yearSource: Array<{id: number, name: string, value: number}> = [];
 
-  exportTexts = {
-    exportTo: 'Xuất ra',
-    exportAll: 'Xuất tất cả dữ liệu',
-    exportSelectedRows: 'Xuất hàng đã chọn'
-  };
+  // Danh sách nội dung mặc định cho bảng thống kê
+  defaultThongKeItems = [
+    'Số học sinh nghỉ học',
+    'Số đi muộn',
+    'Số bỏ tiết',
+    'Số không chuẩn bị bài',
+    'Số bị dưới 5.0',
+    'Mắc thái độ sai',
+    'Số điểm tốt',
+    'Số việc tốt',
+    'HS được khen',
+    'HS bị phê bình',
+    'Số tiết trống',
+    'Số tiết tự quản tốt',
+    'Xếp loại cả lớp'
+  ];
 
   constructor(
     private monthlyPlanService: MonthlyPlanService,
@@ -82,33 +94,29 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
     private authService: AuthService
   ) {
     this.setupYears();
+    this.initializeThongKeThang();
   }
   
   get displayYear(): number {
-    // Tháng 9,10,11,12 → dùng selectedYear
-    // Tháng 1,2,3,4,5,6,7,8 → dùng selectedYear + 1
     return this.selectedMonth >= 9 ? this.selectedYear : this.selectedYear + 1;
   }
 
   get displayYearPrev(): number {
-    // Dùng cho phần đầu nếu tháng hiện tại là 1-8
     return this.selectedYear;
   }
 
   private setupYears(): void {
     const today = new Date();
     const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth() + 1; // 1-12
+    const currentMonth = today.getMonth() + 1;
 
-    // XÁC ĐỊNH NĂM HỌC HIỆN TẠI
     let schoolYearStart: number;
     if (currentMonth >= 9) {
-      schoolYearStart = currentYear;           // 9,10,11,12 → năm học 2025-2026
+      schoolYearStart = currentYear;
     } else {
-      schoolYearStart = currentYear - 1;       // 1→8 → năm học 2024-2025
+      schoolYearStart = currentYear - 1;
     }
 
-    // Tạo danh sách 5 năm học gần nhất (mới nhất ở trên)
     this.yearSource = [];
     for (let i = 0; i < 5; i++) {
       const year = schoolYearStart - i;
@@ -119,28 +127,23 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
       });
     }
 
-    // TỰ ĐỘNG CHỌN NĂM HIỆN TẠI
     this.selectedYear = schoolYearStart;
-
-    // TỰ ĐỘNG CHỌN THÁNG HIỆN TẠI (theo năm học)
     this.selectedMonth = currentMonth;
   }
 
-  async ngOnInit() {
-    this.loadSplitSizes();
-    await this.initializeData();
+  private initializeThongKeThang(): void {
+    this.thongKeThang = this.defaultThongKeItems.map((noiDung, index) => ({
+      sTT: index + 1,
+      noiDung: noiDung,
+      tuan1: 0,
+      tuan2: 0,
+      tuan3: 0,
+      tuan4: 0
+    }));
   }
 
-  private loadSplitSizes(): void {
-    const savedSizes = localStorage.getItem('monthly-plan-split-sizes');
-    if (savedSizes) {
-      try {
-        this.splitSizes = JSON.parse(savedSizes);
-      } catch (error) {
-        console.error('Error loading split sizes:', error);
-        this.splitSizes = [50, 50];
-      }
-    }
+  async ngOnInit() {
+    await this.initializeData();
   }
 
   ngOnDestroy() {
@@ -194,6 +197,7 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
     
     this.gradeSource.unshift('Tất cả');
     this.filterClassSource = [...this.classSource];
+    
     if (this.filterClassSource.length > 0) {
       this.filterClassId = this.filterClassSource[0].id;
       this.currentClassId = this.filterClassId;
@@ -219,7 +223,7 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     this.monthlyPlanService
-      .getByClassMonthYear(this.currentClassId, this.selectedMonth, this.selectedYear)
+      .getByClassMonthYearC2(this.currentClassId, this.selectedMonth, this.selectedYear)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
@@ -237,25 +241,26 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
                       data.id !== '000000000000000000000000';
     
     this.currentKeHoachId = isValidId ? data.id : undefined;
-    this.monthlyTopic = data.chuDeThang || '';
-    this.monthlyFocus = data.trongTam || '';
-    this.monthlyPlanData = data.keHoachs || [];
-    this.teacherJournalData = data.nhatKys || [];
+    this.keHoachHoatDong = data.keHoachHoatDong || '';
+    this.danhGiaHocTap = data.danhGiaHocTap || '';
+    this.danhGiaRenLuyen = data.danhGiaRenLuyen || '';
     
-    this.planCount = this.monthlyPlanData.length;
-    this.journalCount = this.teacherJournalData.length;
+    // Load thống kê tháng
+    if (data.thongKeThang && data.thongKeThang.length > 0) {
+      this.thongKeThang = data.thongKeThang;
+    } else {
+      this.initializeThongKeThang();
+    }
     
     this.isLoading = false;
   }
 
   private handleLoadError(error: any): void {
     this.currentKeHoachId = undefined;
-    this.monthlyTopic = '';
-    this.monthlyFocus = '';
-    this.monthlyPlanData = [];
-    this.teacherJournalData = [];
-    this.planCount = 0;
-    this.journalCount = 0;
+    this.keHoachHoatDong = '';
+    this.danhGiaHocTap = '';
+    this.danhGiaRenLuyen = '';
+    this.initializeThongKeThang();
     
     this.isLoading = false;
     
@@ -268,11 +273,6 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
       notify('Chưa có thông tin lớp học', 'warning', 3000);
       return;
     }
-
-    // if (!this.monthlyTopic || this.monthlyTopic.trim() === '') {
-    //   notify('Vui lòng nhập chủ đề tháng', 'warning', 3000);
-    //   return;
-    // }
 
     if (this.isSaving) {
       console.log('Already saving, skipping...');
@@ -287,10 +287,10 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
       month: this.selectedMonth,
       year: this.selectedYear,
       schoolYear: this.currentSchoolYear,
-      chuDeThang: this.monthlyTopic.trim(),
-      trongTam: this.monthlyFocus.trim(),
-      keHoachs: this.monthlyPlanData,
-      nhatKys: this.teacherJournalData
+      keHoachHoatDong: this.keHoachHoatDong,
+      danhGiaHocTap: this.danhGiaHocTap,
+      danhGiaRenLuyen: this.danhGiaRenLuyen,
+      thongKeThang: this.thongKeThang
     };
 
     if (this.currentKeHoachId) {
@@ -298,7 +298,7 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
     }
 
     this.monthlyPlanService
-      .save(dataToSave)
+      .saveC2(dataToSave)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
@@ -313,17 +313,6 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
           this.isSaving = false;
         }
       });
-  }
-
-  onSplitDragEnd(event: any): void {
-    if (event && event.sizes) {
-      this.splitSizes = event.sizes;
-      localStorage.setItem('monthly-plan-split-sizes', JSON.stringify(event.sizes));
-    }
-    setTimeout(() => {
-      this.planGrid?.instance?.updateDimensions();
-      this.journalGrid?.instance?.updateDimensions();
-    }, 100);
   }
 
   gradeChange($event: any) {
@@ -358,65 +347,28 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
     this.loadData();
   }
 
-  onPlanExporting(event: any): void {
-    const fileName = `KeHoachThang_${this.currentClassName}_T${this.selectedMonth}_${this.selectedYear}`;
-    event.fileName = fileName;
+  onKeHoachHoatDongChange(): void {
+    this.debounceSave();
   }
 
-  onJournalExporting(event: any): void {
-    const fileName = `NhatKyChuNhiem_${this.currentClassName}_T${this.selectedMonth}_${this.selectedYear}`;
-    event.fileName = fileName;
+  onDanhGiaHocTapChange(): void {
+    this.debounceSave();
   }
 
-  onPlanRowUpdating(event: any): void {
-    setTimeout(() => this.saveData(), 500);
+  onDanhGiaRenLuyenChange(): void {
+    this.debounceSave();
   }
 
-  onPlanRowInserting(event: any): void {
-    // Kiểm tra phải có chủ đề hoặc trọng tâm tháng mới được thêm kế hoạch
-    if (!this.monthlyTopic?.trim() && !this.monthlyFocus?.trim()) {
-      event.cancel = true;
-      notify('Vui lòng nhập chủ đề hoặc trọng tâm tháng trước khi thêm kế hoạch', 'warning', 3000);
-      return;
+  onThongKeChange(): void {
+    this.debounceSave();
+  }
+
+  private debounceSave(): void {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
     }
-    event.data.stt = this.monthlyPlanData.length + 1;
-    this.planCount++;
-    setTimeout(() => this.saveData(), 500);
-  }
-
-  onPlanRowRemoving(event: any): void {
-    this.planCount--;
-    setTimeout(() => this.saveData(), 500);
-  }
-
-  onJournalRowUpdating(event: any): void {
-    setTimeout(() => this.saveData(), 500);
-  }
-
-  onJournalRowInserting(event: any): void {
-    // Kiểm tra phải có chủ đề hoặc trọng tâm tháng mới được thêm nhật ký
-    if (!this.monthlyTopic?.trim() && !this.monthlyFocus?.trim()) {
-      event.cancel = true;
-      notify('Vui lòng nhập chủ đề hoặc trọng tâm tháng trước khi thêm nhật ký chủ nhiệm', 'warning', 3000);
-      return;
-    }
-    event.data.stt = this.teacherJournalData.length + 1;
-    this.journalCount++;
-    setTimeout(() => this.saveData(), 500);
-  }
-
-  onJournalRowRemoving(event: any): void {
-    this.journalCount--;
-    setTimeout(() => this.saveData(), 500);
-  }
-
-  onTopicChange(): void {
-    if (this.saveTimeout) clearTimeout(this.saveTimeout);
-    this.saveTimeout = setTimeout(() => this.saveData(), 1000);
-  }
-
-  onFocusChange(): void {
-    if (this.saveTimeout) clearTimeout(this.saveTimeout);
-    this.saveTimeout = setTimeout(() => this.saveData(), 1000);
+    this.saveTimeout = setTimeout(() => {
+      this.saveData();
+    }, 1000);
   }
 }

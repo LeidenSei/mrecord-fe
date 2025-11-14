@@ -18,6 +18,16 @@ export interface SchoolConfig {
   signForSignUrl?: string;
   lmsHideMenuSchoolCourse?: boolean;
   hbsPassword?: string;
+  
+  // Thêm các trường mới
+  studentBehaviorRules?: string;
+  classExcellenceCriteria1?: string;
+  classExcellenceCriteria2?: string;
+  classExcellenceCriteria3?: string;
+  classExcellenceCriteria4?: string;
+  classExcellenceCriteria5?: string;
+  classExcellenceCriteria6?: string;
+  classExcellenceCriteria7?: string;
 }
 
 @Injectable({
@@ -38,9 +48,10 @@ export class SchoolService extends BaseService {
    * @param id School Id
    * @returns Danh sách các khối (6, 7, 8, 9...)
    */
-    getListGradeOfSchool(id: string): Observable<number[]> {
+  getListGradeOfSchool(id: string): Observable<number[]> {
     return this.get('/School/ListGradeOfSchool', { Id: id });
-    }
+  }
+
   /**
    * Lưu cấu hình trường học
    * Chỉ dành cho SchoolAdmin, SchoolManager

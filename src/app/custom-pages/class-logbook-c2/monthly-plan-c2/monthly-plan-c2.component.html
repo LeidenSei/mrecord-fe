@@ -1,0 +1,192 @@
+<div class="monthly-plan-c2-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h3 class="page-title">
+      KẾ HOẠCH THÁNG CẤP 2 - NĂM HỌC 
+      <span *ngIf="selectedMonth >= 9">{{ selectedYear }} - {{ selectedYear + 1 }}</span>
+      <span *ngIf="selectedMonth < 9">{{ selectedYear - 1 }} - {{ selectedYear }}</span>
+    </h3>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="filter-item">
+        <label class="form-label">Khối:</label>
+        <dx-select-box
+          [dataSource]="gradeSource"
+          [searchEnabled]="true"
+          placeholder="Chọn khối"
+          (onValueChanged)="gradeChange($event)">
+        </dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <label class="form-label">Lớp:</label>
+        <dx-select-box
+          [dataSource]="filterClassSource"
+          [(value)]="filterClassId"
+          [searchEnabled]="true"
+          displayExpr="name"
+          valueExpr="id"
+          placeholder="Chọn lớp"
+          (onValueChanged)="classChange($event)">
+        </dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <label class="form-label">Tháng:</label>
+        <dx-select-box
+          [dataSource]="monthSource"
+          [(value)]="selectedMonth"
+          displayExpr="name"
+          valueExpr="value"
+          (onValueChanged)="monthChange($event)">
+        </dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <label class="form-label">Năm học:</label>
+        <dx-select-box
+          [dataSource]="yearSource"
+          [(value)]="selectedYear"
+          displayExpr="name"
+          valueExpr="value"
+          (onValueChanged)="yearChange($event)">
+        </dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <dx-button
+          text="Lưu"
+          type="success"
+          icon="save"
+          [disabled]="isSaving || isLoading"
+          (onClick)="saveData()">
+        </dx-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <dx-load-panel
+    [visible]="isLoading"
+    [showPane]="true"
+    [shading]="true"
+    message="Đang tải dữ liệu...">
+  </dx-load-panel>
+
+  <!-- Main Content -->
+  <div class="content-section" *ngIf="!isLoading">
+    <!-- Editors Section -->
+    <div class="editors-section">
+      <!-- 1. Kế hoạch hoạt động -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>1. KẾ HOẠCH HOẠT ĐỘNG</h4>
+        </div>
+        <quill-editor
+          [(ngModel)]="keHoachHoatDong"
+          [modules]="quillModules"
+          [placeholder]="'Nhập kế hoạch hoạt động trong tháng...'"
+          (onContentChanged)="onKeHoachHoatDongChange()">
+        </quill-editor>
+      </div>
+
+      <!-- 2. Đánh giá học tập -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>2. ĐÁNH GIÁ HỌC TẬP</h4>
+        </div>
+        <quill-editor
+          [(ngModel)]="danhGiaHocTap"
+          [modules]="quillModules"
+          [placeholder]="'Nhập đánh giá về tình hình học tập của học sinh...'"
+          (onContentChanged)="onDanhGiaHocTapChange()">
+        </quill-editor>
+      </div>
+
+      <!-- 3. Đánh giá rèn luyện đạo đức -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>3. ĐÁNH GIÁ RÈN LUYỆN ĐẠO ĐỨC</h4>
+        </div>
+        <quill-editor
+          [(ngModel)]="danhGiaRenLuyen"
+          [modules]="quillModules"
+          [placeholder]="'Nhập đánh giá về rèn luyện đạo đức, ý thức kỷ luật của học sinh...'"
+          (onContentChanged)="onDanhGiaRenLuyenChange()">
+        </quill-editor>
+      </div>
+    </div>
+
+    <!-- 4. Bảng thống kê theo tuần -->
+    <div class="statistics-section">
+      <div class="editor-header">
+        <h4>4. THỐNG KÊ TÌNH HÌNH HỌC SINH THEO TUẦN</h4>
+      </div>
+      <div class="table-wrapper">
+        <table class="table table-bordered table-hover thong-ke-table">
+          <thead class="table-primary">
+            <tr>
+              <th class="stt-col">STT</th>
+              <th class="noi-dung-col">Nội dung</th>
+              <th class="tuan-col">Tuần 1</th>
+              <th class="tuan-col">Tuần 2</th>
+              <th class="tuan-col">Tuần 3</th>
+              <th class="tuan-col">Tuần 4</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of thongKeThang; let i = index">
+              <td class="stt-col">{{ item.sTT }}</td>
+              <td class="noi-dung-col">{{ item.noiDung }}</td>
+              <td class="tuan-col">
+                <dx-number-box
+                  [(value)]="item.tuan1"
+                  [showSpinButtons]="true"
+                  [min]="0"
+                  [format]="'#0'"
+                  (onValueChanged)="onThongKeChange()">
+                </dx-number-box>
+              </td>
+              <td class="tuan-col">
+                <dx-number-box
+                  [(value)]="item.tuan2"
+                  [showSpinButtons]="true"
+                  [min]="0"
+                  [format]="'#0'"
+                  (onValueChanged)="onThongKeChange()">
+                </dx-number-box>
+              </td>
+              <td class="tuan-col">
+                <dx-number-box
+                  [(value)]="item.tuan3"
+                  [showSpinButtons]="true"
+                  [min]="0"
+                  [format]="'#0'"
+                  (onValueChanged)="onThongKeChange()">
+                </dx-number-box>
+              </td>
+              <td class="tuan-col">
+                <dx-number-box
+                  [(value)]="item.tuan4"
+                  [showSpinButtons]="true"
+                  [min]="0"
+                  [format]="'#0'"
+                  (onValueChanged)="onThongKeChange()">
+                </dx-number-box>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Save Status -->
+    <div class="save-status" *ngIf="isSaving">
+      <dx-load-indicator [visible]="true" [height]="20" [width]="20"></dx-load-indicator>
+      <span>Đang lưu...</span>
+    </div>
+  </div>
+</div>

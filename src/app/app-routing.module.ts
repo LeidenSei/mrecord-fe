@@ -186,6 +186,18 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'class-logbook-c2',
+        data: { 
+          breadcrumb: 'Sổ chủ nhiệm',
+          breadcrumbIcon: 'textdocument'
+        },
+        canActivate: [AuthGuardService],
+        loadChildren: () =>
+          import('./custom-pages/class-logbook-c2/class-logbook-c2.module').then(
+            (m) => m.ClassLogbookC2Module,
+          ),
+      },
+      {
       path: 'grade-book',
       data: { 
         breadcrumb: 'Sổ điểm',

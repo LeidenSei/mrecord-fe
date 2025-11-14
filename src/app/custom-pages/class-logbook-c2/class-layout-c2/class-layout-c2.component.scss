@@ -1,0 +1,28 @@
+.teacher-desk-simple {
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  padding: 15px 40px;
+  border-radius: 8px;
+  display: inline-block;
+  font-weight: 600;
+  color: #495057;
+}
+
+.seats-container {
+  padding: 20px;
+  max-height: 800px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.seat-row {
+  margin-bottom: 8px;
+}
+
+// Print styles
+@media print {
+  .card-body > .row:first-child,
+  dx-button {
+    display: none !important;
+  }
+}

@@ -1,0 +1,26 @@
+.nav-tabs{
+    background-color: white;
+}
+
+.tab-content {
+  background-color: white;
+  padding: 16px;
+}
+
+.tab-pane {
+  height: 100%;
+}
+
+:host ::ng-deep .ql-editor {
+  height: 100% !important;
+}
+
+:host ::ng-deep .ql-container {
+  height: calc(100% - 42px) !important;
+}
+
+:host ::ng-deep quill-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}

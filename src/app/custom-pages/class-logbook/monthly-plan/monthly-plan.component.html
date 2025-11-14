@@ -114,8 +114,8 @@
     
     <as-split-area 
       [size]="splitSizes[0]" 
-      [minSize]="30" 
-      [maxSize]="70">
+      [minSize]="10" 
+      [maxSize]="90">
       <div class="card border-0 shadow-sm h-100 d-flex flex-column">
         <div class="card-header bg-primary bg-gradient text-white">
           <div class="d-flex justify-content-between align-items-center">
@@ -186,10 +186,9 @@
                 </dxi-item>
                 
                 <dxi-item itemType="group" caption="📝 Nội dung chi tiết" cssClass="content-group">
-                  <dxi-item dataField="content" [isRequired]="true" editorType="dxTextArea" 
+                  <dxi-item dataField="content" editorType="dxTextArea" 
                     [editorOptions]="{height: 120, placeholder: 'Nhập nội dung kế hoạch...'}">
                     <dxo-label text="Nội dung" [showColon]="false"></dxo-label>
-                    <dxi-validation-rule type="required" message="Vui lòng nhập nội dung"></dxi-validation-rule>
                   </dxi-item>
                 </dxi-item>
                 
@@ -202,10 +201,10 @@
               </dxo-form>
             </dxo-editing>
 
-            <dxo-toolbar>
+            <!-- <dxo-toolbar>
               <dxi-item name="addRowButton"></dxi-item>
               <dxi-item name="exportButton"></dxi-item>
-            </dxo-toolbar>
+            </dxo-toolbar> -->
 
             <dxi-column dataField="stt" caption="STT" [width]="60" alignment="center" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="timeFrom" caption="Từ" dataType="date" format="dd/MM/yyyy" [width]="110"></dxi-column>
@@ -217,10 +216,10 @@
               <dxi-button name="delete"></dxi-button>
             </dxi-column>
             <div *dxTemplate="let data of 'contentTemplate'">
-              <div class="content-cell">{{ data.value }}</div>
+              <div class="content-cell preserve-format">{{ data.value }}</div>
             </div>
             <div *dxTemplate="let data of 'evaluationTemplate'">
-              <div class="content-cell">{{ data.value }}</div>
+              <div class="content-cell preserve-format">{{ data.value }}</div>
             </div>
           </dx-data-grid>
         </div>
@@ -229,8 +228,8 @@
 
     <as-split-area 
       [size]="splitSizes[1]" 
-      [minSize]="30" 
-      [maxSize]="70">
+      [minSize]="10" 
+      [maxSize]="90">
       <div class="card border-0 shadow-sm h-100 d-flex flex-column">
         <div class="card-header bg-danger bg-gradient text-white">
           <div class="d-flex justify-content-between align-items-center">
@@ -293,10 +292,10 @@
                     <dxi-validation-rule type="required" message="Vui lòng chọn ngày"></dxi-validation-rule>
                   </dxi-item>
                   
-                  <dxi-item dataField="content" [isRequired]="true" editorType="dxTextArea" 
+                  <dxi-item dataField="content" editorType="dxTextArea" 
                     [editorOptions]="{height: 150, placeholder: 'Nhập nội dung nhật ký...'}">
                     <dxo-label text="Nội dung chi tiết" [showColon]="false"></dxo-label>
-                    <dxi-validation-rule type="required" message="Vui lòng nhập nội dung"></dxi-validation-rule>
+        
                   </dxi-item>
                 </dxi-item>
               </dxo-form>
@@ -315,7 +314,7 @@
               <dxi-button name="delete"></dxi-button>
             </dxi-column>
             <div *dxTemplate="let data of 'journalContentTemplate'">
-              <div class="content-cell">{{ data.value }}</div>
+              <div class="content-cell preserve-format">{{ data.value }}</div>
             </div>
           </dx-data-grid>
         </div>

@@ -4,7 +4,7 @@ import { BaseService } from './base-service.service';
 
 export interface KeHoachItem {
   stt?: number;
-  timeFrom: Date | string;  // Support cả Date và string để linh hoạt
+  timeFrom: Date | string;
   timeTo: Date | string;
   content: string;
   evaluation: string;
@@ -14,6 +14,15 @@ export interface NhatKyItem {
   stt?: number;
   date: Date;
   content: string;
+}
+
+export interface ThongKeThangItem {
+  sTT: number;
+  noiDung: string;
+  tuan1: number;
+  tuan2: number;
+  tuan3: number;
+  tuan4: number;
 }
 
 export interface KeHoachThang {
@@ -27,10 +36,17 @@ export interface KeHoachThang {
   month: number;
   year: number;
   schoolYear?: number;
-  chuDeThang: string;
-  trongTam: string;
-  keHoachs: KeHoachItem[];
-  nhatKys: NhatKyItem[];
+  // Cấp 1 fields
+  chuDeThang?: string;
+  trongTam?: string;
+  keHoachs?: KeHoachItem[];
+  nhatKys?: NhatKyItem[];
+  // Cấp 2 fields
+  keHoachHoatDong?: string;
+  danhGiaHocTap?: string;
+  danhGiaRenLuyen?: string;
+  thongKeThang?: ThongKeThangItem[];
+  // Common fields
   dateCreated?: Date;
   dateModified?: Date;
   trangThai?: number;
@@ -51,7 +67,8 @@ export interface PaginatedResult<T> {
 })
 export class MonthlyPlanService extends BaseService {
 
-  // Lấy kế hoạch theo lớp, tháng, năm
+  // ===== CẤP 1 METHODS =====
+
   getByClassMonthYear(classId: string, month: number, year: number): Observable<KeHoachThang> {
     return this.get('/KeHoachThang/GetByClassMonthYear', { 
       classId, 
@@ -64,7 +81,6 @@ export class MonthlyPlanService extends BaseService {
     return this.get('/KeHoachThang', { id });
   }
 
-  // Lấy tất cả kế hoạch của 1 lớp trong năm
   getByClassYear(classId: string, year: number): Observable<KeHoachThang[]> {
     return this.get('/KeHoachThang/GetByClassYear', { 
       classId, 
@@ -107,7 +123,6 @@ export class MonthlyPlanService extends BaseService {
     return this.delete('/KeHoachThang', { id });
   }
 
-  // Smart save: tự động detect create/update
   save(data: KeHoachThang): Observable<KeHoachThang> {
     const isValidId = data.id && 
                       data.id.length === 24 && 
@@ -121,5 +136,27 @@ export class MonthlyPlanService extends BaseService {
       delete newData.id;
       return this.create(newData);
     }
+  }
+
+  // ===== CẤP 2 METHODS =====
+
+  getByClassMonthYearC2(classId: string, month: number, year: number): Observable<KeHoachThang> {
+    return this.get('/KeHoachThang/GetByClassMonthYearC2', {
+      classId,
+      month: month.toString(),
+      year: year.toString()
+    });
+  }
+
+  saveC2(data: KeHoachThang): Observable<KeHoachThang> {
+    // Sử dụng endpoint chung C2/Save cho cả create và update
+    return this.post('/KeHoachThang/C2/Save', data);
+  }
+
+  getByClassYearC2(classId: string, year: number): Observable<KeHoachThang[]> {
+    return this.get('/KeHoachThang/GetByClassYearC2', {
+      classId,
+      year: year.toString()
+    });
   }
 }

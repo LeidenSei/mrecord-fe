@@ -1,0 +1,171 @@
+<div class="p-3">
+  <!-- Header Controls -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <dx-select-box
+            [dataSource]="classSource"
+            displayExpr="name"
+            valueExpr="id"
+            [(value)]="classId"
+            (onValueChanged)="onClassChange()"
+            placeholder="Chọn lớp học"
+            [searchEnabled]="true">
+          </dx-select-box>
+        </div>
+
+        <div class="col-md-2">
+          <dx-number-box
+            [(value)]="schoolYear"
+            placeholder="Năm học"
+            [showSpinButtons]="true">
+          </dx-number-box>
+        </div>
+
+        <div class="col-md-2">
+          <dx-select-box
+            [dataSource]="termSource"
+            displayExpr="text"
+            valueExpr="value"
+            [(value)]="term"
+            placeholder="Học kỳ">
+          </dx-select-box>
+        </div>
+
+        <div class="col-md-2">
+          <dx-number-box
+            [(value)]="totalRows"
+            placeholder="Số dãy"
+            [min]="1"
+            [max]="12"
+            [showSpinButtons]="true">
+          </dx-number-box>
+        </div>
+
+        <div class="col-md-2">
+          <dx-number-box
+            [(value)]="totalColumns"
+            placeholder="Số hàng"
+            [min]="1"
+            [max]="10"
+            [showSpinButtons]="true">
+          </dx-number-box>
+        </div>
+
+        <div class="col-md-1">
+          <dx-button
+            text="Áp dụng"
+            type="default"
+            icon="refresh"
+            (onClick)="applyLayout()"
+            [width]="'100%'">
+          </dx-button>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-12">
+          <dx-button
+            text="Sắp xếp tự động"
+            type="success"
+            icon="orderedlist"
+            (onClick)="autoArrange()"
+            class="me-2">
+          </dx-button>
+
+          <dx-button
+            text="Lưu"
+            type="default"
+            icon="save"
+            (onClick)="save()"
+            class="me-2">
+          </dx-button>
+
+          <dx-button
+            text="In sơ đồ"
+            type="normal"
+            icon="print"
+            (onClick)="printLayout()"
+            class="me-2">
+          </dx-button>
+
+          <dx-button
+            *ngIf="layout?.id"
+            text="Xóa"
+            type="danger"
+            icon="trash"
+            (onClick)="deleteLayout()">
+          </dx-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Classroom Layout -->
+  <div class="card">
+    <div class="card-body">
+      <!-- Bàn giáo viên -->
+      <div class="text-center mb-4">
+        <div class="teacher-desk-simple">
+          BÀN GIÁO VIÊN
+        </div>
+      </div>
+
+      <!-- Sơ đồ chỗ ngồi -->
+      <div class="seats-container" *ngIf="seats.length > 0">
+        <div *ngFor="let row of seats; let rowIndex = index"
+             class="seat-row mb-2">
+          <div class="d-flex justify-content-center">
+            <!-- Seats - Simple layout -->
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+              <div *ngFor="let seat of row; let colIndex = index"
+                   class="seat-item">
+                <dx-select-box
+                  [dataSource]="allStudents"
+                  displayExpr="fullName"
+                  valueExpr="id"
+                  [(value)]="seat.studentId"
+                  (onValueChanged)="onStudentChanged($event, seat)"
+                  placeholder="{{rowIndex + 1}}-{{colIndex + 1}}"
+                  [searchEnabled]="true"
+                  [showClearButton]="true"
+                  [width]="200">
+                </dx-select-box>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="seats.length === 0" class="text-center py-5">
+        <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Chưa có sơ đồ lớp học</h5>
+        <p class="text-muted">Vui lòng chọn lớp và nhấn "Áp dụng" hoặc "Sắp xếp tự động"</p>
+      </div>
+
+      <!-- Ghi chú -->
+      <div *ngIf="seats.length > 0" class="mt-4">
+        <label class="form-label"><strong>Ghi chú:</strong></label>
+        <dx-text-area
+          [(value)]="notes"
+          placeholder="Nhập ghi chú cho sơ đồ lớp học..."
+          [height]="100"
+          [maxLength]="500">
+        </dx-text-area>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Loading -->
+<dx-load-panel
+  [(visible)]="loading"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  shadingColor="rgba(0,0,0,0.4)"
+  message="Đang xử lý...">
+</dx-load-panel>
