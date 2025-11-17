@@ -17,20 +17,27 @@ export interface KeHoachChuNhiem {
   homeRoomTeacherId?: string;
   homeRoomTeacherName?: string;
   schoolYear: number;
-  semester: number;  // 1 hoặc 2
+  semester: number;  // 0 = cả năm (C2), 1 = HK1, 2 = HK2
   planDate: Date;
   dateCreated?: Date;
   dateModified?: Date;
-  
-  // A. TÌNH HÌNH CHUNG (chỉ có ở HK1)
+
+  // A. TÌNH HÌNH CHUNG (chỉ có ở HK1 và C2)
   advantages?: string;
   difficulties?: string;
-  
-  // B. KẾ HOẠCH GIÁO DỤC
-  traditionEducation: KeHoachGiaoDucItem;
-  academicEducation: KeHoachGiaoDucItem;
-  extracurricularEducation: KeHoachGiaoDucItem;
-  
+
+  // B. KẾ HOẠCH GIÁO DỤC (cho HK1, HK2)
+  traditionEducation?: KeHoachGiaoDucItem;
+  academicEducation?: KeHoachGiaoDucItem;
+  extracurricularEducation?: KeHoachGiaoDucItem;
+
+  // C. KẾ HOẠCH NĂM (cho C2 - Semester = 0)
+  yearlyRequirements?: string;      // Những yêu cầu cần đạt được trong năm
+  targets?: string;                 // Chỉ tiêu
+  mainSolutions?: string;           // Biện pháp chính
+  deepTopics?: string;              // Những đề tài đi sâu để rút kinh nghiệm
+  planAdjustments?: string;         // Điều chỉnh kế hoạch
+
   status?: string;  // draft, submitted
   notes?: string;
   isActive?: boolean;

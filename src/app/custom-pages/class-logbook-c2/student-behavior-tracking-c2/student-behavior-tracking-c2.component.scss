@@ -1,0 +1,210 @@
+.student-behavior-tracking-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #f5f5f5;
+
+  .header-section {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .filter-bar {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        label {
+          font-weight: 500;
+          color: #333;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+    }
+  }
+
+  .grid-container {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+
+    ::ng-deep .dx-datagrid {
+      height: 100%;
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+
+    ::ng-deep .dx-button {
+      min-width: auto;
+
+      &.dx-button-has-icon:not(.dx-button-has-text) {
+        width: 32px;
+        height: 32px;
+      }
+    }
+  }
+
+  .tracking-note-cell {
+    padding: 4px 0;
+
+    .note-content {
+      margin-bottom: 4px;
+      white-space: normal;
+      line-height: 1.4;
+    }
+
+    .note-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+
+      &.badge-category {
+        background-color: #e3f2fd;
+        color: #1976d2;
+      }
+
+      &.badge-priority {
+        &[data-priority="THAP"] {
+          background-color: #e8f5e9;
+          color: #388e3c;
+        }
+
+        &[data-priority="TRUNG_BINH"] {
+          background-color: #fff3e0;
+          color: #f57c00;
+        }
+
+        &[data-priority="CAO"] {
+          background-color: #ffe0b2;
+          color: #e65100;
+        }
+
+        &[data-priority="RAT_CAO"] {
+          background-color: #ffebee;
+          color: #c62828;
+        }
+      }
+    }
+  }
+
+}
+
+// Global popup styles
+::ng-deep {
+  .dx-popup-wrapper {
+    .dx-popup-content {
+      padding: 0;
+    }
+
+    .popup-content {
+      padding: 20px;
+
+      .form-group {
+        margin-bottom: 16px;
+
+        label {
+          display: block;
+          margin-bottom: 6px;
+          font-weight: 500;
+          font-size: 14px;
+
+          &.required::after {
+            content: " *";
+            color: #d32f2f;
+          }
+        }
+      }
+
+      .form-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+
+        .form-group {
+          flex: 1;
+          margin-bottom: 0;
+        }
+
+        .col-6 {
+          flex: 0 0 calc(50% - 8px);
+        }
+      }
+
+      .popup-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid #e0e0e0;
+      }
+    }
+  }
+
+  .dx-overlay-content.dx-popup-normal {
+    .dx-list-item-content {
+      padding: 8px 12px;
+
+      &:hover {
+        background-color: #e9ecef;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .student-behavior-tracking-container {
+    padding: 10px;
+
+    .header-section {
+      .filter-bar,
+      .action-bar {
+        width: 100%;
+      }
+    }
+
+    ::ng-deep .dx-popup-wrapper {
+      .dx-overlay-content {
+        width: 95% !important;
+      }
+    }
+  }
+}

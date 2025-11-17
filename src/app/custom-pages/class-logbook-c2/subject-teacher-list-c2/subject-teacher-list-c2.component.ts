@@ -21,23 +21,16 @@ import { ClassService } from 'src/app/services/class.service';
 })
 export class SubjectTeacherListC2Component implements OnInit {
   datas = [];
-  teacherCount: 0;
-  
+
   // Filter sources
   classSource = [];
   filterClassSource = [];
   gradeSource = [];
-  semesterSource = [
-    { id: null, name: 'Cả năm' },
-    { id: 1, name: 'Học kỳ I' },
-    { id: 2, name: 'Học kỳ II' }
-  ];
-  
+
   // Selected filters
   filterGrade: any = 0;
   filterClassId: any;
-  selectedSemesterId: any = null;
-  
+
   // User info
   isAdmin = false;
   isBGH = false;
@@ -101,38 +94,87 @@ export class SubjectTeacherListC2Component implements OnInit {
   async loadGrid() {
     if (!this.filterClassId) {
       this.datas = [];
-      this.teacherCount = 0;
       return;
     }
 
-    // ✅ SỬA: Dùng getTeacherSubjectList thay vì getTeacherSubjectListByClass
-    this.classService.getTeacherSubjectList(
-      this.filterClassId,
-      this.selectedSemesterId
-    ).subscribe(
-      res => {
-        this.datas = res;
-        let index = 1;
-        this.teacherCount = res.length;
-        
-        this.datas.forEach(en => {
-          en.stt = index++;
-          en.signedStatusText = this.getSignedStatus(en);
-          en.signedByText = this.getSignedBy(en);
-          en.signedDateFormatted = en.signedDate ? 
-            new Date(en.signedDate).toLocaleDateString('vi-VN') : '';
+    // Load data for both semesters
+    forkJoin([
+      this.classService.getTeacherSubjectList(this.filterClassId, 1), // Học kỳ I
+      this.classService.getTeacherSubjectList(this.filterClassId, 2)  // Học kỳ II
+    ]).subscribe(
+      ([semester1Data, semester2Data]) => {
+        // Transform data to create rows with semester info
+        const transformedData = [];
+
+        // Group data by subject to ensure we have both semesters
+        const subjectMap = new Map();
+
+        // Process semester 1 data
+        semester1Data.forEach(item => {
+          const key = item.subjectId || item.subjectName;
+          if (!subjectMap.has(key)) {
+            subjectMap.set(key, {
+              subjectId: item.subjectId,
+              subjectName: item.subjectName,
+              semester1: null,
+              semester2: null
+            });
+          }
+          subjectMap.get(key).semester1 = item;
         });
-        
+
+        // Process semester 2 data
+        semester2Data.forEach(item => {
+          const key = item.subjectId || item.subjectName;
+          if (!subjectMap.has(key)) {
+            subjectMap.set(key, {
+              subjectId: item.subjectId,
+              subjectName: item.subjectName,
+              semester1: null,
+              semester2: null
+            });
+          }
+          subjectMap.get(key).semester2 = item;
+        });
+
+        // Create rows for each subject with both semesters
+        let stt = 1;
+        subjectMap.forEach(subjectData => {
+          // Row for Học kỳ I
+          transformedData.push({
+            stt: stt++,
+            subjectName: subjectData.subjectName,
+            semesterName: 'Học kỳ I',
+            semester: 1,
+            teacherName: subjectData.semester1?.teacherName || '',
+            personalId: subjectData.semester1?.personalId || '',
+            phoneNumber: subjectData.semester1?.phoneNumber || '',
+            teacherId: subjectData.semester1?.teacherId
+          });
+
+          // Row for Học kỳ II
+          transformedData.push({
+            stt: stt++,
+            subjectName: subjectData.subjectName,
+            semesterName: 'Học kỳ II',
+            semester: 2,
+            teacherName: subjectData.semester2?.teacherName || '',
+            personalId: subjectData.semester2?.personalId || '',
+            phoneNumber: subjectData.semester2?.phoneNumber || '',
+            teacherId: subjectData.semester2?.teacherId
+          });
+        });
+
+        this.datas = transformedData;
         this.ref.detectChanges();
       },
       error => {
         console.error('Error loading teacher subject data:', error);
         this.notificationService.showNotification(
-          Constant.ERROR, 
+          Constant.ERROR,
           'Không thể tải danh sách giáo viên bộ môn'
         );
         this.datas = [];
-        this.teacherCount = 0;
       }
     );
   }
@@ -155,66 +197,23 @@ export class SubjectTeacherListC2Component implements OnInit {
     this.loadGrid();
   }
 
-  semesterChange($event: any) {
-    this.selectedSemesterId = $event.itemData.id;
-    this.loadGrid();
-  }
-
-  getSignedStatus(data: any): string {
-    if (data.signed) {
-      return 'Đã ký';
-    }
-    return 'Chưa ký';
-  }
-
-  getSignedBy(data: any): string {
-    if (data.replaceByPrincipal) {
-      return 'Hiệu trưởng thay';
-    }
-    if (data.signedFor) {
-      return `${data.signedFor.userFullName} (${this.getRoleName(data.signedFor.role)})`;
-    }
-    return '';
-  }
-
-  getRoleName(role: number): string {
-    const roles: { [key: number]: string } = {
-      1: 'Giáo viên',
-      2: 'Hiệu trưởng',
-      3: 'Phó hiệu trưởng',
-      4: 'Tổ trưởng',
-      5: 'Quản trị'
-    };
-    return roles[role] || '';
-  }
 
   onExporting(e: ExportingEvent) {
     let cls = this.classSource.find(en => en.id === this.filterClassId);
     let clsName = cls ? cls.name.toUpperCase() : 'ALL';
-    let semesterText = this.selectedSemesterId ? 
-      `_HK${this.selectedSemesterId}` : '_CANAM';
-    
+
     const workbook = new Workbook();
     const worksheet = workbook.addWorksheet('GiaoVienBoMon');
 
     exportDataGridToXLSX({
       component: e.component,
       worksheet,
-      autoFilterEnabled: true,
-      customizeCell: ({ gridCell, excelCell }) => {
-        if (gridCell.rowType === 'data') {
-          // Format date columns
-          if (gridCell.column.dataField === 'signedDate' && gridCell.value) {
-            excelCell.value = new Date(gridCell.value);
-            excelCell.numFmt = 'dd/mm/yyyy';
-          }
-        }
-      }
+      autoFilterEnabled: true
     }).then(() => {
       workbook.xlsx.writeBuffer().then((buffer) => {
         saveAs(
-          new Blob([buffer], { type: 'application/octet-stream' }), 
-          `DS_GIAOVIEN_BOMON_${clsName}${semesterText}.xlsx`
+          new Blob([buffer], { type: 'application/octet-stream' }),
+          `DS_GIAOVIEN_BOMON_${clsName}.xlsx`
         );
       });
     });

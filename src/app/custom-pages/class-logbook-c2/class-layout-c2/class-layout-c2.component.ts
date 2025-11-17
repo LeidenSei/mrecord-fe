@@ -121,6 +121,21 @@ export class ClassLayoutC2Component implements OnInit {
     );
   }
 
+  // Lấy danh sách học sinh có thể chọn cho một vị trí cụ thể
+  getAvailableStudentsForSeat(seat: SeatPosition): any[] {
+    // Lấy danh sách ID học sinh đã được xếp chỗ (không tính vị trí hiện tại)
+    const assignedStudentIds = this.seats
+      .flat()
+      .filter(s => !s.isEmpty && s.studentId &&
+              !(s.row === seat.row && s.column === seat.column)) // Loại trừ vị trí hiện tại
+      .map(s => s.studentId);
+
+    // Trả về danh sách học sinh chưa có chỗ
+    return this.allStudents.filter(
+      student => !assignedStudentIds.includes(student.id)
+    );
+  }
+
   loadLayout() {
     if (!this.classId) return;
 
@@ -298,9 +313,56 @@ export class ClassLayoutC2Component implements OnInit {
   }
 
   save() {
-    if (!this.layout) {
-      this.notificationService.showNotification(Constant.WARNING, 'Chưa có dữ liệu để lưu');
+    // Validate input
+    if (this.totalRows < 1 || this.totalRows > 12) {
+      this.notificationService.showNotification(Constant.WARNING, 'Số dãy phải từ 1 đến 12');
       return;
+    }
+
+    if (this.totalColumns < 1 || this.totalColumns > 10) {
+      this.notificationService.showNotification(Constant.WARNING, 'Số hàng phải từ 1 đến 10');
+      return;
+    }
+
+    // Nếu chưa có layout, tạo mới
+    if (!this.layout) {
+      const selectedClass = this.classSource.find(c => c.id === this.classId);
+      this.layout = {
+        schoolId: this.schoolId,
+        classId: this.classId,
+        className: selectedClass?.name || '',
+        schoolYear: this.schoolYear,
+        term: this.term,
+        totalRows: this.totalRows,
+        totalColumns: this.totalColumns,
+        seats: []
+      };
+    }
+
+    // Kiểm tra nếu số hàng/dãy thay đổi, rebuild seats matrix
+    if (this.layout.totalRows !== this.totalRows || this.layout.totalColumns !== this.totalColumns) {
+      // Lưu lại các student đã assign
+      const existingSeats = this.seats.flat();
+
+      // Rebuild seats matrix với size mới
+      this.seats = [];
+      for (let row = 1; row <= this.totalRows; row++) {
+        const rowSeats: SeatPosition[] = [];
+        for (let col = 1; col <= this.totalColumns; col++) {
+          // Tìm xem vị trí này có student cũ không
+          const oldSeat = existingSeats.find(s => s.row === row && s.column === col);
+          if (oldSeat) {
+            rowSeats.push(oldSeat);
+          } else {
+            rowSeats.push({
+              row: row,
+              column: col,
+              isEmpty: true
+            });
+          }
+        }
+        this.seats.push(rowSeats);
+      }
     }
 
     // Flatten seats matrix back to array
@@ -400,12 +462,12 @@ export class ClassLayoutC2Component implements OnInit {
       this.notificationService.showNotification(Constant.WARNING, 'Số dãy phải từ 1 đến 12');
       return;
     }
-    
+
     if (this.totalColumns < 1 || this.totalColumns > 10) {
       this.notificationService.showNotification(Constant.WARNING, 'Số hàng phải từ 1 đến 10');
       return;
     }
-    
+
     // Create empty seats matrix
     this.seats = [];
     for (let row = 1; row <= this.totalRows; row++) {
@@ -419,7 +481,7 @@ export class ClassLayoutC2Component implements OnInit {
       }
       this.seats.push(rowSeats);
     }
-    
+
     if (!this.layout) {
       const selectedClass = this.classSource.find(c => c.id === this.classId);
       this.layout = {
@@ -433,8 +495,52 @@ export class ClassLayoutC2Component implements OnInit {
         seats: []
       };
     }
-    
+
     this.updateAvailableStudents();
+  }
+
+  // Xử lý khi số hàng/cột thay đổi
+  onLayoutSizeChanged() {
+    if (!this.classId) {
+      return;
+    }
+
+    if (this.totalRows < 1 || this.totalRows > 12) {
+      return;
+    }
+
+    if (this.totalColumns < 1 || this.totalColumns > 10) {
+      return;
+    }
+
+    // Lưu lại học sinh đã được xếp
+    const existingSeats = this.seats.flat();
+
+    // Rebuild seats matrix
+    this.seats = [];
+    for (let row = 1; row <= this.totalRows; row++) {
+      const rowSeats: SeatPosition[] = [];
+      for (let col = 1; col <= this.totalColumns; col++) {
+        // Tìm học sinh ở vị trí này (nếu có)
+        const oldSeat = existingSeats.find(s => s.row === row && s.column === col);
+        if (oldSeat) {
+          rowSeats.push(oldSeat);
+        } else {
+          rowSeats.push({
+            row: row,
+            column: col,
+            isEmpty: true
+          });
+        }
+      }
+      this.seats.push(rowSeats);
+    }
+
+    // Cập nhật layout object nếu có
+    if (this.layout) {
+      this.layout.totalRows = this.totalRows;
+      this.layout.totalColumns = this.totalColumns;
+    }
   }
 
   deleteLayout() {

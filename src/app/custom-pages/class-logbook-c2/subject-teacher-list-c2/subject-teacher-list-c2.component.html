@@ -34,10 +34,10 @@
       <dxi-item location="before">
         <div class="grid-header">
           <i class="dx-icon-group" style="font-size: 16px"></i>
-          Danh sách giáo viên bộ môn <span *ngIf="teacherCount > 0">&nbsp;({{teacherCount}})</span>
+          Danh sách giáo viên bộ môn
         </div>
       </dxi-item>
-      
+
       <!-- Filter Khối học -->
       <dxi-item location="before" locateInMenu="auto">
         <label>Khối học</label>
@@ -52,7 +52,7 @@
           [dropDownOptions]="{ width: 'auto' }"
         ></dx-drop-down-button>
       </dxi-item>
-      
+
       <!-- Filter Lớp học -->
       <dxi-item location="before" locateInMenu="auto">
         <label>Lớp học</label>
@@ -69,23 +69,6 @@
           [dropDownOptions]="{ width: 'auto' }"
         ></dx-drop-down-button>
       </dxi-item>
-      
-      <!-- Filter Học kỳ -->
-      <dxi-item location="before" locateInMenu="auto">
-        <label>Học kỳ</label>
-      </dxi-item>
-      <dxi-item location="before" locateInMenu="auto">
-        <dx-drop-down-button
-          stylingMode="text"
-          [useSelectMode]="true"
-          [items]="semesterSource"
-          keyExpr="id"
-          displayExpr="name"
-          (onItemClick)="semesterChange($event)"
-          [selectedItemKey]="selectedSemesterId"
-          [dropDownOptions]="{ width: 'auto' }"
-        ></dx-drop-down-button>
-      </dxi-item>
     </dxo-toolbar>
 
     <!-- Columns -->
@@ -94,77 +77,42 @@
       dataField="stt"
       alignment="center"
       [allowFiltering]="false"
-      [width]="50"
+      [width]="60"
       caption="STT"
     ></dxi-column>
-    
+
     <dxi-column
-      dataField="teacherCode"
-      [width]="120"
-      caption="Mã giáo viên"
+      dataField="subjectName"
+      [width]="250"
+      caption="Bộ môn"
     ></dxi-column>
-    
+
     <dxi-column
-      caption="Họ và tên giáo viên"
+      dataField="semesterName"
+      [width]="100"
+      caption="Học kỳ"
+      alignment="center"
       [allowFiltering]="false"
+    ></dxi-column>
+
+    <dxi-column
+      caption="Họ và tên"
       dataField="teacherName"
       [width]="200"
     ></dxi-column>
-    
+
     <dxi-column
-      dataField="subjectName"
-      [width]="150"
-      caption="Bộ môn"
-    ></dxi-column>
-    
-    <dxi-column
-      dataField="className"
-      [width]="100"
-      caption="Lớp"
+      dataField="personalId"
+      [width]="250"
+      caption="Số định danh cá nhân"
       alignment="center"
-    ></dxi-column>
-    
-    <dxi-column
-      dataField="periodCount"
-      [width]="100"
-      caption="Số tiết"
-      alignment="center"
-      dataType="number"
-    ></dxi-column>
-    
-    <dxi-column
-      caption="Trạng thái ký"
-      [width]="120"
-      cellTemplate="cellSignedStatus"
-      alignment="center"
-    ></dxi-column>
-    
-    <dxi-column
-      caption="Ngày ký"
-      [width]="120"
-      dataField="signedDate"
-      dataType="date"
-      format="dd/MM/yyyy"
-      alignment="center"
-    ></dxi-column>
-    
-    <dxi-column
-      caption="Người ký thay"
-      [width]="180"
-      cellTemplate="cellSignedBy"
     ></dxi-column>
 
-    <!-- Cell Templates -->
-    <div *dxTemplate="let cellInfo of 'cellSignedStatus'">
-      <span [class.text-success]="cellInfo.data.signed" [class.text-warning]="!cellInfo.data.signed">
-        {{getSignedStatus(cellInfo.data)}}
-      </span>
-    </div>
-    
-    <div *dxTemplate="let cellInfo of 'cellSignedBy'">
-      <span *ngIf="cellInfo.data.replaceByPrincipal || cellInfo.data.signedFor" class="text-muted">
-        {{getSignedBy(cellInfo.data)}}
-      </span>
-    </div>
+    <dxi-column
+      dataField="phoneNumber"
+      [width]="130"
+      caption="SDT liên hệ"
+      alignment="center"
+    ></dxi-column>
   </dx-data-grid>
 </div>

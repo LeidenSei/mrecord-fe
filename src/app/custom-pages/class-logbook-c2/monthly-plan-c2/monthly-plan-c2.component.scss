@@ -2,10 +2,10 @@
 :host {
   display: block !important;
   width: 100% !important;
-  height: auto !important;
-  min-height: 100vh !important;
+  height: 100% !important;
   position: relative !important;
-  overflow: visible !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 .monthly-plan-c2-container {
@@ -13,7 +13,6 @@
   background: #f8f9fa;
   width: 100%;
   height: auto;
-  min-height: calc(100vh - 40px);
   position: relative;
   
   .header-section {

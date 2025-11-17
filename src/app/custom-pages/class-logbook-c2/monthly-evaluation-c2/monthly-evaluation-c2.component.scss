@@ -1,0 +1,66 @@
+.monthly-evaluation-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #f5f5f5;
+
+  .header-section {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .filter-bar {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+
+      .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        label {
+          font-weight: 500;
+          color: #333;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+    }
+  }
+
+  .grid-container {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    min-height: 400px;
+  }
+
+}
+
+::ng-deep {
+  .dx-overlay-content.dx-popup-normal {
+    .dx-list-item-content {
+      padding: 8px 12px;
+
+      &:hover {
+        background-color: #e9ecef;
+      }
+    }
+  }
+}

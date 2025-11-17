@@ -1,1 +1,280 @@
-<p>student-behavior-tracking-c2 works!</p>
+<div class="student-behavior-tracking-container">
+  <!-- Header with filters -->
+  <div class="header-section">
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>Khối:</label>
+        <dx-select-box
+          [dataSource]="gradeSource"
+          [(value)]="filterGrade"
+          displayExpr="this"
+          valueExpr="this"
+          (onItemClick)="gradeChange($event)"
+          [width]="150"
+        ></dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <label>Lớp:</label>
+        <dx-select-box
+          [dataSource]="filterClassSource"
+          [(value)]="filterClassId"
+          displayExpr="name"
+          valueExpr="id"
+          (onItemClick)="classChange($event)"
+          [width]="200"
+        ></dx-select-box>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <dx-button
+        text="Thêm theo dõi"
+        icon="add"
+        type="default"
+        (onClick)="onAddNew()"
+        [disabled]="isLoading"
+      ></dx-button>
+    </div>
+  </div>
+
+  <!-- Data Grid -->
+  <div class="grid-container">
+    <dx-data-grid
+      [dataSource]="datas"
+      [rowAlternationEnabled]="true"
+      [showBorders]="true"
+      [showColumnLines]="true"
+      [showRowLines]="true"
+      [hoverStateEnabled]="true"
+      [columnAutoWidth]="false"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      keyExpr="studentId"
+      noDataText="Không có bản ghi nào"
+    >
+      <dxo-scrolling mode="standard"></dxo-scrolling>
+      <dxo-sorting mode="multiple"></dxo-sorting>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+      <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
+
+    <!-- Columns -->
+    <dxi-column
+      type="selection"
+      [width]="50"
+      fixedPosition="left"
+    ></dxi-column>
+
+    <dxi-column
+      dataField="stt"
+      caption="STT"
+      alignment="center"
+      [width]="60"
+      [allowFiltering]="false"
+      fixedPosition="left"
+    ></dxi-column>
+
+    <dxi-column
+      caption="Sửa"
+      [width]="80"
+      alignment="center"
+      cellTemplate="editTemplate"
+      [allowFiltering]="false"
+      [allowSorting]="false"
+      fixedPosition="left"
+    ></dxi-column>
+
+    <dxi-column
+      dataField="studentCode"
+      caption="Mã định danh Bộ GD&ĐT"
+      [width]="180"
+      alignment="center"
+    ></dxi-column>
+
+    <dxi-column
+      dataField="studentName"
+      caption="Họ tên"
+      [width]="200"
+    ></dxi-column>
+
+    <dxi-column
+      dataField="trackingNote"
+      caption="Các biểu hiện đáng chú ý"
+      [minWidth]="250"
+      cellTemplate="trackingNoteTemplate"
+    ></dxi-column>
+
+    <dxi-column
+      dataField="trackingDate"
+      caption="Ngày tháng"
+      [width]="120"
+      alignment="center"
+      cellTemplate="trackingDateTemplate"
+    ></dxi-column>
+
+    <!-- Cell Templates -->
+    <div *dxTemplate="let cell of 'editTemplate'">
+      <div class="action-buttons">
+        <dx-button
+          icon="edit"
+          hint="Chỉnh sửa"
+          stylingMode="text"
+          (onClick)="onEdit(cell.data)"
+        ></dx-button>
+        <dx-button
+          icon="trash"
+          hint="Xóa"
+          stylingMode="text"
+          (onClick)="onDelete(cell.data)"
+          *ngIf="cell.data.id"
+        ></dx-button>
+      </div>
+    </div>
+
+    <div *dxTemplate="let cell of 'trackingNoteTemplate'">
+      <div class="tracking-note-cell">
+        <div class="note-content" [title]="cell.data.trackingNote">
+          {{ cell.data.trackingNote || '-' }}
+        </div>
+        <div class="note-meta" *ngIf="cell.data.category || cell.data.priority">
+          <span class="badge badge-category" *ngIf="cell.data.category">
+            {{ getCategoryName(cell.data.category) }}
+          </span>
+          <span class="badge badge-priority" [attr.data-priority]="cell.data.priority" *ngIf="cell.data.priority">
+            {{ getPriorityName(cell.data.priority) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div *dxTemplate="let cell of 'trackingDateTemplate'">
+      {{ formatDate(cell.data.trackingDate) }}
+    </div>
+
+    <dxo-paging [enabled]="false"></dxo-paging>
+  </dx-data-grid>
+  </div>
+
+  <!-- Popup Form -->
+  <dx-popup
+    [(visible)]="popupVisible"
+    [showTitle]="true"
+    [title]="popupTitle"
+    [dragEnabled]="false"
+    [closeOnOutsideClick]="false"
+    [showCloseButton]="true"
+    [width]="700"
+    [height]="'auto'"
+  >
+    <div *dxTemplate="let data of 'content'">
+      <div class="popup-content">
+      <!-- Student Selection -->
+      <div class="form-group">
+        <label class="required">Học sinh</label>
+        <dx-select-box
+          [(value)]="formData.studentId"
+          [dataSource]="students"
+          valueExpr="id"
+          [displayExpr]="getStudentDisplayExpr"
+          placeholder="Chọn học sinh"
+          [searchEnabled]="true"
+          [disabled]="isEditMode"
+        ></dx-select-box>
+      </div>
+
+      <!-- Period -->
+      <div class="form-group">
+        <label>Mốc thời gian</label>
+        <dx-select-box
+          [(value)]="formData.period"
+          [dataSource]="periodSource"
+          valueExpr="id"
+          displayExpr="name"
+          placeholder="Chọn mốc thời gian"
+        ></dx-select-box>
+      </div>
+
+      <!-- Category and Priority -->
+      <div class="form-row">
+        <div class="form-group col-6">
+          <label>Danh mục</label>
+          <dx-select-box
+            [(value)]="formData.category"
+            [dataSource]="categorySource"
+            valueExpr="id"
+            displayExpr="name"
+            placeholder="Chọn danh mục"
+          ></dx-select-box>
+        </div>
+        <div class="form-group col-6">
+          <label>Mức độ ưu tiên</label>
+          <dx-select-box
+            [(value)]="formData.priority"
+            [dataSource]="prioritySource"
+            valueExpr="id"
+            displayExpr="name"
+            placeholder="Chọn mức độ"
+          ></dx-select-box>
+        </div>
+      </div>
+
+      <!-- Tracking Note -->
+      <div class="form-group">
+        <label class="required">Biểu hiện đáng chú ý</label>
+        <dx-text-area
+          [(value)]="formData.trackingNote"
+          placeholder="Nhập các biểu hiện đáng chú ý của học sinh"
+          [height]="100"
+        ></dx-text-area>
+      </div>
+
+      <!-- Intervention -->
+      <div class="form-group">
+        <label>Biện pháp can thiệp</label>
+        <dx-text-area
+          [(value)]="formData.intervention"
+          placeholder="Nhập các biện pháp can thiệp (nếu có)"
+          [height]="80"
+        ></dx-text-area>
+      </div>
+
+      <!-- Result -->
+      <div class="form-group">
+        <label>Kết quả sau can thiệp</label>
+        <dx-text-area
+          [(value)]="formData.result"
+          placeholder="Nhập kết quả sau can thiệp (nếu có)"
+          [height]="80"
+        ></dx-text-area>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="popup-footer">
+        <dx-button
+          text="Hủy"
+          stylingMode="outlined"
+          (onClick)="onCancel()"
+        ></dx-button>
+        <dx-button
+          text="Lưu"
+          type="default"
+          stylingMode="contained"
+          [disabled]="isSaving"
+          (onClick)="onSave()"
+        ></dx-button>
+      </div>
+      </div>
+    </div>
+  </dx-popup>
+
+  <!-- Loading indicator -->
+  <dx-load-panel
+    [visible]="isLoading || isSaving"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    shadingColor="rgba(0,0,0,0.4)"
+    [message]="isSaving ? 'Đang lưu dữ liệu...' : 'Đang tải dữ liệu...'"
+  ></dx-load-panel>
+</div>

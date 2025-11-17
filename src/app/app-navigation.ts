@@ -17,26 +17,26 @@ export const navigationPGD = [
     text: 'Học liệu dự thi',
     path: '/edu/shared-course/gvg',
   },
-  {
-    text: 'Nhập điểm',
-    path: '/score-entry',
-    icon: 'edit',
-    selected: false,
-    items: [
-      {
-        text: 'Đánh giá thưởng xuyên tổng hợp',
-        path: '/score-entry/one-period',
-        icon: 'taskcomplete',
-        selected: false
-      },
-      {
-        text: 'Đánh giá định kỳ và nhận xét môn học',
-        path: '/score-entry/semester',
-        icon: 'bookmark',
-        selected: false
-      }
-    ]
-  },
+  // {
+  //   text: 'Nhập điểm',
+  //   path: '/score-entry',
+  //   icon: 'edit',
+  //   selected: false,
+  //   items: [
+  //     {
+  //       text: 'Đánh giá thưởng xuyên tổng hợp',
+  //       path: '/score-entry/one-period',
+  //       icon: 'taskcomplete',
+  //       selected: false
+  //     },
+  //     {
+  //       text: 'Đánh giá định kỳ và nhận xét môn học',
+  //       path: '/score-entry/semester',
+  //       icon: 'bookmark',
+  //       selected: false
+  //     }
+  //   ]
+  // },
 ];
 
 export const navigationTeacherHomeroom = [
@@ -352,24 +352,24 @@ export const navigationTeacher = [
     path: '/transcript/teacher-subject-approval',
     selected: false,
   },
-  {
-    text: 'Nhập điểm',
-    path: '/score-entry',
-    icon: 'edit',
-    selected: false,
-    items: [
-      {
-        text: 'Đánh giá thưởng xuyên tổng hợp',
-        path: '/score-entry/one-period',
-        selected: false
-      },
-      {
-        text: 'Đánh giá định kỳ và nhận xét môn học',
-        path: '/score-entry/semester',
-        selected: false
-      }
-    ]
-  },
+  // {
+  //   text: 'Nhập điểm',
+  //   path: '/score-entry',
+  //   icon: 'edit',
+  //   selected: false,
+  //   items: [
+  //     {
+  //       text: 'Đánh giá thưởng xuyên tổng hợp',
+  //       path: '/score-entry/one-period',
+  //       selected: false
+  //     },
+  //     {
+  //       text: 'Đánh giá định kỳ và nhận xét môn học',
+  //       path: '/score-entry/semester',
+  //       selected: false
+  //     }
+  //   ]
+  // },
   {
     text: 'Ký duyệt học bạ',
     type: 'gvbm_thcs',

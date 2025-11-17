@@ -39,7 +39,8 @@
             placeholder="Số dãy"
             [min]="1"
             [max]="12"
-            [showSpinButtons]="true">
+            [showSpinButtons]="true"
+            (onValueChanged)="onLayoutSizeChanged()">
           </dx-number-box>
         </div>
 
@@ -49,18 +50,9 @@
             placeholder="Số hàng"
             [min]="1"
             [max]="10"
-            [showSpinButtons]="true">
+            [showSpinButtons]="true"
+            (onValueChanged)="onLayoutSizeChanged()">
           </dx-number-box>
-        </div>
-
-        <div class="col-md-1">
-          <dx-button
-            text="Áp dụng"
-            type="default"
-            icon="refresh"
-            (onClick)="applyLayout()"
-            [width]="'100%'">
-          </dx-button>
         </div>
       </div>
 
@@ -106,33 +98,31 @@
   <div class="card">
     <div class="card-body">
       <!-- Bàn giáo viên -->
-      <div class="text-center mb-4">
+      <div class="text-center mb-1">
         <div class="teacher-desk-simple">
           BÀN GIÁO VIÊN
         </div>
       </div>
 
-      <!-- Sơ đồ chỗ ngồi -->
+      <!-- Sơ đồ chỗ ngồi với scroll -->
       <div class="seats-container" *ngIf="seats.length > 0">
         <div *ngFor="let row of seats; let rowIndex = index"
-             class="seat-row mb-2">
-          <div class="d-flex justify-content-center">
-            <!-- Seats - Simple layout -->
-            <div class="d-flex flex-wrap justify-content-center gap-2">
-              <div *ngFor="let seat of row; let colIndex = index"
-                   class="seat-item">
-                <dx-select-box
-                  [dataSource]="allStudents"
-                  displayExpr="fullName"
-                  valueExpr="id"
-                  [(value)]="seat.studentId"
-                  (onValueChanged)="onStudentChanged($event, seat)"
-                  placeholder="{{rowIndex + 1}}-{{colIndex + 1}}"
-                  [searchEnabled]="true"
-                  [showClearButton]="true"
-                  [width]="200">
-                </dx-select-box>
-              </div>
+             class="seat-row">
+          <!-- Seats - Simple layout -->
+          <div class="d-flex flex-nowrap gap-2">
+            <div *ngFor="let seat of row; let colIndex = index"
+                 class="seat-item">
+              <dx-select-box
+                [dataSource]="getAvailableStudentsForSeat(seat)"
+                displayExpr="fullName"
+                valueExpr="id"
+                [(value)]="seat.studentId"
+                (onValueChanged)="onStudentChanged($event, seat)"
+                placeholder="{{rowIndex + 1}}-{{colIndex + 1}}"
+                [searchEnabled]="true"
+                [showClearButton]="true"
+                [width]="200">
+              </dx-select-box>
             </div>
           </div>
         </div>
@@ -142,19 +132,21 @@
       <div *ngIf="seats.length === 0" class="text-center py-5">
         <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
         <h5 class="text-muted">Chưa có sơ đồ lớp học</h5>
-        <p class="text-muted">Vui lòng chọn lớp và nhấn "Áp dụng" hoặc "Sắp xếp tự động"</p>
+        <p class="text-muted">Vui lòng chọn lớp, điều chỉnh số dãy/hàng và nhấn "Sắp xếp tự động"</p>
       </div>
+    </div>
+  </div>
 
-      <!-- Ghi chú -->
-      <div *ngIf="seats.length > 0" class="mt-4">
-        <label class="form-label"><strong>Ghi chú:</strong></label>
-        <dx-text-area
-          [(value)]="notes"
-          placeholder="Nhập ghi chú cho sơ đồ lớp học..."
-          [height]="100"
-          [maxLength]="500">
-        </dx-text-area>
-      </div>
+  <!-- Ghi chú - Tách ra ngoài để không bị ảnh hưởng bởi scroll -->
+  <div *ngIf="seats.length > 0" class="card mt-3">
+    <div class="card-body">
+      <label class="form-label"><strong>Ghi chú:</strong></label>
+      <dx-text-area
+        [(value)]="notes"
+        placeholder="Nhập ghi chú cho sơ đồ lớp học..."
+        [height]="100"
+        [maxLength]="500">
+      </dx-text-area>
     </div>
   </div>
 

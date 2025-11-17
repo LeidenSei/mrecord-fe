@@ -18,7 +18,7 @@ import { MeetingsC2Component } from './meetings-c2/meetings-c2.component';
 import { YearEndSummaryC2Component } from './year-end-summary-c2/year-end-summary-c2.component';
 import { PrincipalCommentsC2Component } from './principal-comments-c2/principal-comments-c2.component';
 import { PrintLogbookC2Component } from './print-logbook-c2/print-logbook-c2.component';
-import { DxButtonModule, DxDataGridModule, DxDropDownButtonModule, DxLoadIndicatorModule, DxLoadPanelModule, DxNumberBoxModule, DxRadioGroupModule, DxSelectBoxModule, DxTextAreaModule, DxToolbarModule } from 'devextreme-angular';
+import { DxButtonModule, DxDataGridModule, DxDateBoxModule, DxDropDownButtonModule, DxLoadIndicatorModule, DxLoadPanelModule, DxNumberBoxModule, DxPopupModule, DxRadioGroupModule, DxSelectBoxModule, DxTabPanelModule, DxTextAreaModule, DxTextBoxModule, DxToolbarModule } from 'devextreme-angular';
 import { QuillModule } from 'ngx-quill';
 import { DxiColumnModule } from 'devextreme-angular/ui/nested';
 const routes: Routes = [
@@ -75,7 +75,11 @@ const routes: Routes = [
     DxTextAreaModule,
     DxRadioGroupModule,
     DxiColumnModule,
-    DxLoadIndicatorModule
+    DxLoadIndicatorModule,
+    DxPopupModule,
+    DxDateBoxModule,
+    DxTabPanelModule,
+    DxTextBoxModule
   ]
 })
 export class ClassLogbookC2Module {}

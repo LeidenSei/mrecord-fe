@@ -1,1 +1,195 @@
-<p>activities-c2 works!</p>
+<div class="activities-container">
+  <!-- Header with filters -->
+  <div class="header-section">
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>Khối:</label>
+        <dx-select-box
+          [dataSource]="gradeSource"
+          [(value)]="filterGrade"
+          displayExpr="this"
+          valueExpr="this"
+          (onItemClick)="gradeChange($event)"
+          [width]="150"
+        ></dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <label>Lớp:</label>
+        <dx-select-box
+          [dataSource]="filterClassSource"
+          [(value)]="filterClassId"
+          displayExpr="name"
+          valueExpr="id"
+          (onItemClick)="classChange($event)"
+          [width]="200"
+        ></dx-select-box>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <dx-button
+        text="Thêm mới"
+        icon="add"
+        type="success"
+        (onClick)="onAddNew()"
+      ></dx-button>
+    </div>
+  </div>
+
+  <!-- Data Grid -->
+  <div class="grid-container">
+    <dx-data-grid
+      [dataSource]="datas"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rowAlternationEnabled]="true"
+      [hoverStateEnabled]="true"
+      [columnAutoWidth]="true"
+      keyExpr="id"
+    >
+      <dxo-scrolling mode="standard"></dxo-scrolling>
+      <dxo-paging [enabled]="false"></dxo-paging>
+
+      <!-- STT Column -->
+      <dxi-column
+        caption="STT"
+        [width]="60"
+        alignment="center"
+        [allowSorting]="false"
+        cellTemplate="sttTemplate"
+      ></dxi-column>
+
+      <!-- Edit Column -->
+      <dxi-column
+        caption="Sửa"
+        [width]="80"
+        alignment="center"
+        cellTemplate="editTemplate"
+      ></dxi-column>
+
+      <!-- Date Column -->
+      <dxi-column
+        dataField="activityDate"
+        caption="Ngày, tháng, năm"
+        [width]="150"
+        alignment="center"
+        dataType="date"
+        format="dd/MM/yyyy"
+      ></dxi-column>
+
+      <!-- Cooperation Target Column -->
+      <dxi-column
+        dataField="cooperationTarget"
+        caption="Đối tượng phối hợp (Cá nhân, đoàn thể)"
+        [minWidth]="250"
+        alignment="left"
+      ></dxi-column>
+
+      <!-- Activity Content Column -->
+      <dxi-column
+        dataField="activityContent"
+        caption="Nội dung hoạt động phối hợp"
+        [minWidth]="300"
+        alignment="left"
+      ></dxi-column>
+
+      <!-- STT Template -->
+      <div *dxTemplate="let data of 'sttTemplate'">
+        {{ data.rowIndex + 1 }}
+      </div>
+
+      <!-- Edit Template -->
+      <div *dxTemplate="let data of 'editTemplate'">
+        <dx-button
+          icon="edit"
+          hint="Sửa"
+          (onClick)="onEdit(data.data)"
+        ></dx-button>
+        <dx-button
+          icon="trash"
+          hint="Xóa"
+          (onClick)="onDelete(data.data)"
+        ></dx-button>
+      </div>
+    </dx-data-grid>
+  </div>
+
+  <!-- Add/Edit Popup -->
+  <dx-popup
+    [(visible)]="popupVisible"
+    [showTitle]="true"
+    [title]="popupTitle"
+    [dragEnabled]="false"
+    [closeOnOutsideClick]="false"
+    [showCloseButton]="true"
+    [width]="600"
+    [height]="'auto'"
+  >
+    <div *dxTemplate="let data of 'content'">
+      <div class="popup-content">
+        <div class="form-group">
+          <label>Ngày, tháng, năm <span class="required">*</span></label>
+          <dx-date-box
+            [(value)]="formData.activityDate"
+            displayFormat="dd/MM/yyyy"
+            [width]="'100%'"
+          ></dx-date-box>
+        </div>
+
+        <div class="form-group">
+          <label>Đối tượng phối hợp (Cá nhân, đoàn thể) <span class="required">*</span></label>
+          <dx-text-area
+            [(value)]="formData.cooperationTarget"
+            [height]="80"
+            [maxLength]="500"
+          ></dx-text-area>
+        </div>
+
+        <div class="form-group">
+          <label>Nội dung hoạt động phối hợp <span class="required">*</span></label>
+          <dx-text-area
+            [(value)]="formData.activityContent"
+            [height]="100"
+            [maxLength]="1000"
+          ></dx-text-area>
+        </div>
+
+        <div class="form-group">
+          <label>Ghi chú</label>
+          <dx-text-area
+            [(value)]="formData.note"
+            [height]="60"
+            [maxLength]="500"
+          ></dx-text-area>
+        </div>
+
+        <div class="form-actions">
+          <dx-button
+            text="Hủy"
+            type="normal"
+            (onClick)="onCancel()"
+            [disabled]="isSaving"
+          ></dx-button>
+          <dx-button
+            text="Lưu"
+            type="success"
+            (onClick)="onSave()"
+            [disabled]="isSaving"
+          ></dx-button>
+        </div>
+      </div>
+    </div>
+  </dx-popup>
+
+  <!-- Loading indicator -->
+  <dx-load-panel
+    [visible]="isLoading || isSaving"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    shadingColor="rgba(0,0,0,0.4)"
+    [message]="isSaving ? 'Đang lưu dữ liệu...' : 'Đang tải dữ liệu...'"
+  ></dx-load-panel>
+</div>

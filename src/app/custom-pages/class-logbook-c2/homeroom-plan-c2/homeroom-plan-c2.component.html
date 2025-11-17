@@ -1,1 +1,179 @@
-<p>homeroom-plan-c2 works!</p>
+<div class="homeroom-plan-c2-container">
+  <div class="header-section">
+    <h1 class="page-title">
+      Kế hoạch chủ nhiệm năm <span>{{currentSchoolYear}} - {{currentSchoolYear + 1}}</span>
+    </h1>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="filter-item">
+        <label>Khối học</label>
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="gradeSource"
+          (onItemClick)="gradeChange($event)"
+          [selectedItemKey]="filterGrade"
+          [dropDownOptions]="{ width: 'auto' }"
+          [disabled]="isLoading"
+        ></dx-drop-down-button>
+      </div>
+      <div class="filter-item">
+        <label>Lớp</label>
+        <dx-drop-down-button
+          stylingMode="text"
+          [useSelectMode]="true"
+          [items]="filterClassSource"
+          displayExpr="name"
+          (onItemClick)="classChange($event)"
+          [selectedItemKey]="filterClassId"
+          [dropDownOptions]="{ width: 'auto' }"
+          [disabled]="isLoading"
+        ></dx-drop-down-button>
+      </div>
+      <div class="filter-item" *ngIf="currentClassName">
+        <dx-button
+          text="Lưu"
+          type="default"
+          icon="save"
+          [disabled]="isSaving || isLoading"
+          (onClick)="manualSave()"
+        ></dx-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-section" *ngIf="currentClassName">
+    <div class="editors-section">
+      <!-- Đặc điểm tình hình -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>I. Đặc điểm tình hình</h4>
+        </div>
+        <div class="editor-content">
+          <div class="editor-group">
+            <label class="required">Thuận lợi</label>
+            <quill-editor
+              [(ngModel)]="advantages"
+              [modules]="quillModules"
+              (onContentChanged)="onContentChanged()"
+              placeholder="Nhập những thuận lợi..."
+            ></quill-editor>
+          </div>
+
+          <div class="editor-group">
+            <label class="required">Khó khăn</label>
+            <quill-editor
+              [(ngModel)]="difficulties"
+              [modules]="quillModules"
+              (onContentChanged)="onContentChanged()"
+              placeholder="Nhập những khó khăn..."
+            ></quill-editor>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nội dung kế hoạch -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>II. Nội dung kế hoạch</h4>
+        </div>
+        <div class="editor-content">
+          <div class="editor-group">
+            <label>Những yêu cầu cần đạt được trong năm</label>
+            <quill-editor
+              [(ngModel)]="yearlyRequirements"
+              [modules]="quillModules"
+              (onContentChanged)="onContentChanged()"
+              placeholder="Nhập những yêu cầu cần đạt được trong năm..."
+            ></quill-editor>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chỉ tiêu -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>III. Chỉ tiêu</h4>
+        </div>
+        <div class="editor-content">
+          <div class="editor-group">
+            <quill-editor
+              [(ngModel)]="targets"
+              [modules]="quillModules"
+              (onContentChanged)="onContentChanged()"
+              placeholder="Nhập các chỉ tiêu..."
+            ></quill-editor>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biện pháp chính -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>IV. Biện pháp chính</h4>
+        </div>
+        <div class="editor-content">
+          <div class="editor-group">
+            <quill-editor
+              [(ngModel)]="mainSolutions"
+              [modules]="quillModules"
+              (onContentChanged)="onContentChanged()"
+              placeholder="Nhập các biện pháp chính..."
+            ></quill-editor>
+          </div>
+        </div>
+      </div>
+
+      <!-- Những đề tài đi sâu -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>V. Những đề tài đi sâu để rút kinh nghiệm</h4>
+        </div>
+        <div class="editor-content">
+          <div class="editor-group">
+            <quill-editor
+              [(ngModel)]="deepTopics"
+              [modules]="quillModules"
+              (onContentChanged)="onContentChanged()"
+              placeholder="Nhập các đề tài..."
+            ></quill-editor>
+          </div>
+        </div>
+      </div>
+
+      <!-- Điều chỉnh kế hoạch -->
+      <div class="editor-block">
+        <div class="editor-header">
+          <h4>VI. Điều chỉnh kế hoạch</h4>
+        </div>
+        <div class="editor-content">
+          <div class="editor-group">
+            <quill-editor
+              [(ngModel)]="planAdjustments"
+              [modules]="quillModules"
+              (onContentChanged)="onContentChanged()"
+              placeholder="Nhập các điều chỉnh (nếu có)..."
+            ></quill-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="save-indicator" *ngIf="isSaving">
+      <dx-load-indicator [visible]="true"></dx-load-indicator>
+      <span>Đang lưu...</span>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!currentClassName && !isLoading">
+    <i class="dx-icon-info"></i>
+    <p>Vui lòng chọn lớp để xem/chỉnh sửa kế hoạch</p>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <dx-load-indicator></dx-load-indicator>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+</div>

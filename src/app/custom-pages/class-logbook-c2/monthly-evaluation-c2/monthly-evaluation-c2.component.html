@@ -1,1 +1,239 @@
-<p>monthly-evaluation-c2 works!</p>
+<div class="monthly-evaluation-container">
+  <!-- Header with filters -->
+  <div class="header-section">
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>Khối:</label>
+        <dx-select-box
+          [dataSource]="gradeSource"
+          [(value)]="filterGrade"
+          displayExpr="this"
+          valueExpr="this"
+          (onItemClick)="gradeChange($event)"
+          [width]="150"
+        ></dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <label>Lớp:</label>
+        <dx-select-box
+          [dataSource]="filterClassSource"
+          [(value)]="filterClassId"
+          displayExpr="name"
+          valueExpr="id"
+          (onItemClick)="classChange($event)"
+          [width]="200"
+        ></dx-select-box>
+      </div>
+
+    </div>
+
+    <div class="action-bar">
+      <dx-button
+        text="Làm mới"
+        icon="refresh"
+        type="default"
+        (onClick)="onRefresh()"
+        [disabled]="isLoading"
+      ></dx-button>
+
+      <dx-button
+        text="Lưu"
+        icon="save"
+        type="success"
+        (onClick)="onSave()"
+        [disabled]="isLoading || isSaving"
+      ></dx-button>
+    </div>
+  </div>
+
+  <!-- Data Grid -->
+  <div class="grid-container">
+    <dx-data-grid
+      [dataSource]="datas"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rowAlternationEnabled]="true"
+      [hoverStateEnabled]="true"
+      [columnAutoWidth]="false"
+      [allowColumnResizing]="true"
+      keyExpr="studentId"
+    >
+      <dxo-scrolling mode="standard"></dxo-scrolling>
+      <dxo-editing
+        mode="cell"
+        [allowUpdating]="true"
+      ></dxo-editing>
+
+      <!-- Fixed columns -->
+      <dxi-column
+        dataField="stt"
+        caption="STT"
+        [width]="100"
+        alignment="center"
+        [allowEditing]="false"
+        [fixed]="true"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="bgdCode"
+        caption="Mã định danh Bộ GD&ĐT"
+        [width]="280"
+        alignment="left"
+        [allowEditing]="false"
+        [fixed]="true"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="studentName"
+        caption="Họ tên"
+        [width]="250"
+        alignment="left"
+        [allowEditing]="false"
+        [fixed]="true"
+      ></dxi-column>
+      <dxi-column
+        dataField="month8"
+        caption="Tháng 8"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month9"
+        caption="Tháng 9"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month10"
+        caption="Tháng 10"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month11"
+        caption="Tháng 11"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month12"
+        caption="Tháng 12"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month1"
+        caption="Tháng 1"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month2"
+        caption="Tháng 2"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month3"
+        caption="Tháng 3"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month4"
+        caption="Tháng 4"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxi-column
+        dataField="month5"
+        caption="Tháng 5"
+        [width]="100"
+        alignment="center"
+      >
+        <dxo-lookup
+          [dataSource]="evaluationSource"
+          displayExpr="name"
+          valueExpr="id"
+        ></dxo-lookup>
+      </dxi-column>
+
+      <dxo-paging [enabled]="false"></dxo-paging>
+    </dx-data-grid>
+  </div>
+
+  <!-- Loading indicator -->
+  <dx-load-panel
+    [visible]="isLoading || isSaving"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    shadingColor="rgba(0,0,0,0.4)"
+    [message]="isSaving ? 'Đang lưu dữ liệu...' : 'Đang tải dữ liệu...'"
+  ></dx-load-panel>
+</div>

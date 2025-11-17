@@ -1,3 +1,8 @@
+// Wrapper chính của component - cho phép scroll
+:host {
+  display: block;
+}
+
 .teacher-desk-simple {
   background: #f8f9fa;
   border: 2px solid #dee2e6;
@@ -9,14 +14,31 @@
 }
 
 .seats-container {
-  padding: 20px;
-  max-height: 800px;
+  max-height: 60vh;
+  min-height: 200px;
   overflow-y: auto;
   overflow-x: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fafafa;
+  width: 100%;
 }
 
 .seat-row {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+
+  // Đảm bảo row có thể scroll ngang
+  min-width: fit-content;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.seat-item {
+  flex-shrink: 0;
+  width: 200px;
+  min-width: 200px;
 }
 
 // Print styles
@@ -24,5 +46,12 @@
   .card-body > .row:first-child,
   dx-button {
     display: none !important;
+  }
+
+  .seats-container {
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    page-break-inside: avoid;
   }
 }
