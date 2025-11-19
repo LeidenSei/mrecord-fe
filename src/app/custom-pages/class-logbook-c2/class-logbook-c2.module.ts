@@ -18,9 +18,10 @@ import { MeetingsC2Component } from './meetings-c2/meetings-c2.component';
 import { YearEndSummaryC2Component } from './year-end-summary-c2/year-end-summary-c2.component';
 import { PrincipalCommentsC2Component } from './principal-comments-c2/principal-comments-c2.component';
 import { PrintLogbookC2Component } from './print-logbook-c2/print-logbook-c2.component';
-import { DxButtonModule, DxDataGridModule, DxDateBoxModule, DxDropDownButtonModule, DxLoadIndicatorModule, DxLoadPanelModule, DxNumberBoxModule, DxPopupModule, DxRadioGroupModule, DxSelectBoxModule, DxTabPanelModule, DxTextAreaModule, DxTextBoxModule, DxToolbarModule } from 'devextreme-angular';
+import { DxButtonModule, DxDataGridModule, DxDateBoxModule, DxDropDownButtonModule, DxLoadIndicatorModule, DxLoadPanelModule, DxNumberBoxModule, DxPopupModule, DxRadioGroupModule, DxSelectBoxModule, DxTabPanelModule, DxTabsModule, DxTextAreaModule, DxTextBoxModule, DxToolbarModule, DxCheckBoxModule, DxValidationGroupModule } from 'devextreme-angular';
 import { QuillModule } from 'ngx-quill';
 import { DxiColumnModule } from 'devextreme-angular/ui/nested';
+import { FullNamePipe } from '../../pipes/full-name.pipe';
 const routes: Routes = [
   { path: 'student-list', component: StudentListC2Component },
   { path: 'subject-teacher-list', component: SubjectTeacherListC2Component },
@@ -79,7 +80,13 @@ const routes: Routes = [
     DxPopupModule,
     DxDateBoxModule,
     DxTabPanelModule,
-    DxTextBoxModule
+    DxTabsModule,
+    DxTextBoxModule,
+    DxCheckBoxModule,
+    DxValidationGroupModule
+  ],
+  providers: [
+    FullNamePipe
   ]
 })
 export class ClassLogbookC2Module {}

@@ -1,1 +1,432 @@
-<p>group-management-c2 works!</p>
+<div class="view-wrapper list-page">
+  <!-- Filters -->
+  <div class="filter-container">
+    <div class="filter-row">
+      <label>Khối học:</label>
+      <dx-drop-down-button
+        stylingMode="text"
+        [useSelectMode]="true"
+        [items]="gradeSource"
+        (onItemClick)="gradeChange($event)"
+        [selectedItemKey]="gradeSource[0]"
+        [dropDownOptions]="{ width: 'auto' }"
+      ></dx-drop-down-button>
+
+      <label>Lớp học:</label>
+      <dx-drop-down-button
+        stylingMode="text"
+        [useSelectMode]="true"
+        [items]="filterClassSource"
+        keyExpr="id"
+        displayExpr="name"
+        (onItemClick)="classChange($event)"
+        [selectedItemKey]="filterClassId"
+        [dropDownOptions]="{ width: 'auto' }"
+      ></dx-drop-down-button>
+
+      <span class="info-text" *ngIf="studentCount > 0">
+        Tổng số: <strong>{{studentCount}}</strong> học sinh - <strong>{{teamCount}}</strong> tổ
+      </span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <dx-tabs
+    [dataSource]="tabItems"
+    [selectedIndex]="selectedTabIndex"
+    (onItemClick)="onTabSelectionChanged($event)"
+  >
+  </dx-tabs>
+
+  <!-- Tab 1: Danh sách tổ -->
+  <div *ngIf="selectedTabIndex === 0" class="tab-content">
+    <div class="action-toolbar">
+      <dx-button
+        text="Thêm tổ mới"
+        icon="plus"
+        type="success"
+        (onClick)="showAddTeamPopup()"
+      ></dx-button>
+    </div>
+
+    <dx-data-grid
+      class="grid theme-dependent"
+      [rowAlternationEnabled]="true"
+      noDataText="Chưa có tổ nào"
+      columnResizingMode="widget"
+      [dataSource]="teams"
+      [allowColumnReordering]="true"
+      [showBorders]="true"
+      [showColumnLines]="true"
+      [showRowLines]="true"
+      [columnMinWidth]="50"
+      [columnAutoWidth]="true"
+      [columnResizingMode]="'nextColumn'"
+      [allowColumnResizing]="true"
+    >
+      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+      <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+      <dxo-sorting mode="multiple"></dxo-sorting>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+
+      <dxi-column
+        dataField="stt"
+        caption="STT"
+        alignment="center"
+        [width]="60"
+        cellTemplate="sttTemplate"
+        [allowFiltering]="false"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="teamNumber"
+        caption="Thứ tự"
+        alignment="center"
+        [width]="80"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="teamName"
+        caption="Tên tổ"
+        [minWidth]="150"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="teamLeader"
+        caption="Tổ trưởng"
+        [minWidth]="180"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="memberCount"
+        caption="Số thành viên"
+        alignment="center"
+        [width]="120"
+      ></dxi-column>
+
+      <dxi-column
+        caption="Thao tác"
+        alignment="center"
+        [width]="120"
+        cellTemplate="actionTemplate"
+        [allowFiltering]="false"
+      ></dxi-column>
+
+      <div *dxTemplate="let data of 'sttTemplate'">
+        {{data.rowIndex + 1}}
+      </div>
+
+      <div *dxTemplate="let data of 'actionTemplate'">
+        <dx-button
+          icon="edit"
+          hint="Sửa"
+          (onClick)="editTeam(data.data)"
+          stylingMode="text"
+        ></dx-button>
+        <dx-button
+          icon="trash"
+          hint="Xóa"
+          (onClick)="deleteTeam(data.data)"
+          stylingMode="text"
+          type="danger"
+        ></dx-button>
+      </div>
+    </dx-data-grid>
+  </div>
+
+  <!-- Tab 2: Xếp học sinh vào tổ -->
+  <div *ngIf="selectedTabIndex === 1" class="tab-content">
+    <div class="action-toolbar">
+      <dx-button
+        text="Xếp học sinh vào tổ"
+        icon="plus"
+        type="success"
+        (onClick)="showAssignStudentPopup()"
+      ></dx-button>
+      <dx-button
+        text="Bỏ khỏi tổ"
+        icon="remove"
+        type="danger"
+        (onClick)="removeStudentsFromTeam()"
+      ></dx-button>
+    </div>
+
+    <dx-data-grid
+      #studentGrid
+      class="grid theme-dependent"
+      [rowAlternationEnabled]="true"
+      noDataText="Không có học sinh"
+      columnResizingMode="widget"
+      [dataSource]="studentsWithTeam"
+      [allowColumnReordering]="true"
+      [showBorders]="true"
+      [showColumnLines]="true"
+      [showRowLines]="true"
+      [columnMinWidth]="50"
+      [columnAutoWidth]="true"
+      [columnResizingMode]="'nextColumn'"
+      [allowColumnResizing]="true"
+    >
+      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+      <dxo-load-panel [showPane]="true" [enabled]="true"></dxo-load-panel>
+      <dxo-sorting mode="multiple"></dxo-sorting>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-selection mode="multiple" [showCheckBoxesMode]="'always'"></dxo-selection>
+
+      <dxi-column
+        dataField="stt"
+        caption="STT"
+        alignment="center"
+        [width]="60"
+        [allowFiltering]="false"
+      ></dxi-column>
+
+      <dxi-column
+        type="selection"
+        [width]="50"
+        fixedPosition="left"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="bGDCode"
+        caption="Mã định danh Bộ GD"
+        [width]="150"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="fullName"
+        caption="Họ và tên"
+        [minWidth]="180"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="birthDate"
+        caption="Ngày sinh"
+        alignment="center"
+        [width]="180"
+        cellTemplate="birthDateTemplate"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="sex"
+        caption="Giới tính"
+        alignment="center"
+        [width]="140"
+        cellTemplate="genderTemplate"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="phoneNo"
+        caption="SĐT"
+        [width]="200"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="teamName"
+        caption="Tên tổ"
+        alignment="center"
+        [width]="200"
+      ></dxi-column>
+
+      <div *dxTemplate="let data of 'birthDateTemplate'">
+        {{formatDate(data.data.birthDate)}}
+      </div>
+
+      <div *dxTemplate="let data of 'genderTemplate'">
+        {{getGenderText(data.data.sex)}}
+      </div>
+    </dx-data-grid>
+  </div>
+</div>
+
+<!-- Popup Tab 1: Thêm tổ mới -->
+<dx-popup
+  [(visible)]="isShowAddTeamPopup"
+  [showTitle]="true"
+  title="Thêm tổ mới"
+  [width]="500"
+  [height]="'auto'"
+  [showCloseButton]="true"
+  (onHiding)="closeAddTeamPopup()"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="popup-content">
+      <div class="form-group">
+        <label>Thứ tự (Số tổ): <span style="color: red;">*</span></label>
+        <dx-number-box
+          [(value)]="newTeam.teamNumber"
+          [min]="1"
+          [max]="20"
+          [showSpinButtons]="true"
+          [width]="'100%'"
+          placeholder="Nhập số thứ tự tổ"
+        ></dx-number-box>
+      </div>
+
+      <div class="form-group">
+        <label>Tên tổ: <span style="color: red;">*</span></label>
+        <dx-text-box
+          [(value)]="newTeam.teamName"
+          [width]="'100%'"
+          placeholder="VD: Tổ A, Nhóm Hoa Sen, Đội 1..."
+        ></dx-text-box>
+      </div>
+
+      <div class="form-group">
+        <label>Tổ trưởng (tùy chọn):</label>
+        <dx-select-box
+          [(value)]="newTeam.teamLeaderId"
+          [dataSource]="studentsWithoutTeam"
+          displayExpr="fullName"
+          valueExpr="id"
+          [searchEnabled]="true"
+          [width]="'100%'"
+          placeholder="Chọn tổ trưởng (nếu có)"
+          [showClearButton]="true"
+        >
+          <dxo-drop-down-options [height]="300"></dxo-drop-down-options>
+        </dx-select-box>
+      </div>
+
+      <div class="info-message" style="margin: 10px 0; padding: 10px; background-color: #fff3cd; border-left: 3px solid #ffc107; font-size: 12px;">
+        <strong>Lưu ý:</strong><br/>
+        - Nếu không chọn tổ trưởng, tổ sẽ được tạo rỗng và bạn cần xếp học sinh vào sau.<br/>
+        - Nếu chọn tổ trưởng, tổ sẽ được lưu vào hệ thống ngay.
+      </div>
+
+      <div class="button-group">
+        <dx-button
+          text="Lưu"
+          type="success"
+          (onClick)="saveNewTeam()"
+          [width]="'48%'"
+        ></dx-button>
+        <dx-button
+          text="Hủy"
+          type="normal"
+          (onClick)="closeAddTeamPopup()"
+          [width]="'48%'"
+        ></dx-button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<!-- Popup Tab 2: Xếp học sinh vào tổ -->
+<dx-popup
+  [(visible)]="isShowAssignStudentPopup"
+  [showTitle]="true"
+  title="Xếp học sinh vào tổ"
+  [width]="700"
+  [height]="600"
+  [showCloseButton]="true"
+  (onHiding)="closeAssignStudentPopup()"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="popup-content">
+      <div class="form-group">
+        <label>Chọn tổ: <span style="color: red;">*</span></label>
+        <dx-select-box
+          [dataSource]="teams"
+          [(value)]="selectedTeamNumber"
+          [width]="'100%'"
+          placeholder="Chọn tổ"
+          displayExpr="teamName"
+          valueExpr="teamNumber"
+        >
+        </dx-select-box>
+      </div>
+
+      <div class="form-group">
+        <label>Chọn học sinh chưa có tổ ({{studentsWithoutTeam.length}} học sinh):</label>
+        <dx-data-grid
+          [dataSource]="studentsWithoutTeam"
+          [showBorders]="true"
+          [showRowLines]="true"
+          [showColumnLines]="true"
+          [height]="350"
+          [(selectedRowKeys)]="selectedStudentsToAdd"
+          keyExpr="id"
+        >
+          <dxo-selection mode="multiple" [showCheckBoxesMode]="'always'"></dxo-selection>
+          <dxo-scrolling mode="virtual"></dxo-scrolling>
+
+          <dxi-column type="selection" [width]="50"></dxi-column>
+          <dxi-column dataField="code" caption="Mã HS" [width]="100"></dxi-column>
+          <dxi-column dataField="fullName" caption="Họ và tên" [minWidth]="150"></dxi-column>
+          <dxi-column dataField="sex" caption="Giới tính" [width]="80" cellTemplate="genderCell"></dxi-column>
+          <dxi-column dataField="phoneNo" caption="SĐT" [width]="120"></dxi-column>
+
+          <div *dxTemplate="let cell of 'genderCell'">
+            {{getGenderText(cell.data.sex)}}
+          </div>
+        </dx-data-grid>
+      </div>
+
+      <div class="button-group">
+        <dx-button
+          text="Xếp vào tổ"
+          type="success"
+          (onClick)="assignStudentsToTeam()"
+          [width]="'48%'"
+        ></dx-button>
+        <dx-button
+          text="Hủy"
+          type="normal"
+          (onClick)="closeAssignStudentPopup()"
+          [width]="'48%'"
+        ></dx-button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<!-- Popup: Sửa tổ -->
+<dx-popup
+  [(visible)]="isShowEditTeamPopup"
+  [showTitle]="true"
+  title="Sửa thông tin tổ"
+  [width]="450"
+  [height]="'auto'"
+  [showCloseButton]="true"
+  (onHiding)="closeEditTeamPopup()"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="popup-content" *ngIf="editingTeam">
+      <div class="form-group">
+        <label>Thứ tự (Số tổ):</label>
+        <dx-number-box
+          [(value)]="editingTeam.teamNumber"
+          [min]="1"
+          [max]="20"
+          [showSpinButtons]="true"
+          [width]="'100%'"
+        ></dx-number-box>
+      </div>
+
+      <div class="form-group">
+        <label>Tên tổ:</label>
+        <dx-text-box
+          [(value)]="editingTeam.teamName"
+          [width]="'100%'"
+          placeholder="Nhập tên tổ"
+        ></dx-text-box>
+      </div>
+
+      <div class="button-group">
+        <dx-button
+          text="Lưu"
+          type="success"
+          (onClick)="saveEditTeam()"
+          [width]="'48%'"
+        ></dx-button>
+        <dx-button
+          text="Hủy"
+          type="normal"
+          (onClick)="closeEditTeamPopup()"
+          [width]="'48%'"
+        ></dx-button>
+      </div>
+    </div>
+  </div>
+</dx-popup>

@@ -89,7 +89,7 @@ export interface BaseResponse {
 })
 export class ClassMeetingService extends BaseService {
 
-  private readonly apiUrl = 'ClassMeeting';
+  private readonly apiUrl = '/ClassMeeting';
 
   constructor(
     public override httpClient: HttpClient,

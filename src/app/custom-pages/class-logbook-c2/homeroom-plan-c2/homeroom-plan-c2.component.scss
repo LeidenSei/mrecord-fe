@@ -49,14 +49,14 @@
 
       .filter-item {
         flex: 0 0 auto;
-        min-width: 140px;
+        min-width: 180px;
 
         label {
           display: block;
-          margin-bottom: 6px;
-          color: #555;
-          font-weight: 500;
-          font-size: 13px;
+          margin-bottom: 8px;
+          color: #2c3e50;
+          font-weight: 600;
+          font-size: 14px;
         }
 
         ::ng-deep .dx-selectbox,
@@ -68,13 +68,28 @@
         ::ng-deep .dx-dropdownbutton .dx-button {
           width: 100%;
           justify-content: space-between;
-          font-size: 13px;
-          padding: 6px 12px;
+          font-size: 14px;
+          padding: 8px 14px;
+          background-color: #fff;
+          border: 1.5px solid #dfe3e8;
+          border-radius: 6px;
+          min-height: 38px;
+
+          &:hover:not(.dx-state-disabled) {
+            background-color: #f8f9fa;
+            border-color: #3498db;
+          }
+
+          &.dx-state-focused {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+          }
         }
 
         ::ng-deep .dx-button {
-          font-size: 13px;
-          padding: 6px 16px;
+          font-size: 14px;
+          padding: 8px 18px;
+          min-height: 38px;
         }
       }
     }

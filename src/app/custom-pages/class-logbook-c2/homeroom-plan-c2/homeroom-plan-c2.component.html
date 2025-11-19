@@ -10,7 +10,7 @@
       <div class="filter-item">
         <label>Khối học</label>
         <dx-drop-down-button
-          stylingMode="text"
+          stylingMode="outlined"
           [useSelectMode]="true"
           [items]="gradeSource"
           (onItemClick)="gradeChange($event)"
@@ -22,10 +22,11 @@
       <div class="filter-item">
         <label>Lớp</label>
         <dx-drop-down-button
-          stylingMode="text"
+          stylingMode="outlined"
           [useSelectMode]="true"
           [items]="filterClassSource"
           displayExpr="name"
+          keyExpr="id"
           (onItemClick)="classChange($event)"
           [selectedItemKey]="filterClassId"
           [dropDownOptions]="{ width: 'auto' }"

@@ -54,10 +54,13 @@ export class MeetingsC2Component implements OnInit, OnDestroy {
   // Current tab
   selectedTabIndex = 0;
 
-  // Popup
+  // Popup (chỉ cho tab 1 & 2)
   popupVisible = false;
   popupTitle = '';
   isEditMode = false;
+
+  // Inline editing for tab 3 & 4
+  isEditingInline = false;
 
   // Form data
   formData: ClassMeeting = this.getEmptyFormData();
@@ -325,7 +328,6 @@ export class MeetingsC2Component implements OnInit, OnDestroy {
   onAddNewEditor(): void {
     this.isEditMode = false;
     const loaiHoatDong = this.selectedTabIndex === 2 ? LoaiHoatDongLop.HopChuNhiem : LoaiHoatDongLop.BienBanHop;
-    this.popupTitle = this.selectedTabIndex === 2 ? 'Thêm họp chủ nhiệm' : 'Thêm biên bản họp';
 
     this.formData = {
       classId: this.filterClassId,
@@ -337,14 +339,13 @@ export class MeetingsC2Component implements OnInit, OnDestroy {
       thoiGianHop: new Date() as any,
       lanHop: this.selectedTabIndex === 3 ? 1 : undefined
     };
-    this.popupVisible = true;
+    this.isEditingInline = true;
   }
 
   onEditEditor(data: ClassMeeting): void {
     this.isEditMode = true;
-    this.popupTitle = this.selectedTabIndex === 2 ? 'Cập nhật họp chủ nhiệm' : 'Cập nhật biên bản họp';
     this.formData = { ...data };
-    this.popupVisible = true;
+    this.isEditingInline = true;
   }
 
   onDeleteEditor(data: ClassMeeting): void {
@@ -399,6 +400,7 @@ export class MeetingsC2Component implements OnInit, OnDestroy {
             2000
           );
           this.popupVisible = false;
+          this.isEditingInline = false;
           this.loadCurrentTabData();
           this.isSaving = false;
         },
@@ -412,6 +414,7 @@ export class MeetingsC2Component implements OnInit, OnDestroy {
 
   onCancel(): void {
     this.popupVisible = false;
+    this.isEditingInline = false;
   }
 
   formatDate(date: any): string {

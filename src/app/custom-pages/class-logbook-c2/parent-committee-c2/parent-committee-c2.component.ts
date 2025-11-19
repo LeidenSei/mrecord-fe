@@ -312,6 +312,8 @@ export class ParentCommitteeC2Component implements OnInit {
 
     const request: ParentCommitteeUpdateRequest = {
       id: recordId,
+      parentName: event.newData.parentName !== undefined ? event.newData.parentName : event.oldData.parentName,
+      parentPhone: event.newData.parentPhone !== undefined ? event.newData.parentPhone : event.oldData.parentPhone,
       position: event.newData.position !== undefined ? event.newData.position : event.oldData.position,
       relationship: event.newData.relationship !== undefined ? event.newData.relationship : event.oldData.relationship,
       workplace: event.newData.workplace !== undefined ? event.newData.workplace : event.oldData.workplace,

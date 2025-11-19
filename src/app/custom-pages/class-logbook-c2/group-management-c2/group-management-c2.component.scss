@@ -1,0 +1,167 @@
+@use "../../../../variables.scss" as *;
+
+:host {
+  width: 100%;
+  display: contents;
+}
+
+.view-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--content-padding);
+  background-color: var(--base-bg);
+  overflow: hidden;
+}
+
+.filter-container {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+
+  label {
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+  }
+
+  .info-text {
+    margin-left: auto;
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+::ng-deep {
+  dx-tabs {
+    margin-bottom: 15px;
+
+    .dx-tab {
+      padding: 10px 20px;
+      font-weight: 500;
+    }
+  }
+}
+
+.tab-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  .grid {
+    flex: 1;
+
+    ::ng-deep {
+      .dx-datagrid {
+        border: none;
+      }
+
+      .dx-datagrid-header-panel {
+        padding: 0;
+      }
+
+      .dx-toolbar {
+        margin-bottom: 0;
+        padding: 10px 0;
+      }
+
+      .dx-datagrid-content .dx-row {
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.action-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+// Popup styles
+.popup-content {
+  padding: 20px;
+
+  .form-group {
+    margin-bottom: 20px;
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    strong {
+      color: #2196F3;
+      font-size: 18px;
+    }
+  }
+
+  .student-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    background: #fafafa;
+
+    .student-item {
+      padding: 8px;
+      border-bottom: 1px solid #e0e0e0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: #f0f0f0;
+      }
+    }
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .filter-row {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .info-text {
+      margin-left: 0;
+      margin-top: 10px;
+    }
+  }
+
+  .action-toolbar {
+    flex-direction: column;
+  }
+}

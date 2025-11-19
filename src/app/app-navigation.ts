@@ -95,11 +95,11 @@ export const navigationTeacherHomeroom = [
         path: '/class-logbook/monthly-plan',
         selected: false,
       },
-      {
-        text: 'Kết quả đánh giá giáo dục GK/CK',
-        path: '/class-logbook/assessment',
-        selected: false,
-      },
+      // {
+      //   text: 'Kết quả đánh giá giáo dục GK/CK',
+      //   path: '/class-logbook/assessment',
+      //   selected: false,
+      // },
       {
         text: 'Nhận xét tình hình lớp học',
         path: '/class-logbook/semester-comments',
@@ -468,11 +468,11 @@ export const navigationAdmin = [
         path: '/class-logbook/monthly-plan',
         selected: false
       },
-      {
-        text: 'Bảng tổng hợp kết quả đánh giá giáo dục GK/CK',
-        path: '/class-logbook/assessment',
-        selected: false
-      },
+      // {
+      //   text: 'Bảng tổng hợp kết quả đánh giá giáo dục GK/CK',
+      //   path: '/class-logbook/assessment',
+      //   selected: false
+      // },
       {
         text: 'Nhận xét tình hình lớp học',
         path: '/class-logbook/semester-comments',

@@ -87,8 +87,17 @@
     }
   }
 
-  .popup-content {
+  .popup-content,
+  .inline-editor-form {
     padding: 20px;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
 
     .form-row {
       display: flex;
@@ -146,7 +155,8 @@
       }
     }
 
-    .popup-content .form-row {
+    .popup-content .form-row,
+    .inline-editor-form .form-row {
       flex-direction: column;
     }
   }

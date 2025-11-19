@@ -1,1 +1,246 @@
-<p>year-end-summary-c2 works!</p>
+<div class="year-end-summary-container">
+  <!-- Header with filters -->
+  <div class="header-section">
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>Khối:</label>
+        <dx-select-box
+          [dataSource]="gradeSource"
+          [(value)]="filterGrade"
+          displayExpr="this"
+          valueExpr="this"
+          (onItemClick)="gradeChange($event)"
+          [width]="150"
+        ></dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <label>Lớp:</label>
+        <dx-select-box
+          [dataSource]="filterClassSource"
+          [(value)]="filterClassId"
+          displayExpr="name"
+          valueExpr="id"
+          (onItemClick)="classChange($event)"
+          [width]="200"
+        ></dx-select-box>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <dx-button
+        text="Làm mới"
+        icon="refresh"
+        type="default"
+        (onClick)="onRefresh()"
+        [disabled]="isLoading"
+      ></dx-button>
+
+      <dx-button
+        text="Lưu"
+        icon="save"
+        type="success"
+        (onClick)="onSave()"
+        [disabled]="isLoading || isSaving"
+      ></dx-button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-section">
+    <dx-tab-panel
+      [dataSource]="tabs"
+      [selectedIndex]="selectedTabIndex"
+      [loop]="false"
+      [animationEnabled]="true"
+      [swipeEnabled]="false"
+      (onSelectionChanged)="onTabSelectionChanged($event)"
+    >
+      <div *dxTemplate="let tab of 'title'">
+        <span>{{ tab.text }}</span>
+      </div>
+
+      <div *dxTemplate="let tab of 'item'">
+        <!-- Tab 1: Chất lượng giáo dục 2 mặt -->
+        <div *ngIf="tab.id === 0" class="quality-tab">
+          <!-- Quality Tables Row -->
+          <div class="quality-tables-row">
+            <div class="quality-table-container">
+              <dx-data-grid
+                [dataSource]="qualityData"
+                [showBorders]="true"
+                [showRowLines]="true"
+                [showColumnLines]="true"
+                [columnAutoWidth]="false"
+                [allowColumnResizing]="false"
+                keyExpr="semester"
+                (onCellPrepared)="onCellPrepared($event)"
+              >
+                <dxo-scrolling mode="standard"></dxo-scrolling>
+                <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+                <dxo-paging [enabled]="false"></dxo-paging>
+
+                <!-- Cột Xếp loại (Học kỳ I / Học kỳ II) -->
+                <dxi-column
+                  dataField="xepLoai"
+                  caption="Xếp loại"
+                  [width]="120"
+                  alignment="center"
+                  [allowEditing]="false"
+                ></dxi-column>
+
+                <!-- NHÓM: Chất lượng rèn luyện -->
+                <dxi-column caption="Chất lượng rèn luyện" alignment="center">
+                  <dxi-column caption="Tốt" alignment="center">
+                    <dxi-column dataField="trainTotSoLuong" caption="Số lượng" [width]="100" dataType="number" alignment="center"></dxi-column>
+                    <dxi-column dataField="trainTotTyLe" caption="Tỷ lệ" [width]="100" dataType="number" alignment="center" format="#0.##"></dxi-column>
+                  </dxi-column>
+
+                  <dxi-column caption="Khá" alignment="center">
+                    <dxi-column dataField="trainKhaSoLuong" caption="Số lượng" [width]="100" dataType="number" alignment="center"></dxi-column>
+                    <dxi-column dataField="trainKhaTyLe" caption="Tỷ lệ" [width]="100" dataType="number" alignment="center" format="#0.##"></dxi-column>
+                  </dxi-column>
+
+                  <dxi-column caption="Đạt" alignment="center">
+                    <dxi-column dataField="trainDatSoLuong" caption="Số lượng" [width]="100" dataType="number" alignment="center"></dxi-column>
+                    <dxi-column dataField="trainDatTyLe" caption="Tỷ lệ" [width]="100" dataType="number" alignment="center" format="#0.##"></dxi-column>
+                  </dxi-column>
+
+                  <dxi-column caption="Chưa đạt" alignment="center">
+                    <dxi-column dataField="trainChuaDatSoLuong" caption="Số lượng" [width]="100" dataType="number" alignment="center"></dxi-column>
+                    <dxi-column dataField="trainChuaDatTyLe" caption="Tỷ lệ" [width]="100" dataType="number" alignment="center" format="#0.##"></dxi-column>
+                  </dxi-column>
+                </dxi-column>
+
+                <!-- NHÓM: Chất lượng học tập -->
+                <dxi-column caption="Chất lượng học tập" alignment="center">
+                  <dxi-column caption="Tốt" alignment="center">
+                    <dxi-column dataField="learnTotSoLuong" caption="Số lượng" [width]="100" dataType="number" alignment="center"></dxi-column>
+                    <dxi-column dataField="learnTotTyLe" caption="Tỷ lệ" [width]="100" dataType="number" alignment="center" format="#0.##"></dxi-column>
+                  </dxi-column>
+
+                  <dxi-column caption="Khá" alignment="center">
+                    <dxi-column dataField="learnKhaSoLuong" caption="Số lượng" [width]="100" dataType="number" alignment="center"></dxi-column>
+                    <dxi-column dataField="learnKhaTyLe" caption="Tỷ lệ" [width]="100" dataType="number" alignment="center" format="#0.##"></dxi-column>
+                  </dxi-column>
+
+                  <dxi-column caption="Đạt" alignment="center">
+                    <dxi-column dataField="learnDatSoLuong" caption="Số lượng" [width]="100" dataType="number" alignment="center"></dxi-column>
+                    <dxi-column dataField="learnDatTyLe" caption="Tỷ lệ" [width]="100" dataType="number" alignment="center" format="#0.##"></dxi-column>
+                  </dxi-column>
+
+                  <dxi-column caption="Chưa đạt" alignment="center">
+                    <dxi-column dataField="learnChuaDatSoLuong" caption="Số lượng" [width]="100" dataType="number" alignment="center"></dxi-column>
+                    <dxi-column dataField="learnChuaDatTyLe" caption="Tỷ lệ" [width]="100" dataType="number" alignment="center" format="#0.##"></dxi-column>
+                  </dxi-column>
+                </dxi-column>
+              </dx-data-grid>
+            </div>
+          </div>
+
+          <!-- Statistics and Achievements Row -->
+          <div class="statistics-tables-row">
+            <!-- Statistics -->
+            <div class="statistics-table-container">
+              <dx-data-grid
+                [dataSource]="statisticsData"
+                [showBorders]="true"
+                [showRowLines]="true"
+                [showColumnLines]="true"
+                [columnAutoWidth]="false"
+                [allowColumnResizing]="false"
+                keyExpr="stt"
+              >
+                <dxo-scrolling mode="standard"></dxo-scrolling>
+                <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+                <dxo-paging [enabled]="false"></dxo-paging>
+
+                <dxi-column
+                  dataField="stt"
+                  caption="STT"
+                  [width]="60"
+                  alignment="center"
+                  [allowEditing]="false"
+                ></dxi-column>
+
+                <dxi-column
+                  dataField="noiDung"
+                  caption="Nội dung"
+                  [width]="350"
+                  alignment="left"
+                  [allowEditing]="false"
+                ></dxi-column>
+
+                <dxi-column
+                  dataField="soLuong"
+                  caption="Số lượng"
+                  [width]="150"
+                  alignment="center"
+                  dataType="number"
+                ></dxi-column>
+              </dx-data-grid>
+            </div>
+
+            <!-- Achievements -->
+            <div class="achievements-table-container">
+              <dx-data-grid
+                [dataSource]="achievementsData"
+                [showBorders]="true"
+                [showRowLines]="true"
+                [showColumnLines]="true"
+                [columnAutoWidth]="false"
+                [allowColumnResizing]="false"
+                keyExpr="stt"
+              >
+                <dxo-scrolling mode="standard"></dxo-scrolling>
+                <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+                <dxo-paging [enabled]="false"></dxo-paging>
+
+                <dxi-column
+                  dataField="stt"
+                  caption="STT"
+                  [width]="60"
+                  alignment="center"
+                  [allowEditing]="false"
+                ></dxi-column>
+
+                <dxi-column
+                  dataField="noiDung"
+                  caption="Nội dung"
+                  [width]="350"
+                  alignment="left"
+                  [allowEditing]="false"
+                ></dxi-column>
+
+                <dxi-column
+                  dataField="soLuong"
+                  caption="Số lượng"
+                  [width]="150"
+                  alignment="center"
+                  dataType="number"
+                ></dxi-column>
+              </dx-data-grid>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Biện pháp giáo dục của GVCN -->
+        <div *ngIf="tab.id === 1" class="solutions-tab">
+          <div class="empty-state">
+            <p>Nội dung đang được phát triển...</p>
+          </div>
+        </div>
+      </div>
+    </dx-tab-panel>
+  </div>
+
+  <!-- Loading indicator -->
+  <dx-load-panel
+    [visible]="isLoading || isSaving"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    shadingColor="rgba(0,0,0,0.4)"
+    [message]="isSaving ? 'Đang lưu dữ liệu...' : 'Đang tải dữ liệu...'"
+  ></dx-load-panel>
+</div>

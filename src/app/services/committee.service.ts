@@ -14,6 +14,7 @@ export interface CommitteeMemberDto {
   positionId: string;
   positionName: string;
   teamNumber?: number;
+  teamName?: string;
   schoolYear: number;
   electionRound: number;
   electionDate: Date;
@@ -30,12 +31,15 @@ export interface CreateCommitteeRequest {
   positionIds: string[];
   schoolYear: number;
   electionRound: number;
+  teamName?: string;
+  teamLeaderId?: string;
 }
 
 export interface UpdateCommitteeRequest {
   id: string;
   positionId: string;
   teamNumber?: number;
+  teamName?: string;
   electionRound: number;
   responsibilities?: string;
   notes?: string;

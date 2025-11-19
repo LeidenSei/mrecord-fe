@@ -33,6 +33,8 @@ export interface ParentCommitteeRequest {
 
 export interface ParentCommitteeUpdateRequest {
   id: string;
+  parentName?: string;
+  parentPhone?: string;
   position: string;
   relationship: string;
   note?: string;

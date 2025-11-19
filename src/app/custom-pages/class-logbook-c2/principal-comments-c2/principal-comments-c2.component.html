@@ -1,1 +1,206 @@
-<p>principal-comments-c2 works!</p>
+<div class="principal-comments-container">
+  <!-- Header with filters -->
+  <div class="header-section">
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>Khối:</label>
+        <dx-select-box
+          [dataSource]="gradeSource"
+          [(value)]="filterGrade"
+          displayExpr="this"
+          valueExpr="this"
+          (onItemClick)="gradeChange($event)"
+          [width]="150"
+        ></dx-select-box>
+      </div>
+
+      <div class="filter-item">
+        <label>Lớp:</label>
+        <dx-select-box
+          [dataSource]="filterClassSource"
+          [(value)]="filterClassId"
+          displayExpr="name"
+          valueExpr="id"
+          (onValueChanged)="classChange($event)"
+          [width]="200"
+        ></dx-select-box>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <dx-button
+        text="Thêm mới"
+        icon="add"
+        type="success"
+        (onClick)="onAdd()"
+      ></dx-button>
+      <dx-button
+        text="Làm mới"
+        icon="refresh"
+        type="default"
+        (onClick)="onRefresh()"
+        [disabled]="isLoading"
+      ></dx-button>
+    </div>
+  </div>
+
+  <!-- Data Grid -->
+  <div class="grid-container">
+    <dx-data-grid
+      [dataSource]="datas"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rowAlternationEnabled]="true"
+      [hoverStateEnabled]="true"
+      [columnAutoWidth]="false"
+      [allowColumnResizing]="true"
+      keyExpr="id"
+    >
+      <dxo-scrolling mode="standard"></dxo-scrolling>
+      <dxo-paging [enabled]="true" [pageSize]="20"></dxo-paging>
+      <dxo-pager
+        [showPageSizeSelector]="true"
+        [allowedPageSizes]="[10, 20, 50, 100]"
+        [showInfo]="true"
+        [showNavigationButtons]="true"
+      ></dxo-pager>
+
+      <dxo-selection mode="multiple" [showCheckBoxesMode]="'always'"></dxo-selection>
+
+      <!-- Columns -->
+      <dxi-column
+        type="selection"
+        [width]="50"
+        [fixed]="true"
+      ></dxi-column>
+
+      <dxi-column
+        caption="STT"
+        [width]="120"
+        alignment="center"
+        [allowFiltering]="false"
+        [allowSorting]="false"
+        cellTemplate="sttTemplate"
+        [fixed]="true"
+      ></dxi-column>
+
+      <div *dxTemplate="let cell of 'sttTemplate'">
+        {{ cell.rowIndex + 1 }}
+      </div>
+
+      <dxi-column
+        dataField="dateCreated"
+        caption="Thời gian kiểm tra"
+        dataType="datetime"
+        format="dd/MM/yyyy HH:mm"
+        [width]="200"
+        alignment="center"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="noiDung"
+        caption="Nhận xét"
+        alignment="left"
+      ></dxi-column>
+
+      <dxi-column
+        dataField="tenNguoiTao"
+        caption="Chữ ký"
+        [width]="200"
+        alignment="center"
+      ></dxi-column>
+
+      <!-- Action column -->
+      <dxi-column
+        type="buttons"
+        [width]="100"
+        caption="Thao tác"
+        [fixed]="true"
+        fixedPosition="right"
+      >
+        <dxi-button
+          icon="edit"
+          hint="Sửa"
+          (onClick)="onEdit($event)"
+        ></dxi-button>
+        <dxi-button
+          icon="trash"
+          hint="Xóa"
+          (onClick)="onDelete($event)"
+        ></dxi-button>
+      </dxi-column>
+    </dx-data-grid>
+  </div>
+
+  <!-- Loading indicator -->
+  <dx-load-panel
+    [visible]="isLoading"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    shadingColor="rgba(0,0,0,0.4)"
+    message="Đang tải dữ liệu..."
+  ></dx-load-panel>
+
+  <!-- Add/Edit Popup -->
+  <dx-popup
+    [(visible)]="popupVisible"
+    [showTitle]="true"
+    [title]="isEditMode ? 'Cập nhật nhận xét' : 'Thêm mới nhận xét'"
+    [width]="600"
+    [height]="'auto'"
+    [dragEnabled]="false"
+    [closeOnOutsideClick]="false"
+  >
+    <div class="popup-content">
+      <div class="form-group">
+        <label class="required">Lớp:</label>
+        <dx-select-box
+          [dataSource]="filterClassSource"
+          [(value)]="formData.classId"
+          displayExpr="name"
+          valueExpr="id"
+          placeholder="Chọn lớp"
+          [searchEnabled]="true"
+          [disabled]="true"
+        ></dx-select-box>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Thời gian kiểm tra:</label>
+        <dx-date-box
+          [(value)]="formData.ngayGhi"
+          type="datetime"
+          displayFormat="dd/MM/yyyy HH:mm"
+          placeholder="Chọn thời gian"
+        ></dx-date-box>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Nhận xét:</label>
+        <dx-text-area
+          [(value)]="formData.noiDung"
+          [height]="150"
+          placeholder="Nhập nội dung nhận xét"
+        ></dx-text-area>
+      </div>
+
+      <div class="popup-buttons">
+        <dx-button
+          text="Lưu"
+          type="success"
+          icon="save"
+          (onClick)="onSave()"
+          [disabled]="isSaving"
+        ></dx-button>
+        <dx-button
+          text="Hủy"
+          type="normal"
+          (onClick)="onCancel()"
+          [disabled]="isSaving"
+        ></dx-button>
+      </div>
+    </div>
+  </dx-popup>
+</div>
