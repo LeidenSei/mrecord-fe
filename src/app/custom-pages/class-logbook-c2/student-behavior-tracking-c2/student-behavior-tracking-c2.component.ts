@@ -387,7 +387,7 @@ export class StudentBehaviorTrackingC2Component implements OnInit, OnDestroy {
 
   getStudentDisplayExpr = (item: any): string => {
     if (!item) return '';
-    const name = item.name || item.teN_HOC_SINH || '';
+    const name = item.fullName || item.name || item.teN_HOC_SINH || '';
     const code = item.code || item.mA_HOC_SINH || '';
     return name + (code ? ' (' + code + ')' : '');
   }

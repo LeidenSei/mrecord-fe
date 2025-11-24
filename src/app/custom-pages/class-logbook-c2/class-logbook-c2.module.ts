@@ -20,7 +20,7 @@ import { PrincipalCommentsC2Component } from './principal-comments-c2/principal-
 import { PrintLogbookC2Component } from './print-logbook-c2/print-logbook-c2.component';
 import { DxButtonModule, DxDataGridModule, DxDateBoxModule, DxDropDownButtonModule, DxLoadIndicatorModule, DxLoadPanelModule, DxNumberBoxModule, DxPopupModule, DxRadioGroupModule, DxSelectBoxModule, DxTabPanelModule, DxTabsModule, DxTextAreaModule, DxTextBoxModule, DxToolbarModule, DxCheckBoxModule, DxValidationGroupModule } from 'devextreme-angular';
 import { QuillModule } from 'ngx-quill';
-import { DxiColumnModule } from 'devextreme-angular/ui/nested';
+import { DxiColumnModule, DxiButtonModule } from 'devextreme-angular/ui/nested';
 import { FullNamePipe } from '../../pipes/full-name.pipe';
 const routes: Routes = [
   { path: 'student-list', component: StudentListC2Component },
@@ -76,6 +76,7 @@ const routes: Routes = [
     DxTextAreaModule,
     DxRadioGroupModule,
     DxiColumnModule,
+    DxiButtonModule,
     DxLoadIndicatorModule,
     DxPopupModule,
     DxDateBoxModule,

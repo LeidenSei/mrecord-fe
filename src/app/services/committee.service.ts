@@ -28,7 +28,7 @@ export interface CommitteeMemberDto {
 export interface CreateCommitteeRequest {
   classId: string;
   studentIds: string[];
-  positionIds: string[];
+  positionIds?: string[];
   schoolYear: number;
   electionRound: number;
   teamName?: string;

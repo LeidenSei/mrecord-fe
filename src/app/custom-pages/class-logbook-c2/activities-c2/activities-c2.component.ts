@@ -230,7 +230,6 @@ export class ActivitiesC2Component implements OnInit, OnDestroy {
     const dataToSave: ClassCooperationActivity = {
       id: this.formData.id,
       classId: this.formData.classId,
-      schoolId: this.currentSchoolId,
       schoolYear: this.currentSchoolYear,
       term: this.formData.term || 1,
       activityDate: this.formData.activityDate,

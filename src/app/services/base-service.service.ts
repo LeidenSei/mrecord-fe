@@ -93,15 +93,18 @@ export class BaseService {
    * @param id the entity id to be deleted
    */
   delete(url: string, id: any, responseType?: string): Observable<any> {
+    const params = { Id: id };
     switch (responseType) {
       case 'text':
         return this.httpClient.delete(this.configService.getConfig().api.baseUrl + url, {
           headers: this.createHeaders() || {},
+          params: params,
           responseType: 'text'
         });
       default:
         return this.httpClient.delete(this.configService.getConfig().api.baseUrl + url, {
           headers: this.createHeaders() || {},
+          params: params
         });
     }
   }

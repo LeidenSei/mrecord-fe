@@ -81,11 +81,11 @@
           <dxo-paging [enabled]="false"></dxo-paging>
 
           <dxi-column caption="STT" [width]="60" alignment="center" cellTemplate="sttTemplate"></dxi-column>
-          <dxi-column caption="Sửa" [width]="80" alignment="center" cellTemplate="editTemplate"></dxi-column>
           <dxi-column dataField="term" caption="Học kỳ" [width]="100" alignment="center" cellTemplate="termTemplate"></dxi-column>
           <dxi-column dataField="week" caption="Tuần học" [width]="100" alignment="center"></dxi-column>
           <dxi-column dataField="thoiGianHop" caption="Thời gian họp" [width]="150" alignment="center" dataType="date" format="dd/MM/yyyy HH:mm"></dxi-column>
           <dxi-column dataField="noiDung" caption="Nội dung" alignment="left"></dxi-column>
+          <dxi-column caption="Sửa" [width]="100" alignment="center" cellTemplate="editTemplate"></dxi-column>
 
           <div *dxTemplate="let data of 'sttTemplate'">{{ data.rowIndex + 1 }}</div>
           <div *dxTemplate="let data of 'editTemplate'">

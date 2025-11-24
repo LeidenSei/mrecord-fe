@@ -386,6 +386,11 @@ export class MeetingsC2Component implements OnInit, OnDestroy {
 
     this.isSaving = true;
 
+    // Debug log
+    console.log('Form Data trước khi gửi:', this.formData);
+    console.log('ClassId:', this.formData.classId);
+    console.log('SchoolId:', this.formData.schoolId);
+
     const saveObservable = this.isEditMode
       ? this.meetingService.update(this.formData)
       : this.meetingService.create(this.formData);

@@ -214,7 +214,8 @@ export class GroupManagementC2Component implements OnInit {
         teamName: committee?.teamName || (committee?.teamNumber ? `Tổ ${committee.teamNumber}` : '')
       };
 
-      if (committee?.teamNumber) {
+      // ✅ FIXED: Check if committee exists AND has teamName (not just teamNumber)
+      if (committee && committee.teamName) {
         // Học sinh đã có tổ
         studentsWithTeamTemp.push(studentData);
       } else {
@@ -479,27 +480,14 @@ export class GroupManagementC2Component implements OnInit {
       return;
     }
 
-    // Find the "Thành viên" role
-    const memberRole = this.studentRoles.find(r =>
-      r.name?.toLowerCase().includes('thành viên') || r.name?.toLowerCase().includes('tổ viên')
-    );
-
-    if (!memberRole) {
-      this.notificationService.showNotification(Constant.ERROR, 'Không tìm thấy chức vụ "Thành viên tổ". Vui lòng tạo chức vụ này trước.');
-      return;
-    }
-
     // Get team name from existing team (if exists)
     const selectedTeam = this.teams.find(t => t.teamNumber === this.selectedTeamNumber);
     const teamName = selectedTeam?.teamName || `Tổ ${this.selectedTeamNumber}`;
 
-    const studentIds = this.selectedStudentsToAdd.map((s: any) => s.id);
-    const positionIds = [memberRole.id];
-
+    // selectedStudentsToAdd already contains IDs (keyExpr="id" in the grid)
     const request = {
       classId: this.filterClassId,
-      studentIds: studentIds,
-      positionIds: positionIds,
+      studentIds: this.selectedStudentsToAdd,
       schoolYear: this.currentSchoolYear,
       electionRound: this.currentElectionRound,
       teamName: teamName
@@ -516,8 +504,9 @@ export class GroupManagementC2Component implements OnInit {
         this.committees = committees;
 
         // Update team numbers and team name
-        const promises = this.selectedStudentsToAdd.map((student: any) => {
-          const committee = this.committees.find(c => c.studentId === student.id);
+        // ✅ FIXED: selectedStudentsToAdd is array of IDs (string[]), not objects
+        const promises = this.selectedStudentsToAdd.map((studentId: string) => {
+          const committee = this.committees.find(c => c.studentId === studentId);
           if (committee) {
             return this.committeeService.update({
               id: committee.id,

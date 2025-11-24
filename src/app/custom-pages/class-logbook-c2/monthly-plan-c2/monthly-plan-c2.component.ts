@@ -316,12 +316,14 @@ export class MonthlyPlanC2Component implements OnInit, OnDestroy {
   }
 
   gradeChange($event: any) {
-    if (!Number.isNaN($event.itemData)) {
-      this.filterClassSource = this.classSource.filter(en => en.grade === +$event.itemData);
+    const gradeValue = $event.itemData !== undefined ? $event.itemData : $event.value;
+
+    if (gradeValue && !Number.isNaN(gradeValue)) {
+      this.filterClassSource = this.classSource.filter(en => en.grade === +gradeValue);
     } else {
       this.filterClassSource = [...this.classSource];
     }
-    
+
     if (this.filterClassSource.length > 0) {
       this.filterClassId = this.filterClassSource[0].id;
       this.classChange({ itemData: this.filterClassSource[0] });
@@ -331,44 +333,54 @@ export class MonthlyPlanC2Component implements OnInit, OnDestroy {
   }
 
   classChange($event) {
-    this.filterClassId = $event.itemData.id;
-    this.currentClassId = $event.itemData.id;
-    this.currentClassName = $event.itemData.name;
+    // Kiểm tra event có itemData không
+    if (!$event.itemData) {
+      // Nếu không có itemData, tìm class từ value
+      if (!$event.value) return;
+      const selectedClass = this.filterClassSource.find(c => c.id === $event.value);
+      if (!selectedClass) return;
+
+      this.filterClassId = selectedClass.id;
+      this.currentClassId = selectedClass.id;
+      this.currentClassName = selectedClass.name;
+    } else {
+      this.filterClassId = $event.itemData.id;
+      this.currentClassId = $event.itemData.id;
+      this.currentClassName = $event.itemData.name;
+    }
+
+    this.resetFormData();
     this.loadData();
   }
 
   monthChange(event: any): void {
-    this.selectedMonth = event.itemData.value;
+    if (!event.itemData && !event.value) return;
+    this.selectedMonth = event.itemData ? event.itemData.value : event.value;
+    this.resetFormData();
     this.loadData();
   }
 
   yearChange(event: any): void {
-    this.selectedYear = event.itemData.value;
+    if (!event.itemData && !event.value) return;
+    this.selectedYear = event.itemData ? event.itemData.value : event.value;
+    this.resetFormData();
     this.loadData();
   }
 
-  onKeHoachHoatDongChange(): void {
-    this.debounceSave();
-  }
-
-  onDanhGiaHocTapChange(): void {
-    this.debounceSave();
-  }
-
-  onDanhGiaRenLuyenChange(): void {
-    this.debounceSave();
-  }
-
-  onThongKeChange(): void {
-    this.debounceSave();
-  }
-
-  private debounceSave(): void {
+  private resetFormData(): void {
+    // Clear timeout để tránh save dữ liệu cũ
     if (this.saveTimeout) {
       clearTimeout(this.saveTimeout);
     }
-    this.saveTimeout = setTimeout(() => {
-      this.saveData();
-    }, 1000);
+
+    // Hiển thị loading ngay lập tức để user biết đang đổi dữ liệu
+    this.isLoading = true;
+
+    // Reset về trạng thái ban đầu
+    this.currentKeHoachId = undefined;
+    this.keHoachHoatDong = '';
+    this.danhGiaHocTap = '';
+    this.danhGiaRenLuyen = '';
+    this.initializeThongKeThang();
   }
 }

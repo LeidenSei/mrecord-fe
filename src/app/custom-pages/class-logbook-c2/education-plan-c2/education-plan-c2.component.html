@@ -12,13 +12,15 @@
         style="width:260px">
       </dx-select-box>
 
-      <dx-number-box
+      <dx-select-box
+        [dataSource]="schoolYearSource"
+        displayExpr="text"
+        valueExpr="value"
         [(value)]="schoolYear"
+        (onValueChanged)="onClassChange()"
         placeholder="Năm học"
-        [showSpinButtons]="true"
-        (valueChanged)="onClassChange()"
-        [width]="120">
-      </dx-number-box>
+        [width]="140">
+      </dx-select-box>
 
       <dx-select-box
         [dataSource]="[{value:1,text:'Học kỳ 1'},{value:2,text:'Học kỳ 2'}]"

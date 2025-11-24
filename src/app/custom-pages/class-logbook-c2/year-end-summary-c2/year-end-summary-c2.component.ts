@@ -5,6 +5,7 @@ import notify from 'devextreme/ui/notify';
 import { AuthService } from 'src/app/services';
 import { GeneralService } from 'src/app/services/general.service';
 import { ClassAnnualSummaryService } from 'src/app/services/class-annual-summary.service';
+import { TeacherAnnualReportService, TeacherAnnualReportDto, SelfAssessmentReportDto, InnovationReportDto, PerformanceIndicatorDto, ProfileInfoDto, AchievementInfoDto, AdditionalInfoDto, TeacherReportType } from 'src/app/services/teacher-annual-report.service';
 
 interface QualityLevel {
   soLuong: number;
@@ -85,7 +86,8 @@ export class YearEndSummaryC2Component implements OnInit, OnDestroy {
   selectedTabIndex: number = 0;
   tabs = [
     { id: 0, text: 'Chất lượng giáo dục 2 mặt' },
-    { id: 1, text: 'Biện pháp giáo dục của GVCN' }
+    { id: 1, text: 'Biện pháp giáo dục của GVCN' },
+    { id: 2, text: 'Hồ sơ giáo viên dạy giỏi' },
   ];
 
   // Summary data
@@ -98,12 +100,40 @@ export class YearEndSummaryC2Component implements OnInit, OnDestroy {
   isLoading = false;
   isSaving = false;
 
-  private destroy$ = new Subject<void>();
+  // Teacher Annual Report data
+  teacherReport: TeacherAnnualReportDto | null = null;
+  currentTeacherId: string = '';
 
+  // Report Type Selection
+  selectedReportType: number = TeacherReportType.SelfAssessment;
+  reportTypeOptions = [
+    { id: TeacherReportType.SelfAssessment, text: 'Mẫu 1: Tự báo cáo thành tích' },
+    { id: TeacherReportType.Innovation, text: 'Mẫu 2: Sáng kiến kinh nghiệm' }
+  ];
+
+  // Template 1 data sources
+  performanceIndicatorsData: any[] = [];
+
+  private destroy$ = new Subject<void>();
+  quillModules: any = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ header: 1 }, { header: 2 }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      [{ size: ['small', false, 'large', 'huge'] }],
+      [{ color: [] }, { background: [] }],
+      [{ align: [] }],
+      ['link', 'image', 'video'],
+      ['clean']
+    ]
+  };
   constructor(
     private authService: AuthService,
     private generalService: GeneralService,
-    private classAnnualSummaryService: ClassAnnualSummaryService
+    private classAnnualSummaryService: ClassAnnualSummaryService,
+    private teacherAnnualReportService: TeacherAnnualReportService
   ) {}
 
   async ngOnInit() {
@@ -120,6 +150,7 @@ export class YearEndSummaryC2Component implements OnInit, OnDestroy {
       const user = await this.authService.getUser();
       this.currentSchoolId = user.data.schoolId;
       this.currentSchoolYear = user.data.schoolYear || new Date().getFullYear();
+      this.currentTeacherId = user.data.personId;
 
       forkJoin([
         this.generalService.getListGradeOfSchool(user.data.schoolId),
@@ -141,6 +172,7 @@ export class YearEndSummaryC2Component implements OnInit, OnDestroy {
           if (this.filterClassSource.length > 0) {
             this.filterClassId = this.filterClassSource[0].id;
             this.loadData();
+            this.loadTeacherReport();
           }
         },
         error: (error) => {
@@ -170,6 +202,7 @@ export class YearEndSummaryC2Component implements OnInit, OnDestroy {
   classChange($event: any): void {
     this.filterClassId = $event.itemData.id;
     this.loadData();
+    this.loadTeacherReport();
   }
 
   onTabSelectionChanged(e: any): void {
@@ -192,7 +225,6 @@ export class YearEndSummaryC2Component implements OnInit, OnDestroy {
           if (response && response.id) {
             this.summaryData = this.mapResponseToSummary(response);
           } else {
-            // No data found, create new summary
             this.summaryData = this.getEmptySummary();
             this.summaryData.classId = this.filterClassId;
             this.summaryData.schoolId = this.currentSchoolId;
@@ -485,5 +517,201 @@ export class YearEndSummaryC2Component implements OnInit, OnDestroy {
       xepLoaiChiDoiCuoiKy1: 0,
       xepLoaiChiDoiCuoiKy2: 0
     };
+  }
+
+  // ============= TEACHER ANNUAL REPORT METHODS =============
+
+  private loadTeacherReport(): void {
+    if (!this.currentTeacherId || !this.filterClassId) {
+      this.teacherReport = null;
+      this.buildTeacherReportDataSources();
+      return;
+    }
+
+    const selectedClass = this.filterClassSource.find(c => c.id === this.filterClassId);
+
+    this.teacherAnnualReportService.getMyReports(this.currentSchoolYear)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (reports) => {
+          // Find report for current class
+          const report = reports.find(r => r.mainClassId === this.filterClassId);
+          if (report) {
+            this.teacherReport = report;
+            this.selectedReportType = report.reportType;
+            // Update homeRoomClass to match current selected class
+            if (this.teacherReport.selfAssessment && selectedClass) {
+              this.teacherReport.selfAssessment.profile.homeRoomClass = selectedClass.name;
+            }
+          } else {
+            // No report exists yet, create empty one
+            this.teacherReport = this.getEmptyTeacherReport();
+          }
+          this.buildTeacherReportDataSources();
+        },
+        error: (error) => {
+          console.error('Error loading teacher report:', error);
+          this.teacherReport = this.getEmptyTeacherReport();
+          this.buildTeacherReportDataSources();
+        }
+      });
+  }
+
+  private getEmptyTeacherReport(): TeacherAnnualReportDto {
+    const selectedClass = this.filterClassSource.find(c => c.id === this.filterClassId);
+
+    return {
+      id: '',
+      teacherId: this.currentTeacherId,
+      teacherName: '',
+      schoolId: this.currentSchoolId,
+      schoolYear: this.currentSchoolYear,
+      mainClassId: this.filterClassId,
+      mainClassName: selectedClass?.name || '',
+      reportType: this.selectedReportType,
+      selfAssessment: {
+        profile: {
+          age: 0,
+          gender: '',
+          yearsOfExperience: 0,
+          mainSubject: '',
+          homeRoomClass: selectedClass?.name || '',
+          teamRanking: '',
+          unionRanking: '',
+          workingConditions: ''
+        },
+        achievement: {
+          homeRoomTeamRanking: '',
+          yearlyActivities: '',
+          effectiveMethods: ''
+        },
+        performanceIndicators: [],
+        additional: {
+          collectiveActivities: '',
+          selfManagementStrengths: '',
+          classTraditions: ''
+        }
+      },
+      innovations: [],
+      status: 0,
+      createdDate: new Date(),
+      updatedDate: new Date()
+    };
+  }
+
+  private buildTeacherReportDataSources(): void {
+    if (!this.teacherReport) {
+      this.performanceIndicatorsData = [];
+      return;
+    }
+
+    // Build performance indicators data
+    if (this.teacherReport.selfAssessment?.performanceIndicators) {
+      this.performanceIndicatorsData = this.teacherReport.selfAssessment.performanceIndicators.map((item, index) => ({
+        order: index + 1,
+        indicatorName: item.indicatorName,
+        startOfYearPercent: item.startOfYearPercent,
+        endOfYearPercent: item.endOfYearPercent
+      }));
+    } else {
+      this.performanceIndicatorsData = [];
+    }
+  }
+
+  onReportTypeChange(e: any): void {
+    this.selectedReportType = e.value;
+    if (this.teacherReport) {
+      this.teacherReport.reportType = this.selectedReportType;
+    }
+  }
+
+  onAddPerformanceIndicator(): void {
+    const newIndicator = {
+      order: this.performanceIndicatorsData.length + 1,
+      indicatorName: '',
+      startOfYearPercent: 0,
+      endOfYearPercent: 0
+    };
+    this.performanceIndicatorsData = [...this.performanceIndicatorsData, newIndicator];
+  }
+
+  onDeletePerformanceIndicator(e: any): void {
+    const index = this.performanceIndicatorsData.findIndex(item => item.order === e.row.data.order);
+    if (index > -1) {
+      this.performanceIndicatorsData.splice(index, 1);
+      // Reorder
+      this.performanceIndicatorsData.forEach((item, idx) => {
+        item.order = idx + 1;
+      });
+      this.performanceIndicatorsData = [...this.performanceIndicatorsData];
+    }
+  }
+
+  onAddInnovation(): void {
+    if (!this.teacherReport) return;
+
+    const newInnovation: InnovationReportDto = {
+      title: '',
+      subject: '',
+      appliedToClass: '',
+      theoreticalBasis: '',
+      implementationMethods: '',
+      results: '',
+      lessonsLearned: ''
+    };
+
+    this.teacherReport.innovations = [...(this.teacherReport.innovations || []), newInnovation];
+  }
+
+  onDeleteInnovation(index: number): void {
+    if (!this.teacherReport || !this.teacherReport.innovations) return;
+    this.teacherReport.innovations.splice(index, 1);
+    this.teacherReport.innovations = [...this.teacherReport.innovations];
+  }
+
+  onSaveTeacherReport(): void {
+    if (!this.teacherReport) {
+      notify('Không có dữ liệu để lưu', 'warning', 2000);
+      return;
+    }
+
+    // Update performance indicators from grid
+    if (this.teacherReport.selfAssessment) {
+      this.teacherReport.selfAssessment.performanceIndicators = this.performanceIndicatorsData.map(item => ({
+        order: item.order,
+        indicatorName: item.indicatorName,
+        startOfYearPercent: item.startOfYearPercent || 0,
+        endOfYearPercent: item.endOfYearPercent || 0
+      }));
+    }
+
+    this.isSaving = true;
+
+    const saveObservable = this.teacherReport.id
+      ? this.teacherAnnualReportService.update({
+          id: this.teacherReport.id,
+          selfAssessment: this.teacherReport.selfAssessment,
+          innovations: this.teacherReport.innovations
+        })
+      : this.teacherAnnualReportService.create({
+          schoolYear: this.currentSchoolYear,
+          mainClassId: this.filterClassId,
+          reportType: this.selectedReportType
+        });
+
+    saveObservable
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          notify('Lưu báo cáo thành công', 'success', 2000);
+          this.loadTeacherReport();
+          this.isSaving = false;
+        },
+        error: (error) => {
+          console.error('Error saving teacher report:', error);
+          notify('Có lỗi khi lưu báo cáo', 'error', 3000);
+          this.isSaving = false;
+        }
+      });
   }
 }

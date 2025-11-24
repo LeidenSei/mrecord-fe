@@ -29,6 +29,7 @@ export class EducationPlanC2Component implements OnInit {
   classSource: any[] = [];
   classId: string = '';
   schoolYear: number = new Date().getFullYear();
+  schoolYearSource: Array<{value: number, text: string}> = [];
   term: number = 1;
   editingId: string = '';
 
@@ -45,6 +46,7 @@ export class EducationPlanC2Component implements OnInit {
     const user = await this.authService.getUser();
     this.schoolId = user.data.schoolId;
     this.schoolYear = user.data.schoolYear || new Date().getFullYear();
+    this.initSchoolYearSource();
     this.form = this.fb.group({
       tinhhinh: this.fb.array(this.tinhHinhRows.map(label => this.createTinhHinhRow(label))),
       renluyen: this.fb.array(this.chatLuongRows.map(label => this.createChatLuongRow(label))),
@@ -54,6 +56,18 @@ export class EducationPlanC2Component implements OnInit {
       notes: ['']
     });
     this.loadClasses();
+  }
+
+  private initSchoolYearSource(): void {
+    const currentYear = new Date().getFullYear();
+    this.schoolYearSource = [];
+    for (let i = -5; i <= 5; i++) {
+      const year = currentYear + i;
+      this.schoolYearSource.push({
+        value: year,
+        text: `${year}-${year + 1}`
+      });
+    }
   }
 
   private createTinhHinhRow(label: string): FormGroup {

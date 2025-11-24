@@ -28,6 +28,7 @@ export class ClassLayoutC2Component implements OnInit {
   classSource: any[] = [];
   availableStudents: any[] = []; // Danh sách học sinh có thể chọn
   allStudents: any[] = []; // Tất cả học sinh trong lớp
+  availableStudentsMap: Map<string, any[]> = new Map(); 
 
   loading: boolean = false;
   showStudentPopup: boolean = false;
@@ -119,21 +120,40 @@ export class ClassLayoutC2Component implements OnInit {
     this.availableStudents = this.allStudents.filter(
       student => !assignedStudentIds.includes(student.id)
     );
+
+    // Cập nhật cache cho từng vị trí
+    this.rebuildAvailableStudentsCache();
   }
 
-  // Lấy danh sách học sinh có thể chọn cho một vị trí cụ thể
-  getAvailableStudentsForSeat(seat: SeatPosition): any[] {
-    // Lấy danh sách ID học sinh đã được xếp chỗ (không tính vị trí hiện tại)
+  // Rebuild cache danh sách học sinh cho từng vị trí (tránh lag)
+  rebuildAvailableStudentsCache() {
+    this.availableStudentsMap.clear();
+
+    // Lấy danh sách ID học sinh đã được xếp chỗ
     const assignedStudentIds = this.seats
       .flat()
-      .filter(s => !s.isEmpty && s.studentId &&
-              !(s.row === seat.row && s.column === seat.column)) // Loại trừ vị trí hiện tại
+      .filter(s => !s.isEmpty && s.studentId)
       .map(s => s.studentId);
 
-    // Trả về danh sách học sinh chưa có chỗ
-    return this.allStudents.filter(
-      student => !assignedStudentIds.includes(student.id)
-    );
+    // Duyệt qua từng vị trí và tạo cache
+    this.seats.forEach(rowSeats => {
+      rowSeats.forEach(seat => {
+        const key = `${seat.row}-${seat.column}`;
+
+        // Lọc học sinh: chưa có chỗ HOẶC đang ngồi ở vị trí này
+        const availableForSeat = this.allStudents.filter(student =>
+          !assignedStudentIds.includes(student.id) || student.id === seat.studentId
+        );
+
+        this.availableStudentsMap.set(key, availableForSeat);
+      });
+    });
+  }
+
+  // Lấy danh sách học sinh có thể chọn cho một vị trí cụ thể (đã được cache)
+  getAvailableStudentsForSeat(seat: SeatPosition): any[] {
+    const key = `${seat.row}-${seat.column}`;
+    return this.availableStudentsMap.get(key) || [];
   }
 
   loadLayout() {
@@ -212,6 +232,9 @@ export class ClassLayoutC2Component implements OnInit {
       seat.studentName = undefined;
       seat.studentCode = undefined;
       seat.isEmpty = true;
+
+      // Cập nhật lại cache để các select box khác có thể chọn học sinh này
+      this.rebuildAvailableStudentsCache();
       return;
     }
 
@@ -225,7 +248,8 @@ export class ClassLayoutC2Component implements OnInit {
     seat.studentCode = student.code;
     seat.isEmpty = false;
 
-    this.notificationService.showNotification(Constant.SUCCESS, 'Đã cập nhật học sinh');
+    // Cập nhật lại cache để các select box khác không thể chọn học sinh này
+    this.rebuildAvailableStudentsCache();
   }
 
   // Edit seat
@@ -270,14 +294,16 @@ export class ClassLayoutC2Component implements OnInit {
   // Remove student from seat
   removeSeat(event: Event, seat: SeatPosition) {
     event.stopPropagation();
-    
+
     seat.studentId = undefined;
     seat.studentName = undefined;
     seat.studentCode = undefined;
     seat.teamNumber = undefined;
     seat.isEmpty = true;
-    
-    this.updateAvailableStudents();
+
+    // Cập nhật lại cache
+    this.rebuildAvailableStudentsCache();
+
     this.notificationService.showNotification(Constant.SUCCESS,'Đã xóa học sinh khỏi vị trí');
   }
 

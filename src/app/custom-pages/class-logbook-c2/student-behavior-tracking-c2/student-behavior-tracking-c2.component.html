@@ -75,15 +75,6 @@
       fixedPosition="left"
     ></dxi-column>
 
-    <dxi-column
-      caption="Sửa"
-      [width]="80"
-      alignment="center"
-      cellTemplate="editTemplate"
-      [allowFiltering]="false"
-      [allowSorting]="false"
-      fixedPosition="left"
-    ></dxi-column>
 
     <dxi-column
       dataField="studentCode"
@@ -108,9 +99,19 @@
     <dxi-column
       dataField="trackingDate"
       caption="Ngày tháng"
-      [width]="120"
+      [width]="220"
       alignment="center"
       cellTemplate="trackingDateTemplate"
+    ></dxi-column>
+    
+    <dxi-column
+      caption="Sửa"
+      [width]="80"
+      alignment="center"
+      cellTemplate="editTemplate"
+      [allowFiltering]="false"
+      [allowSorting]="false"
+      fixedPosition="left"
     ></dxi-column>
 
     <!-- Cell Templates -->

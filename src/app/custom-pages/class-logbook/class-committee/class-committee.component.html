@@ -118,10 +118,13 @@
     [allowColumnResizing]="true"
     [repaintChangesOnly]="true"
     (onExporting)="onExporting($event)"
+    (onEditingStart)="onEditingStart($event)"
     (onRowUpdating)="onRowUpdating($event)"
     (onRowInserting)="onRowInserting($event)"
     (onRowRemoving)="onRowRemoving($event)"
     (onSelectionChanged)="onSelectionChanged($event)"
+    (onSaving)="onSaving($event)"
+    (onSaved)="onSaved($event)"
     keyExpr="id"
   >
     <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
@@ -202,8 +205,9 @@
           }"
         ></dxi-item>
         
-        <dxi-item 
-          dataField="electionRound" 
+        <dxi-item
+          dataField="electionRound"
+          [isRequired]="true"
           editorType="dxNumberBox"
           [label]="{ text: 'Lần bầu cử' }"
           [editorOptions]="{
@@ -358,17 +362,24 @@
       cellTemplate="cellPosition"
     ></dxi-column>
     
-    <dxi-column 
-      dataField="teamNumber" 
-      caption="Tổ" 
+    <dxi-column
+      dataField="teamNumber"
+      caption="Tổ"
       [width]="120"
       alignment="center"
       cellTemplate="cellTeam"
     ></dxi-column>
 
-    <dxi-column 
-      dataField="isActive" 
-      caption="Trạng thái" 
+    <dxi-column
+      dataField="electionRound"
+      caption="Lần BC"
+      [width]="100"
+      alignment="center"
+    ></dxi-column>
+
+    <dxi-column
+      dataField="isActive"
+      caption="Trạng thái"
       [width]="120"
       alignment="center"
       cellTemplate="cellStatus"

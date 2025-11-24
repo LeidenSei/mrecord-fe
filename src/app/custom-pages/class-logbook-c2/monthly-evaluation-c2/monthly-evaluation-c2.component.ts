@@ -53,10 +53,10 @@ export class MonthlyEvaluationC2Component implements OnInit, OnDestroy {
 
   // Evaluation options
   evaluationSource = [
-    { id: 'Đ', name: 'Đ - Đạt' },
-    { id: 'CĐ', name: 'CĐ - Chưa đạt' },
-    { id: 'T', name: 'T - Tốt' },
-    { id: 'K', name: 'K - Khá' }
+    { id: 'Đ', name: 'Đ ' },
+    { id: 'CĐ', name: 'CĐ' },
+    { id: 'T', name: 'T' },
+    { id: 'K', name: 'K' }
   ];
 
   // User info
@@ -231,8 +231,19 @@ export class MonthlyEvaluationC2Component implements OnInit, OnDestroy {
     this.datas = Array.from(dataMap.values());
   }
 
-  onSave(): void {
-    if (!this.datas || this.datas.length === 0) {
+  async onSave(): Promise<void> {
+    if (!this.dataGrid) {
+      notify('Không tìm thấy grid', 'error', 2000);
+      return;
+    }
+
+    // Save any pending changes in the grid and wait for completion
+    await this.dataGrid.instance.saveEditData();
+
+    // Get data from grid instance (this includes all edits)
+    const gridData = this.dataGrid.instance.getDataSource().items() as MonthlyEvaluationRow[];
+
+    if (!gridData || gridData.length === 0) {
       notify('Không có dữ liệu để lưu', 'warning', 2000);
       return;
     }
@@ -240,8 +251,8 @@ export class MonthlyEvaluationC2Component implements OnInit, OnDestroy {
     this.isSaving = true;
 
     // Prepare data for bulk update - split by term
-    const dataToSaveTerm1 = this.datas.map(row => ({
-      id: row['idTerm1'],
+    const dataToSaveTerm1 = gridData.map(row => ({
+      id: row.idTerm1,
       studentId: row.studentId,
       bgdCode: row.bgdCode,
       classId: row.classId,
@@ -260,8 +271,8 @@ export class MonthlyEvaluationC2Component implements OnInit, OnDestroy {
       month5: null
     }));
 
-    const dataToSaveTerm2 = this.datas.map(row => ({
-      id: row['idTerm2'],
+    const dataToSaveTerm2 = gridData.map(row => ({
+      id: row.idTerm2,
       studentId: row.studentId,
       bgdCode: row.bgdCode,
       classId: row.classId,

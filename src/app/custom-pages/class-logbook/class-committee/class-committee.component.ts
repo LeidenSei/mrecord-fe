@@ -347,9 +347,12 @@ export class ClassCommitteeComponent implements OnInit {
     this.committeeCount = 0;
   }
 
+  onEditingStart(event: any): void {
+  }
+
   onRowUpdating(event: any): void {
     const updatedData = { ...event.oldData, ...event.newData };
-    
+
     const request: UpdateCommitteeRequest = {
       id: event.key,
       positionId: updatedData.positionId,
@@ -374,6 +377,12 @@ export class ClassCommitteeComponent implements OnInit {
         event.cancel = true;
       }
     });
+  }
+
+  onSaved(event: any): void {
+  }
+
+  onSaving(event: any): void {
   }
 
   openAddModal(): void {

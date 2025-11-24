@@ -3,7 +3,6 @@ import { DxDataGridComponent } from 'devextreme-angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import notify from 'devextreme/ui/notify';
-import { confirm } from 'devextreme/ui/dialog';
 import { AuthService } from 'src/app/services';
 import { GeneralService } from 'src/app/services/general.service';
 import { ClassCommentService } from 'src/app/services/class-comment.service';
@@ -73,15 +72,6 @@ export class PrincipalCommentsC2Component implements OnInit, OnDestroy {
   currentSchoolYear: number = new Date().getFullYear();
 
   isLoading = false;
-  popupVisible = false;
-  isEditMode = false;
-  isSaving = false;
-
-  formData: any = {
-    classId: null,
-    ngayGhi: new Date(),
-    noiDung: ''
-  };
 
   private destroy$ = new Subject<void>();
 
@@ -220,133 +210,97 @@ export class PrincipalCommentsC2Component implements OnInit, OnDestroy {
     this.loadData();
   }
 
-  onAdd(): void {
-    this.isEditMode = false;
-    this.formData = {
-      classId: this.filterClassId,
-      ngayGhi: new Date(),
-      noiDung: ''
-    };
-    this.popupVisible = true;
+  onInitNewRow(e: any): void {
+    // Set default values for new row
+    e.data.classId = this.filterClassId;
+    e.data.ngayGhi = new Date();
+    e.data.noiDung = '';
   }
 
-  onEdit(e: any): void {
-    const data = e.row.data;
-    this.isEditMode = true;
-    this.formData = {
-      id: data.id,
-      classId: data.classId,
-      ngayGhi: data.dateCreated ? new Date(data.dateCreated) : new Date(),
-      noiDung: data.noiDung || '',
-      dateCreated: data.dateCreated
-    };
-    this.popupVisible = true;
-  }
-
-  onDelete(e: any): void {
-    const data = e.row.data;
-
-    const result = confirm(
-      'Bạn có chắc chắn muốn xóa nhận xét này?',
-      'Xác nhận xóa'
-    );
-
-    result.then((dialogResult) => {
-      if (dialogResult) {
-        this.classCommentService.delete(data.id)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: () => {
-              notify('Xóa ghi chú thành công', 'success', 2000);
-              this.loadData();
-            },
-            error: (error) => {
-              console.error('Error deleting:', error);
-              notify('Có lỗi khi xóa ghi chú', 'error', 3000);
-            }
-          });
-      }
-    });
-  }
-
-  onSave(): void {
-    // Validate
-    if (!this.formData.classId) {
-      notify('Vui lòng chọn lớp', 'error', 2000);
-      return;
-    }
-
-    if (!this.formData.ngayGhi) {
-      notify('Vui lòng chọn thời gian kiểm tra', 'error', 2000);
-      return;
-    }
-
-    if (!this.formData.noiDung || this.formData.noiDung.trim() === '') {
-      notify('Vui lòng nhập nội dung nhận xét', 'error', 2000);
-      return;
-    }
-
-    this.isSaving = true;
-
+  onRowInserting(e: any): void {
+    // Create payload for insert
     const payload = {
-      ClassId: this.formData.classId,
+      ClassId: e.data.classId,
       MA_NAM_HOC: this.currentSchoolYear,
       HOC_KY: 1, // Default semester
-      NGAY_GHI: this.formData.ngayGhi,
+      NGAY_GHI: e.data.ngayGhi,
       TIEU_DE: 'Nhận xét của BGH',
-      NOI_DUNG: this.formData.noiDung,
+      NOI_DUNG: e.data.noiDung,
       LOAI: 'comment'
     };
 
-    if (this.isEditMode) {
-      // Update
-      const updatePayload = {
-        ...payload,
-        DateCreated: this.formData.dateCreated
-      };
-
-      this.classCommentService.update(updatePayload)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            notify('Cập nhật nhận xét thành công', 'success', 2000);
-            this.popupVisible = false;
-            this.isSaving = false;
-            this.loadData();
-          },
-          error: (error) => {
-            console.error('Error updating:', error);
-            notify('Có lỗi khi cập nhật nhận xét', 'error', 3000);
-            this.isSaving = false;
-          }
-        });
-    } else {
-      // Create
+    // Cancel the default insert operation
+    e.cancel = new Promise<void>((resolve, reject) => {
       this.classCommentService.create(payload)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
             notify('Thêm nhận xét thành công', 'success', 2000);
-            this.popupVisible = false;
-            this.isSaving = false;
             this.loadData();
+            resolve();
           },
           error: (error) => {
             console.error('Error creating:', error);
             notify('Có lỗi khi thêm nhận xét', 'error', 3000);
-            this.isSaving = false;
+            reject(error);
           }
         });
-    }
+    });
   }
 
-  onCancel(): void {
-    this.popupVisible = false;
-    this.formData = {
-      classId: null,
-      ngayGhi: new Date(),
-      noiDung: ''
+  onRowUpdating(e: any): void {
+    // Merge old and new data
+    const updatedData = { ...e.oldData, ...e.newData };
+
+    // Create payload for update
+    const payload = {
+      ClassId: updatedData.classId,
+      MA_NAM_HOC: this.currentSchoolYear,
+      HOC_KY: 1,
+      NGAY_GHI: updatedData.ngayGhi,
+      TIEU_DE: 'Nhận xét của BGH',
+      NOI_DUNG: updatedData.noiDung,
+      LOAI: 'comment',
+      DateCreated: updatedData.dateCreated
     };
+
+    // Cancel the default update operation
+    e.cancel = new Promise<void>((resolve, reject) => {
+      this.classCommentService.update(payload)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            notify('Cập nhật nhận xét thành công', 'success', 2000);
+            this.loadData();
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error updating:', error);
+            notify('Có lỗi khi cập nhật nhận xét', 'error', 3000);
+            reject(error);
+          }
+        });
+    });
+  }
+
+  onRowRemoving(e: any): void {
+    // Cancel the default delete operation
+    e.cancel = new Promise<void>((resolve, reject) => {
+      this.classCommentService.delete(e.data.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            notify('Xóa nhận xét thành công', 'success', 2000);
+            this.loadData();
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error deleting:', error);
+            notify('Có lỗi khi xóa nhận xét', 'error', 3000);
+            reject(error);
+          }
+        });
+    });
   }
 
   customizePriorityText(cellInfo: any): string {
