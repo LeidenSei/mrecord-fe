@@ -1,5 +1,5 @@
 <div style="padding: 20px; height: 90vh; display: flex; flex-direction: column;">
-    <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">Quy định và tiêu chuẩn</h5>
         <dx-button
             text="Lưu"
@@ -8,6 +8,33 @@
             (onClick)="save()"
             stylingMode="contained">
         </dx-button>
+    </div>
+
+    <!-- Class Filter -->
+    <div class="d-flex gap-2 mb-3">
+        <dx-select-box
+            [dataSource]="gradeSource"
+            [(value)]="filterGrade"
+            (onValueChanged)="gradeChange($event)"
+            [width]="150"
+            placeholder="Chọn khối"
+            [showClearButton]="false">
+        </dx-select-box>
+
+        <dx-select-box
+            [dataSource]="filterClassSource"
+            [(value)]="filterClassId"
+            (onValueChanged)="classChange($event)"
+            displayExpr="name"
+            valueExpr="id"
+            [width]="200"
+            placeholder="Chọn lớp"
+            [showClearButton]="false">
+        </dx-select-box>
+
+        <div *ngIf="currentClassName" class="align-self-center ms-2">
+            <strong>Lớp: {{ currentClassName }}</strong>
+        </div>
     </div>
 
     <ul class="nav nav-tabs">
@@ -22,7 +49,7 @@
             <a class="nav-link"
             [class.active]="activeTab==='criteria'"
             (click)="switch('criteria')">
-            Chuẩn đánh giá lớp tiên tiến
+            Tiêu chuẩn đánh giá lớp tiên tiến
             </a>
         </li>
     </ul>

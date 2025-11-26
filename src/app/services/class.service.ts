@@ -162,4 +162,42 @@ export class ClassService extends BaseService {
       PeriodCount: periodCount
     });
   }
+
+  /**
+   * Lấy quy định và tiêu chuẩn của lớp
+   * @param classId Class Id
+   */
+  getClassRulesAndCriteria(classId: string): Observable<any> {
+    return this.get('/Class/GetClassRulesAndCriteria', { ClassId: classId });
+  }
+
+  /**
+   * Lưu quy định và tiêu chuẩn của lớp
+   * @param classId Class Id
+   * @param rules Quy định về phong cách học sinh
+   * @param criteria Các tiêu chuẩn đánh giá (1-7)
+   */
+  saveClassRulesAndCriteria(
+    classId: string,
+    rules: string,
+    criteria1: string,
+    criteria2: string,
+    criteria3: string,
+    criteria4: string,
+    criteria5: string,
+    criteria6: string,
+    criteria7: string
+  ): Observable<any> {
+    return this.post('/Class/SaveClassRulesAndCriteria', {
+      ClassId: classId,
+      StudentBehaviorRules: rules,
+      ClassExcellenceCriteria1: criteria1,
+      ClassExcellenceCriteria2: criteria2,
+      ClassExcellenceCriteria3: criteria3,
+      ClassExcellenceCriteria4: criteria4,
+      ClassExcellenceCriteria5: criteria5,
+      ClassExcellenceCriteria6: criteria6,
+      ClassExcellenceCriteria7: criteria7
+    });
+  }
 }
