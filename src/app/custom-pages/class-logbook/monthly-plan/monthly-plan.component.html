@@ -201,17 +201,14 @@
               </dxo-form>
             </dxo-editing>
 
-            <!-- <dxo-toolbar>
-              <dxi-item name="addRowButton"></dxi-item>
-              <dxi-item name="exportButton"></dxi-item>
-            </dxo-toolbar> -->
+            <dxo-toolbar [visible]="false"></dxo-toolbar>
 
             <dxi-column dataField="stt" caption="STT" [width]="60" alignment="center" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="timeFrom" caption="Từ" dataType="date" format="dd/MM/yyyy" [width]="110"></dxi-column>
             <dxi-column dataField="timeTo" caption="Đến" dataType="date" format="dd/MM/yyyy" [width]="110"></dxi-column>
             <dxi-column dataField="content" caption="Nội dung" cellTemplate="contentTemplate"></dxi-column>
             <dxi-column dataField="evaluation" caption="Đánh giá" cellTemplate="evaluationTemplate" [width]="200"></dxi-column>
-            <dxi-column type="buttons" [width]="80" [fixed]="true" fixedPosition="right">
+            <dxi-column type="buttons" [width]="80" [fixed]="true" fixedPosition="right" headerCellTemplate="headerButtonTemplate">
               <dxi-button name="edit"></dxi-button>
               <dxi-button name="delete"></dxi-button>
             </dxi-column>
@@ -220,6 +217,13 @@
             </div>
             <div *dxTemplate="let data of 'evaluationTemplate'">
               <div class="content-cell preserve-format">{{ data.value }}</div>
+            </div>
+            <div *dxTemplate="let header of 'headerButtonTemplate'">
+              <dx-button
+                icon="add"
+                hint="Thêm mới"
+                (onClick)="planGrid.instance.addRow()">
+              </dx-button>
             </div>
           </dx-data-grid>
         </div>
@@ -300,21 +304,25 @@
                 </dxi-item>
               </dxo-form>
             </dxo-editing>
-            
-            <dxo-toolbar>
-              <dxi-item name="addRowButton"></dxi-item>
-              <dxi-item name="exportButton"></dxi-item>
-            </dxo-toolbar>
+
+            <dxo-toolbar [visible]="false"></dxo-toolbar>
 
             <dxi-column dataField="stt" caption="STT" [width]="60" alignment="center" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="date" caption="Thời gian" dataType="date" format="dd/MM/yyyy" [width]="120"></dxi-column>
             <dxi-column dataField="content" caption="Nội dung nhật kí" cellTemplate="journalContentTemplate"></dxi-column>
-            <dxi-column type="buttons" [width]="110" [fixed]="true" fixedPosition="right">
+            <dxi-column type="buttons" [width]="110" [fixed]="true" fixedPosition="right" headerCellTemplate="journalHeaderButtonTemplate">
               <dxi-button name="edit"></dxi-button>
               <dxi-button name="delete"></dxi-button>
             </dxi-column>
             <div *dxTemplate="let data of 'journalContentTemplate'">
               <div class="content-cell preserve-format">{{ data.value }}</div>
+            </div>
+            <div *dxTemplate="let header of 'journalHeaderButtonTemplate'">
+              <dx-button
+                icon="add"
+                hint="Thêm mới"
+                (onClick)="journalGrid.instance.addRow()">
+              </dx-button>
             </div>
           </dx-data-grid>
         </div>

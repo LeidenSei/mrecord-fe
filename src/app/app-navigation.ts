@@ -207,6 +207,7 @@ export const navigationTeacherHomeroom = [
     icon: 'chart',
     path: '/grade-book',
     selected: false,
+    grade: 'c2',
     items: [
       {
         text: 'Sổ điểm bộ môn',
@@ -331,6 +332,7 @@ export const navigationTeacher = [
     icon: 'chart',
     path: '/grade-book',
     selected: false,
+    grade: 'c2',
     items: [
       {
         text: 'Sổ điểm bộ môn',
@@ -579,6 +581,7 @@ export const navigationAdmin = [
     icon: 'chart',
     path: '/grade-book',
     selected: false,
+    grade: 'c2',
     items: [
       {
         text: 'Sổ điểm bộ môn',

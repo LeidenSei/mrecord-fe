@@ -1,9 +1,10 @@
 .view-wrapper.assessment-page {
-  padding: 20px; 
-  height: 90vh; 
+  padding: 20px;
+  min-height: 100vh;
+  height: 100%;
   max-width: 100%;
-  overflow-y: auto; 
-  overflow-x: hidden;
+  overflow: auto;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 

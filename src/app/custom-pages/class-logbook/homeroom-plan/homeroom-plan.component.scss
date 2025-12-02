@@ -6,14 +6,12 @@
 }
 
 .view-wrapper {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  min-height: 100vh;
+  height: 100%;
   padding: 24px;
   background: #f5f7fa;
-  overflow-y: auto;
+  overflow: auto;
+  box-sizing: border-box;
 
   .page-header {
     display: flex;
@@ -535,6 +533,22 @@
     border-radius: 20px;
     font-size: 13px;
     font-weight: 500;
+  }
+
+  ::ng-deep {
+    .dx-popup-wrapper {
+      .dx-popup-content {
+        max-height: calc(85vh - 120px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+      }
+
+      .dx-overlay-content {
+        max-height: 90vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+    }
   }
 
   ::ng-deep .dx-popup-content {
