@@ -20,7 +20,6 @@ export enum LoaiNguoiThamDu {
   Khac = 99
 }
 
-// Interfaces
 export interface NguoiThamDu {
   accountId: string;
   hoTen: string;

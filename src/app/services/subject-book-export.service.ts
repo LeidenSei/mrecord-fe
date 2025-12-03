@@ -7,9 +7,22 @@ export interface StudentInfo {
   maHocSinh: string;
   hoTen: string;
   ngaySinh: string;
+
+  // Điểm số từ MarkResponse
+  score151?: any;
+  score152?: any;
+  score153?: any;
+  score154?: any;
+  score155?: any;
+  score4510?: any;       // Điểm giữa kỳ
+  finalExamScore?: any;  // Điểm cuối kỳ
+  averageTerm1?: any;    // TB kỳ 1
+  averageTerm2?: any;    // TB kỳ 2
+  averageYear?: any;     // TB cả năm
 }
 
 export interface ClassData {
+  classId: string;
   tenLop: string;
   students: StudentInfo[];
 }
@@ -28,6 +41,104 @@ export interface TeacherInfo {
   providedIn: 'root'
 })
 export class SubjectBookExportFullService {
+
+  /**
+   * Format điểm số để hiển thị trong Excel
+   * - null/undefined -> để trống
+   * - 1 -> "Đ" (Đạt)
+   * - 0 -> "KD" (Không đạt)
+   * - Số khác -> hiển thị số
+   */
+  private formatScore(score: any): string | number {
+    if (score === null || score === undefined || score === '') {
+      return '';
+    }
+
+    // Parse thành số
+    let numValue: number;
+
+    if (typeof score === 'number') {
+      numValue = score;
+    } else if (typeof score === 'string') {
+      const parsed = parseFloat(score);
+      if (!isNaN(parsed)) {
+        numValue = parsed;
+      } else {
+        // Các trường hợp khác (VD: "Đạt", "Chưa đạt") -> trả về string
+        return score;
+      }
+    } else {
+      return score;
+    }
+
+    // Xử lý điểm 1/0 -> Đ/KD
+    if (numValue === 1) {
+      return 'Đ';
+    } else if (numValue === 0) {
+      return 'KD';
+    }
+
+    // Số khác -> hiển thị số bình thường
+    return numValue;
+  }
+
+  /**
+   * Tính thống kê đạt/chưa đạt
+   * @param classData - Dữ liệu lớp
+   * @param term - Học kỳ (1 hoặc 2)
+   */
+  private calculatePassFailStats(classData: ClassData, term: number): {
+    soHocSinhDat: number;
+    soHocSinhChuaDat: number;
+    tyLeDat: string;
+    tyLeChuaDat: string;
+  } {
+    let soHocSinhDat = 0;
+    let soHocSinhChuaDat = 0;
+
+    classData.students.forEach(student => {
+      // Lấy điểm TB theo học kỳ
+      const avgScore = term === 1 ? student.averageTerm1 : student.averageTerm2;
+
+      // Parse điểm
+      let score: number | null = null;
+      if (typeof avgScore === 'number') {
+        score = avgScore;
+      } else if (avgScore !== null && avgScore !== undefined && avgScore !== '') {
+        const parsed = parseFloat(avgScore);
+        if (!isNaN(parsed)) {
+          score = parsed;
+        }
+      }
+
+      // Nếu không có điểm -> bỏ qua
+      if (score === null) {
+        return;
+      }
+
+      // Tiêu chí đạt:
+      // - Điểm = 1 -> Đạt
+      // - Điểm = 0 -> Không đạt
+      // - Điểm >= 5.0 -> Đạt
+      // - Điểm < 5.0 và > 0 -> Không đạt
+      if (score === 1 || score >= 5.0) {
+        soHocSinhDat++;
+      } else if (score === 0 || (score > 0 && score < 5.0)) {
+        soHocSinhChuaDat++;
+      }
+    });
+
+    const tongSo = classData.students.length;
+    const tyLeDat = tongSo > 0 ? ((soHocSinhDat / tongSo) * 100).toFixed(1) : '0.0';
+    const tyLeChuaDat = tongSo > 0 ? ((soHocSinhChuaDat / tongSo) * 100).toFixed(1) : '0.0';
+
+    return {
+      soHocSinhDat,
+      soHocSinhChuaDat,
+      tyLeDat,
+      tyLeChuaDat
+    };
+  }
 
   async exportCompleteBook(teacherInfo: TeacherInfo, classes: ClassData[]): Promise<void> {
     const workbook = new ExcelJS.Workbook();
@@ -600,25 +711,38 @@ export class SubjectBookExportFullService {
       };
     });
 
-    // Thêm học sinh (CÁC CỘT ĐIỂM ĐỂ TRỐNG)
+    // Thêm học sinh và ĐIỀN ĐIỂM
     classData.students.forEach((student, index) => {
       const rowNumber = index + 4;
       const row = ws.getRow(rowNumber);
 
+      // Thông tin học sinh
       row.getCell(1).value = student.stt;
       row.getCell(2).value = student.maHocSinh;
       row.getCell(3).value = student.hoTen;
       row.getCell(4).value = student.ngaySinh;
 
-      // Các cột 5-11 để trống cho điểm
+      // ⭐ ĐIỀN ĐIỂM TX (cột E-H: 5-8)
+      row.getCell(5).value = this.formatScore(student.score151);
+      row.getCell(6).value = this.formatScore(student.score152);
+      row.getCell(7).value = this.formatScore(student.score153);
+      row.getCell(8).value = this.formatScore(student.score154);
+
+      // ⭐ ĐIỂM GK, CK, TB (cột I-K: 9-11)
+      row.getCell(9).value = this.formatScore(student.score4510);     // Giữa kỳ
+      row.getCell(10).value = this.formatScore(student.finalExamScore); // Cuối kỳ
+
+      // Tính điểm TB tùy theo học kỳ
+      const avgScore = info.hocKy === 'HỌC KỲ I' ? student.averageTerm1 : student.averageTerm2;
+      row.getCell(11).value = this.formatScore(avgScore);
 
       // Style
       for (let col = 1; col <= 11; col++) {
         const cell = row.getCell(col);
         cell.font = { name: 'Times New Roman', size: 11 };
-        cell.alignment = { 
-          horizontal: col === 1 || col >= 5 ? 'center' : 'left', 
-          vertical: 'middle' 
+        cell.alignment = {
+          horizontal: col === 1 || col >= 5 ? 'center' : 'left',
+          vertical: 'middle'
         };
         cell.border = {
           top: { style: 'thin' }, left: { style: 'thin' },
@@ -627,9 +751,12 @@ export class SubjectBookExportFullService {
       }
     });
 
+    // ⭐ TÍNH THỐNG KÊ ĐẠT/CHƯA ĐẠT
+    const stats = this.calculatePassFailStats(classData, info.hocKy === 'HỌC KỲ I' ? 1 : 2);
+
     // Dòng tổng kết - "Số học sinh đạt ( Số học sinh - tỷ lệ %)"
     const summaryRow = classData.students.length + 4;
-    
+
     // Merge A{summaryRow}:C{summaryRow+1}
     ws.mergeCells(`A${summaryRow}:C${summaryRow + 1}`);
     ws.getCell(`A${summaryRow}`).value = 'Số học sinh đạt \n( Số học sinh - tỷ lệ %)';
@@ -651,11 +778,11 @@ export class SubjectBookExportFullService {
     ws.getCell(`D${summaryRow}`).font = { name: 'Times New Roman', size: 11 };
     ws.getCell(`D${summaryRow}`).alignment = { horizontal: 'left', vertical: 'middle' };
 
-    ws.getCell(`F${summaryRow}`).value = 'SL: 0';
+    ws.getCell(`F${summaryRow}`).value = `SL: ${stats.soHocSinhDat}`;
     ws.getCell(`F${summaryRow}`).font = { name: 'Times New Roman', size: 11 };
     ws.getCell(`F${summaryRow}`).alignment = { horizontal: 'left', vertical: 'middle' };
 
-    ws.getCell(`I${summaryRow}`).value = 'TL: 0%';
+    ws.getCell(`I${summaryRow}`).value = `TL: ${stats.tyLeDat}%`;
     ws.getCell(`I${summaryRow}`).font = { name: 'Times New Roman', size: 11 };
     ws.getCell(`I${summaryRow}`).alignment = { horizontal: 'left', vertical: 'middle' };
 
@@ -664,11 +791,11 @@ export class SubjectBookExportFullService {
     ws.getCell(`D${summaryRow + 1}`).font = { name: 'Times New Roman', size: 11 };
     ws.getCell(`D${summaryRow + 1}`).alignment = { horizontal: 'left', vertical: 'middle' };
 
-    ws.getCell(`F${summaryRow + 1}`).value = 'SL: 0';
+    ws.getCell(`F${summaryRow + 1}`).value = `SL: ${stats.soHocSinhChuaDat}`;
     ws.getCell(`F${summaryRow + 1}`).font = { name: 'Times New Roman', size: 11 };
     ws.getCell(`F${summaryRow + 1}`).alignment = { horizontal: 'left', vertical: 'middle' };
 
-    ws.getCell(`I${summaryRow + 1}`).value = 'TL: 0%';
+    ws.getCell(`I${summaryRow + 1}`).value = `TL: ${stats.tyLeChuaDat}%`;
     ws.getCell(`I${summaryRow + 1}`).font = { name: 'Times New Roman', size: 11 };
     ws.getCell(`I${summaryRow + 1}`).alignment = { horizontal: 'left', vertical: 'middle' };
 

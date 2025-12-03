@@ -16,7 +16,6 @@ import { takeUntil } from 'rxjs/operators';
 export class MonthlyPlanComponent implements OnInit, OnDestroy {
   @ViewChild('planGrid', { static: false }) planGrid: DxDataGridComponent;
   @ViewChild('journalGrid', { static: false }) journalGrid: DxDataGridComponent;
-  splitSizes: number[] = [50, 50];
   monthlyPlanData: KeHoachItem[] = [];
   teacherJournalData: NhatKyItem[] = [];
   planCount = 0;
@@ -127,20 +126,7 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.loadSplitSizes();
     await this.initializeData();
-  }
-
-  private loadSplitSizes(): void {
-    const savedSizes = localStorage.getItem('monthly-plan-split-sizes');
-    if (savedSizes) {
-      try {
-        this.splitSizes = JSON.parse(savedSizes);
-      } catch (error) {
-        console.error('Error loading split sizes:', error);
-        this.splitSizes = [50, 50];
-      }
-    }
   }
 
   ngOnDestroy() {
@@ -313,17 +299,6 @@ export class MonthlyPlanComponent implements OnInit, OnDestroy {
           this.isSaving = false;
         }
       });
-  }
-
-  onSplitDragEnd(event: any): void {
-    if (event && event.sizes) {
-      this.splitSizes = event.sizes;
-      localStorage.setItem('monthly-plan-split-sizes', JSON.stringify(event.sizes));
-    }
-    setTimeout(() => {
-      this.planGrid?.instance?.updateDimensions();
-      this.journalGrid?.instance?.updateDimensions();
-    }, 100);
   }
 
   gradeChange($event: any) {

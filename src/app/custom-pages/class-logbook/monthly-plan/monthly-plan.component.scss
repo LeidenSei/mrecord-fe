@@ -2,82 +2,22 @@
 
 :host {
   width: 100%;
-  display: contents;
+  display: block;
+  height: 100%;
 }
 
 .view-wrapper {
-  min-height: 100vh;
+  width: 100%;
   height: 100%;
   padding: 20px;
-  overflow: auto;
+  overflow-y: auto;
   box-sizing: border-box;
 
   &.monthly-plan-page {
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-}
-
-.main-splitter {
-  flex: 1;
-  min-height: 600px;
-  height: calc(100vh - 280px);
-  border-radius: 8px;
-  overflow: hidden;
-
-  ::ng-deep {
-    as-split {
-      height: 100%;
-      display: flex;
-    }
-
-    as-split-area {
-      overflow: hidden;
-      display: flex !important;
-      flex-direction: column !important;
-
-      > .as-split-area-content {
-        height: 100%;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-    }
-
-    .as-split-gutter {
-      background: #dee2e6;
-      cursor: col-resize;
-      position: relative;
-
-      &:hover {
-        background: #0d6efd;
-      }
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 4px;
-        height: 40px;
-        background: repeating-linear-gradient(
-          to bottom,
-          #999 0px, #999 4px,
-          transparent 4px, transparent 8px
-        );
-        border-radius: 2px;
-      }
-
-      &:hover::before {
-        background: repeating-linear-gradient(
-          to bottom,
-          #fff 0px, #fff 4px,
-          transparent 4px, transparent 8px
-        );
-      }
-    }
+    padding-bottom: 40px;
   }
 }
 
@@ -93,6 +33,21 @@
 
     .dx-row:hover {
       background: rgba(13, 110, 253, 0.05);
+    }
+
+    // Force horizontal scrollbar to show
+    .dx-datagrid-rowsview {
+      overflow-x: auto !important;
+      overflow-y: auto !important;
+    }
+
+    .dx-scrollable-scrollbar.dx-scrollbar-horizontal {
+      display: block !important;
+      height: 10px !important;
+    }
+
+    .dx-scrollable-scroll {
+      visibility: visible !important;
     }
   }
 
@@ -302,7 +257,10 @@
   .content-cell.preserve-format {
     white-space: pre-wrap;
     word-wrap: break-word;
+    word-break: break-word;
     line-height: 1.6;
-    padding: 4px 0;
+    padding: 8px 4px;
+    min-height: 20px;
+    overflow-wrap: break-word;
   }
 }

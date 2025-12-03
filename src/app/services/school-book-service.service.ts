@@ -88,6 +88,7 @@ export interface ClassBookExportData {
 // ==================== SUBJECTBOOK INTERFACES ====================
 
 export interface ClassData {
+  classId: string;      // ⭐ THÊM classId để gọi API điểm
   tenLop: string;
   students: StudentInfo[];
 }
@@ -95,6 +96,39 @@ export interface ClassData {
 export interface SubjectBookExportData {
   teacherInfo: TeacherInfo;
   classes: ClassData[];
+}
+
+// ==================== MARK INTERFACES ====================
+
+export interface MarkRequest {
+  classId: string;
+  term: number;
+  subjectId: string;
+}
+
+export interface MarkResponse {
+  studentIndex: number;
+  studentCode: string;
+  studentName: string;
+  studentDob: string;
+  schoolCode: string;
+  term: number;
+  subjectCode: string;
+  classId: string;
+  score151?: any;
+  score152?: any;
+  score153?: any;
+  score154?: any;
+  score155?: any;
+  score4510?: any;
+  finalExamScore?: any;
+  averageTerm1?: any;
+  averageTerm2?: any;
+  averageYear?: any;
+  commentTerm1?: string;
+  commentTerm2?: string;
+  commentYear?: string;
+  schoolYear: number;
 }
 
 // ==================== SERVICE ====================
@@ -175,11 +209,11 @@ export class SchoolBookService extends BaseService {
     teacherId?: string
   ): Observable<SubjectBookExportData> {
     const params: any = { subjectId };
-    
+
     if (schoolYear) {
       params.schoolYear = schoolYear.toString();
     }
-    
+
     if (term) {
       params.term = term.toString();
     }
@@ -189,5 +223,19 @@ export class SchoolBookService extends BaseService {
     }
 
     return this.get('/SchoolBook/subject-book', params);
+  }
+
+  /**
+   * 📈 Lấy điểm số của học sinh trong lớp
+   * @param classId - ID lớp học
+   * @param term - Học kỳ (1 hoặc 2)
+   * @param subjectId - ID môn học
+   */
+  getListMarkByClass(classId: string, term: number, subjectId: string): Observable<MarkResponse[]> {
+    return this.post('/HighSchoolMark/GetListMarkByClass', {
+      classId,
+      term,
+      subjectId
+    });
   }
 }

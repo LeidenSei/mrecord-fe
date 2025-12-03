@@ -185,41 +185,102 @@ export class SubjectBookComponent implements OnInit {
   /**
    * Load dữ liệu từ API
    */
-  loadData(): void {
+  async loadData(): Promise<void> {
     if (!this.selectedSubjectId) {
       alert('Vui lòng chọn môn học!');
       return;
     }
 
     this.isLoading = true;
-    
-    // Nếu là admin và đã chọn giáo viên -> truyền teacherId
-    const teacherId = this.isAdmin && this.selectedTeacherId ? this.selectedTeacherId : undefined;
-    
-    this.schoolBookService.getSubjectBookData( // ← Đổi tên method
-      this.selectedSubjectId,
-      this.selectedSchoolYear,
-      this.selectedTerm,
-      teacherId
-    ).subscribe({
-      next: (data: SubjectBookExportData) => {
-        this.teacherInfo = data.teacherInfo;
-        this.classes = data.classes;
-        this.isLoading = false;
-        
-        console.log('Đã load dữ liệu thành công:', data);
-      },
-      error: (error) => {
-        console.error('Lỗi khi load dữ liệu:', error);
-        
-        // Xử lý lỗi 403
-        if (error.status === 403) {
-          alert('Bạn không có quyền xem sổ điểm của giáo viên này!');
-        } else {
-          alert('Không thể tải dữ liệu. Vui lòng thử lại!');
+
+    try {
+      // Nếu là admin và đã chọn giáo viên -> truyền teacherId
+      const teacherId = this.isAdmin && this.selectedTeacherId ? this.selectedTeacherId : undefined;
+
+      // 1. Load danh sách lớp và học sinh
+      const data = await this.schoolBookService.getSubjectBookData(
+        this.selectedSubjectId,
+        this.selectedSchoolYear,
+        this.selectedTerm,
+        teacherId
+      ).toPromise();
+
+      if (!data) {
+        throw new Error('Không có dữ liệu trả về');
+      }
+
+      this.teacherInfo = data.teacherInfo;
+      this.classes = data.classes;
+
+      console.log('Đã load dữ liệu lớp:', data);
+
+      // 2. Load điểm cho từng lớp
+      if (this.classes.length > 0) {
+        await this.loadMarksForAllClasses();
+      }
+
+      this.isLoading = false;
+      console.log('Hoàn thành load điểm cho tất cả lớp');
+
+    } catch (error: any) {
+      console.error('Lỗi khi load dữ liệu:', error);
+
+      // Xử lý lỗi 403
+      if (error.status === 403) {
+        alert('Bạn không có quyền xem sổ điểm của giáo viên này!');
+      } else {
+        alert('Không thể tải dữ liệu. Vui lòng thử lại!');
+      }
+
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Load điểm cho tất cả lớp
+   */
+  async loadMarksForAllClasses(): Promise<void> {
+    for (const classData of this.classes) {
+      try {
+        // Gọi API lấy điểm
+        const marks = await this.schoolBookService.getListMarkByClass(
+          classData.classId,
+          this.selectedTerm,
+          this.selectedSubjectId
+        ).toPromise();
+
+        if (marks && marks.length > 0) {
+          // Merge điểm vào danh sách học sinh
+          this.mergeMarksToStudents(classData, marks);
         }
-        
-        this.isLoading = false;
+
+        console.log(`Đã load điểm cho lớp ${classData.tenLop}:`, marks);
+      } catch (error) {
+        console.error(`Lỗi khi load điểm lớp ${classData.tenLop}:`, error);
+        // Tiếp tục load lớp khác nếu có lỗi
+      }
+    }
+  }
+
+  /**
+   * Merge điểm từ MarkResponse vào StudentInfo
+   */
+  mergeMarksToStudents(classData: ClassData, marks: any[]): void {
+    classData.students.forEach(student => {
+      // Tìm điểm của học sinh này theo mã học sinh
+      const mark = marks.find(m => m.studentCode === student.maHocSinh);
+
+      if (mark) {
+        student.score151 = mark.score151;
+        student.score152 = mark.score152;
+        student.score153 = mark.score153;
+        student.score154 = mark.score154;
+        student.score155 = mark.score155;
+        student.score4510 = mark.score4510;
+        student.finalExamScore = mark.finalExamScore;
+        student.averageTerm1 = mark.averageTerm1;
+        student.averageTerm2 = mark.averageTerm2;
+        student.averageYear = mark.averageYear;
       }
     });
   }
